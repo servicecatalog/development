@@ -25,12 +25,13 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.naming.CommunicationException;
 import javax.security.auth.login.LoginException;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.internal.intf.*;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
@@ -437,14 +438,6 @@ public class UserBean extends BaseBean implements Serializable {
                 }
             }
 
-            httpRequest = new HttpServletRequestWrapper(httpRequest) {
-                @Override
-                public void setCharacterEncoding(String ignore) {
-                    // avoid "Unable to set request character encoding to UTF-8"
-                    // messages in the glassfish logfile
-                }
-            };
-
             HttpSession session = getRequest().getSession();
             ServiceAccess serviceAccess = ServiceAccess
                     .getServiceAcccessFor(session);
@@ -514,10 +507,7 @@ public class UserBean extends BaseBean implements Serializable {
 
             // authenticate the user
             try {
-                httpRequest.getSession();
-                httpRequest.login(String.valueOf(voUser.getKey()), password);
-                // serviceAccess.login(voUser, password, httpRequest,
-                // getResponse());
+                serviceAccess.login(voUser, password, httpRequest, getResponse());
                 // get the service again because the credentials have been
                 // changed (important for WS usage)
                 service = serviceAccess.getService(IdentityService.class);
@@ -533,21 +523,21 @@ public class UserBean extends BaseBean implements Serializable {
                             service.getCurrentUserDetails());
                     throw new LoginToClosedMarketplaceException();
                 }
-            } catch (Exception e) {
+            } catch (LoginException e) {
                 if (voUser.getKey() > 0) {
                     voUser = service.getUser(voUser);
                 }
-                if (voUser.getStatus() != null && voUser.getStatus()
-                        .getLockLevel() > UserAccountStatus.LOCK_LEVEL_LOGIN) {
+                if (voUser.getStatus() != null
+                        && voUser.getStatus().getLockLevel() > UserAccountStatus.LOCK_LEVEL_LOGIN) {
                     httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
                             BaseBean.ERROR_USER_LOCKED);
-                    if (httpRequest.getServletPath()
-                            .contains(BaseBean.SAML_SP_LOGIN_AUTOSUBMIT_PAGE)) {
+                    if (httpRequest.getServletPath().contains(
+                            BaseBean.SAML_SP_LOGIN_AUTOSUBMIT_PAGE)) {
                         return OUTCOME_MARKETPLACE_ERROR_PAGE;
                     }
                     return null;
                 }
-                throw new LoginException(e.getMessage());
+                throw e;
             }
 
             // log info on the successful login
@@ -570,8 +560,8 @@ public class UserBean extends BaseBean implements Serializable {
             return outcomeSaaSApplicationException(httpRequest, e);
         } catch (ObjectNotFoundException e) {
             return outcomeObjectNotFoundException(httpRequest, e);
-            // } catch (CommunicationException e) {
-            // return outcomeCommunicationException(httpRequest);
+        } catch (CommunicationException e) {
+            return outcomeCommunicationException(httpRequest);
         } catch (LoginToClosedMarketplaceException e) {
             return outcomeLoginToClosedMarketplaceException(httpRequest);
         }
@@ -661,8 +651,7 @@ public class UserBean extends BaseBean implements Serializable {
 
         checkAddSubacription(user);
 
-        if (requestedRedirect != null
-                && requestedRedirect.trim().length() > 0) {
+        if (StringUtils.isNotBlank(requestedRedirect)) {
             confirmedRedirect = requestedRedirect;
         } else if (!successOnEmptyRedirect
                 || user.getStatus() == UserAccountStatus.ACTIVE) {

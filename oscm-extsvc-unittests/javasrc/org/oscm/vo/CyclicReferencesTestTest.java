@@ -123,7 +123,7 @@ public class CyclicReferencesTestTest {
     private void assertReferencedTypes(final Class<?> type, String... expected) {
         final Set<String> actual = cyclicRefsTest.getReferencedTypes(type
                 .getName());
-        assertEquals(new HashSet<String>(Arrays.asList(expected)), actual);
+        assertEquals(new HashSet<>(Arrays.asList(expected)), actual);
     }
 
 }

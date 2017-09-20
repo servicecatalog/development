@@ -11,17 +11,8 @@ package org.oscm.rest.common;
 import java.io.IOException;
 
 import javax.ejb.EJB;
-import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Response.Status;
@@ -38,40 +29,20 @@ import org.oscm.internal.vo.VOUser;
 import org.oscm.security.WSCallbackHandler;
 import org.oscm.types.constants.Configuration;
 
-//import com.sun.enterprise.security.auth.login.common.LoginException;
-//import com.sun.web.security.WebProgrammaticLoginImpl;
-
 /**
- * Servlet filter for programmatic Glassfish authentication via basic auth
+ * Servlet filter for programmatic authentication via basic auth
  * 
  * @author miethaner
  */
 public class BasicAuthFilter implements Filter {
 
-//    private WebProgrammaticLoginImpl programmaticLogin;
-
-//    public void setProgrammaticLogin(
-//            WebProgrammaticLoginImpl programmaticLogin) {
-//        this.programmaticLogin = programmaticLogin;
-//    }
-
     @EJB
     private ConfigurationService configService;
-
-    public void setConfigurationService(ConfigurationService configService) {
-        this.configService = configService;
-    }
-
     @EJB
     private IdentityService identityService;
 
-    public void setIdentityService(IdentityService identityService) {
-        this.identityService = identityService;
-    }
-
     @Override
     public void init(FilterConfig config) throws ServletException {
-       // programmaticLogin = new WebProgrammaticLoginImpl();
     }
 
     @Override
@@ -106,25 +77,14 @@ public class BasicAuthFilter implements Filter {
                 VOUser user = new VOUser();
                 user.setUserId(split[0]);
 
-
                 user = identityService.getUser(user);
 
-                CallbackHandler callback = new CallbackHandler() {
-                    
-                    @Override
-                    public void handle(Callback[] callbacks)
-                            throws IOException, UnsupportedCallbackException {
-                        // TODO Auto-generated method stub
-                        
-                    }
-                };
-                LoginContext lc = new LoginContext("bssrealm", new WSCallbackHandler(user.getUserId(), pwd));        
+                LoginContext lc = new LoginContext("bssrealm",
+                        new WSCallbackHandler(user.getUserId(), pwd));
                 lc.login();
-//                programmaticLogin.login(Long.toString(user.getKey()),
-//                        pwd.toCharArray(), CommonParams.REALM, rq, rs);
 
-
-            } catch (ObjectNotFoundException | javax.security.auth.login.LoginException
+            } catch (ObjectNotFoundException
+                    | javax.security.auth.login.LoginException
                     | OperationNotPermittedException
                     | OrganizationRemovedException e) {
                 rs.sendError(Status.UNAUTHORIZED.getStatusCode(),

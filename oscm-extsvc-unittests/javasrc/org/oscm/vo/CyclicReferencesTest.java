@@ -120,7 +120,7 @@ public class CyclicReferencesTest {
             throw new RuntimeException(e);
         }
 
-        reader.accept(new ClassVisitor(0) {
+        reader.accept(new ClassVisitor(Opcodes.ASM5) {
             @Override
             public void visit(int version, int access, String name, String signature, String superName,
                 String[] interfaces) {

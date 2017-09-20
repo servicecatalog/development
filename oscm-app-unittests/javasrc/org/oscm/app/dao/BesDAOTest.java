@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
+import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Service;
 
@@ -117,6 +118,8 @@ public class BesDAOTest {
         doReturn(subServ).when(besDAO).getServicePort(
                 eq(SubscriptionService.class), anyMap());
         doNothing().when(besDAO).validateVersion(anyString());
+        Binding mockBinding = mock(Binding.class);
+        when(idServ.getBinding()).thenReturn(mockBinding);
     }
 
     @Test
