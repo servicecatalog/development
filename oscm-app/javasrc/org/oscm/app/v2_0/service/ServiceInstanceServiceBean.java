@@ -60,7 +60,7 @@ public class ServiceInstanceServiceBean {
     @Inject
     protected transient Logger logger;
 
-    @EJB
+    @Inject
     private AsynchronousProvisioningProxyImpl appImpl;
 
     @EJB
