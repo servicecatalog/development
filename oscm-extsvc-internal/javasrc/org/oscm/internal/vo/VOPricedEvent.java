@@ -8,15 +8,11 @@
 
 package org.oscm.internal.vo;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.oscm.internal.types.exception.IllegalArgumentException;
-import org.oscm.internal.vo.BaseVO;
-import org.oscm.internal.vo.VOEventDefinition;
-import org.oscm.internal.vo.VOSteppedPrice;
 
 /**
  * Represents the information on events that is relevant for price models.
