@@ -7,7 +7,7 @@
  *******************************************************************************/
 //TODO LOGIN
 package org.oscm.rest.common.unittests;
-//
+
 //import static org.junit.Assert.fail;
 //
 //import java.io.IOException;
@@ -16,8 +16,8 @@ package org.oscm.rest.common.unittests;
 //import javax.servlet.ServletException;
 //import javax.servlet.http.HttpServletRequest;
 //import javax.servlet.http.HttpServletResponse;
-//
-//import org.junit.Test;
+
+import org.junit.Test;
 //import org.mockito.Mockito;
 //import org.mockito.exceptions.base.MockitoException;
 //import org.oscm.internal.intf.ConfigurationService;
@@ -34,22 +34,22 @@ package org.oscm.rest.common.unittests;
 //import com.sun.enterprise.security.auth.login.common.LoginException;
 //import com.sun.web.security.WebProgrammaticLoginImpl;
 //
-///**
-// * Unit test for BasicAuthFilter
-// * 
-// * @author miethaner
-// */
+/**
+ * Unit test for BasicAuthFilter
+ *
+ * @author miethaner
+ */
 public class BasicAuthFilterTest {
 //
 //    private static final Long USER_KEY = new Long(1L);
 //    private static final String PASSWORD = "admin";
 //    private static final String HEADER = "Basic YWRtaW46YWRtaW4=";
-//
-//    @Test
-//    public void testFilterPositive() throws Exception {
+
+    @Test
+    public void testFilterPositive() throws Exception {
 //        testFilter(HEADER, AuthenticationMode.INTERNAL.name(), USER_KEY, true,
 //                1, 1);
-//    }
+    }
 //
 //    @Test
 //    public void testFilterNegativeHeader() throws Exception {
