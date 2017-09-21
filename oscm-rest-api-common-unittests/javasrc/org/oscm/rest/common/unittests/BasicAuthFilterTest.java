@@ -6,7 +6,7 @@
  *                                                                              
  *******************************************************************************/
 //TODO LOGIN
-//package org.oscm.rest.common.unittests;
+package org.oscm.rest.common.unittests;
 //
 //import static org.junit.Assert.fail;
 //
@@ -39,7 +39,7 @@
 // * 
 // * @author miethaner
 // */
-//public class BasicAuthFilterTest {
+public class BasicAuthFilterTest {
 //
 //    private static final Long USER_KEY = new Long(1L);
 //    private static final String PASSWORD = "admin";
@@ -132,4 +132,4 @@
 //        Mockito.verify(chain, Mockito.times(chainTimes)).doFilter(rq, rs);
 //    }
 //
-//}
+}
