@@ -140,11 +140,31 @@ public interface CommunicationServiceLocal {
             throws MailOperationException;
 
     /**
+     * Get the marketplace URL for the given platform user.
+     *
+     * @param marketplaceId
+     *            the marketplace id
+     * @return The secure marketplace URL (https) for the given platform user.
+     * @throws MailOperationException
+     *             Thrown if an UnsupportedEncodingException occurs during the
+     *             URL construction.
+     */
+    public String getMarketplaceUrlHttps(String marketplaceId)
+            throws MailOperationException;
+
+    /**
      * Gets the administration URL of the blue portal
      * 
      * @return the administration URL of the blue portal
      */
     public String getBaseUrl();
+
+    /**
+     * Gets the secure administration URL (https) of the blue portal
+     *
+     * @return the secure administration URL (https) of the blue portal
+     */
+    public String getBaseUrlHttps();
 
     /**
      * Gets the administration URL of the blue portal with ID of the tenant
@@ -154,4 +174,13 @@ public interface CommunicationServiceLocal {
      * @return
      */
     public String getBaseUrlWithTenant(String tenantId) throws MailOperationException;
+
+    /**
+     * Gets the administration secure URL of the blue portal with ID of the tenant
+     *
+     * @param tenantId
+     *            the tenant ID
+     * @return
+     */
+    public String getBaseUrlHttpsWithTenant(String tenantId) throws MailOperationException;
 }

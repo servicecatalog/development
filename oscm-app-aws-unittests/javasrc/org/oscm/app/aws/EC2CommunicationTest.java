@@ -72,6 +72,11 @@ public class EC2CommunicationTest {
         EC2Communication.useMock(null);
         System.clearProperty("https.proxyHost");
         System.clearProperty("https.proxyPort");
+        System.clearProperty("https.proxyPassword");
+        System.clearProperty("https.proxyUser");
+
+        System.clearProperty("http.proxyHost");
+        System.clearProperty("http.proxyPort");
         System.clearProperty("http.proxyPassword");
         System.clearProperty("http.proxyUser");
         System.clearProperty("http.nonProxyHosts");

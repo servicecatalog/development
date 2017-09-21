@@ -687,7 +687,7 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
     }
 
     /**
-     * Sets of removed the corresponding role from the local organization
+     * Sets or removes the corresponding role from the local organization
      * object.
      */
     public void setTechnologyProvider(boolean setRole) {
@@ -699,7 +699,7 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
     }
 
     /**
-     * Sets of removed the corresponding role from the local organization
+     * Sets or removes the corresponding role from the local organization
      * object.
      */
     public void setReseller(boolean setRole) {
@@ -711,7 +711,7 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
     }
 
     /**
-     * Sets of removed the corresponding role from the local organization
+     * Sets or removes the corresponding role from the local organization
      * object.
      */
     public void setBroker(boolean setRole) {
@@ -771,7 +771,7 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
      */
     public void brokerRoleChanged(ValueChangeEvent event) {
         Boolean checkBoxChecked = (Boolean) event.getNewValue();
-        setBroker((checkBoxChecked.booleanValue()));
+        setBroker(checkBoxChecked.booleanValue());
     }
 
     /**

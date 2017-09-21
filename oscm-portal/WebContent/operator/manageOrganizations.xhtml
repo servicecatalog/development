@@ -175,7 +175,7 @@
                               value="#{selectedOrg.tenantKey}"
                               rendered="#{operatorOrgBean.tenantSelectionAvailable}"
                               oncomplete="AdmUtils.setUIElements();" disabled="#{!orgSelected}" required="false">
-            <adm:selectItemPleaseSelect itemValue="0" />
+            <adm:selectItemTenant itemValue="0" />
             <f:selectItems value="#{operatorOrgBean.selectableTenants}" />
             <f:validator validatorId="TenantValidator" />
           </adm:labelAndSelect>

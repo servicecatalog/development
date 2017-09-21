@@ -1223,4 +1223,17 @@ public class SubscriptionDao {
             return null;
         }
     }
+    
+    
+    public Subscription getSubscription(UUID uuid) {
+        Query query = dataManager.createNamedQuery("Subscription.getByUUID");
+        query.setParameter("uuid", uuid);
+        List<Subscription> subscriptions = ParameterizedTypes
+                .list(query.getResultList(), Subscription.class);
+        if (subscriptions == null || subscriptions.isEmpty()) {
+            return null;
+        }
+        return subscriptions.get(0);
+    }
+
 }

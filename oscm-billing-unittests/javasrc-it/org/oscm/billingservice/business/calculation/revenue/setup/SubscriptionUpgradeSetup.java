@@ -87,6 +87,7 @@ import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.internal.vo.VOTechnicalService;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.kafka.service.Producer;
 import org.oscm.marketplace.auditlog.MarketplaceAuditLogCollector;
 import org.oscm.marketplace.bean.LandingpageServiceBeanLocal;
 import org.oscm.marketplace.bean.MarketplaceServiceBean;
@@ -173,6 +174,7 @@ public class SubscriptionUpgradeSetup {
         container.addBean(mock(ImageResourceServiceLocal.class));
         container.addBean(mock(TaskQueueServiceLocal.class));
         container.addBean(mock(SubscriptionServiceLocal.class));
+        container.addBean(mock(Producer.class));
         container.addBean(new TriggerQueueServiceStub() {
             @Override
             public List<TriggerProcessMessageData> sendSuspendingMessages(

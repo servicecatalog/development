@@ -67,8 +67,8 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
     public void updateMarketplace_NameAndOrg() throws Exception {
         container.login(mpOwnerUserKey, ROLE_PLATFORM_OPERATOR,
                 OrganizationRoleType.MARKETPLACE_OWNER.name());
-        VOMarketplace marketplace = marketplaceService.createMarketplace(this
-                .buildMarketplace("ORIGINAL_NAME", "MPL", mpOwner));
+        VOMarketplace marketplace = marketplaceService.createMarketplace(
+                this.buildMarketplace("ORIGINAL_NAME", "MPL", mpOwner));
 
         marketplace.setName("NEW_NAME");
         marketplace.setOwningOrganizationId(supp1.getOrganizationId());
@@ -310,7 +310,8 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
     }
 
     @Test
-    public void createMarketplace_checkMail_supplierSpecific() throws Exception {
+    public void createMarketplace_checkMail_supplierSpecific()
+            throws Exception {
         container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR);
 
         VOMarketplace marketplace = buildMarketplace("LOCAL_MP_MAIL_TEST",
@@ -321,8 +322,8 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
         assertNotNull("created marketplace is null but was expected not null",
                 createdMpl);
         // check that the email sent contains the correct links)
-        assertTrue(publicAccessUrl
-                .contains(org.oscm.types.constants.marketplace.Marketplace.MARKETPLACE_ROOT));
+        assertTrue(publicAccessUrl.contains(
+                org.oscm.types.constants.marketplace.Marketplace.MARKETPLACE_ROOT));
         assertNotNull(adminUrl);
     }
 
@@ -338,8 +339,8 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
         assertNotNull("created marketplace is null but was expected not null",
                 createdMpl);
         // check that the email sent contains the correct links)
-        assertTrue(publicAccessUrl
-                .contains(org.oscm.types.constants.marketplace.Marketplace.MARKETPLACE_ROOT));
+        assertTrue(publicAccessUrl.contains(
+                org.oscm.types.constants.marketplace.Marketplace.MARKETPLACE_ROOT));
         assertNotNull(adminUrl);
     }
 
@@ -440,8 +441,8 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
         resetEmailNotificationResults();
         container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR);
 
-        marketplaceService.createMarketplace(this.buildMarketplace(
-                "GLOBAL_SUPP1", "GLOBAL_SUPP1", supplier4));
+        marketplaceService.createMarketplace(this
+                .buildMarketplace("GLOBAL_SUPP1", "GLOBAL_SUPP1", supplier4));
         verifyEmaiRecipients();
     }
 
@@ -469,8 +470,8 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
     @Test
     public void updateMarketplace_NameAndConfiguration() throws Exception {
         container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR);
-        VOMarketplace marketplace = marketplaceService.createMarketplace(this
-                .buildMarketplace("ORIGINAL_NAME", "MPL", mpOwner));
+        VOMarketplace marketplace = marketplaceService.createMarketplace(
+                this.buildMarketplace("ORIGINAL_NAME", "MPL", mpOwner));
 
         marketplace.setTaggingEnabled(false);
         marketplace.setReviewEnabled(false);
@@ -687,8 +688,8 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
             public Organization call() throws Exception {
                 Organization newOrg = Organizations.createOrganization(mgr,
                         OrganizationRoleType.TECHNOLOGY_PROVIDER);
-                PlatformUser createUserForOrg = Organizations.createUserForOrg(
-                        mgr, newOrg, true, "admin");
+                PlatformUser createUserForOrg = Organizations
+                        .createUserForOrg(mgr, newOrg, true, "admin");
                 mpOwnerUserKey = createUserForOrg.getKey();
                 PlatformUsers.grantRoles(mgr, createUserForOrg,
                         UserRoleType.PLATFORM_OPERATOR);
@@ -737,8 +738,8 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
         // reset counter (one mail has already been sent by createMarketplace)
         resetEmailNotificationResults();
 
-        defaultOwnedMarketplace.setOwningOrganizationId(supplier4
-                .getOrganizationId());
+        defaultOwnedMarketplace
+                .setOwningOrganizationId(supplier4.getOrganizationId());
         marketplaceService.updateMarketplace(defaultOwnedMarketplace);
         verifyEmaiRecipients();
 
@@ -794,11 +795,11 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
             throws Exception {
         container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR);
         // create a marketplace
-        VOMarketplace marketplace = marketplaceService.createMarketplace(this
-                .buildMarketplace("MP1", "MP1", supp1));
+        VOMarketplace marketplace = marketplaceService
+                .createMarketplace(this.buildMarketplace("MP1", "MP1", supp1));
         // second marketplace for same supplier
-        marketplaceService.createMarketplace(this.buildMarketplace("MP2",
-                "MP2", supp1));
+        marketplaceService
+                .createMarketplace(this.buildMarketplace("MP2", "MP2", supp1));
         assertTrue("organization must have role MARKETPLACE_OWNER",
                 hasSupp1MarketplaceOwnerRole());
 
@@ -902,7 +903,8 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
     }
 
     @Test
-    public void addOrganizationsToMarketplace_AddOneSupplier() throws Exception {
+    public void addOrganizationsToMarketplace_AddOneSupplier()
+            throws Exception {
         container.login(mpOwnerUserKey, ROLE_MARKETPLACE_OWNER);
 
         runTX(new Callable<Void>() {
@@ -922,19 +924,20 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
                 GLOBAL_MP_ID);
 
         assertEquals(EmailType.MARKETPLACE_SUPPLIER_ASSIGNED, emailType1);
-        assertTrue(publicAccessUrl
-                .contains(org.oscm.types.constants.marketplace.Marketplace.MARKETPLACE_ROOT));
+        assertTrue(publicAccessUrl.contains(
+                org.oscm.types.constants.marketplace.Marketplace.MARKETPLACE_ROOT));
         assertNull(adminUrl);
         assertEquals(1, mailCounter);
 
-        MarketplaceToOrganization mto = runTX(new Callable<MarketplaceToOrganization>() {
-            @Override
-            public MarketplaceToOrganization call() throws Exception {
-                MarketplaceToOrganization mto = new MarketplaceToOrganization(
-                        mpGlobal, supp1);
-                return (MarketplaceToOrganization) mgr.find(mto);
-            }
-        });
+        MarketplaceToOrganization mto = runTX(
+                new Callable<MarketplaceToOrganization>() {
+                    @Override
+                    public MarketplaceToOrganization call() throws Exception {
+                        MarketplaceToOrganization mto = new MarketplaceToOrganization(
+                                mpGlobal, supp1);
+                        return (MarketplaceToOrganization) mgr.find(mto);
+                    }
+                });
         assertNotNull("Relation object expected", mto);
         assertEquals("Not the same marketplace - ", mpGlobal.getKey(),
                 mto.getMarketplace_tkey());
@@ -968,8 +971,8 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
         // e-mail params are correct.
         assertNotNull(adminUrl);
         assertEquals(EmailType.MARKETPLACE_SUPPLIER_ASSIGNED_OWNED, emailType1);
-        assertTrue(publicAccessUrl
-                .contains(org.oscm.types.constants.marketplace.Marketplace.MARKETPLACE_ROOT));
+        assertTrue(publicAccessUrl.contains(
+                org.oscm.types.constants.marketplace.Marketplace.MARKETPLACE_ROOT));
         assertEquals(1, mailCounter);
     }
 
@@ -998,8 +1001,8 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
         assertEquals(1, mailCounter);
         assertNull(adminUrl);
         assertEquals(EmailType.MARKETPLACE_SUPPLIER_ASSIGNED, emailType1);
-        assertTrue(publicAccessUrl
-                .contains(org.oscm.types.constants.marketplace.Marketplace.MARKETPLACE_ROOT));
+        assertTrue(publicAccessUrl.contains(
+                org.oscm.types.constants.marketplace.Marketplace.MARKETPLACE_ROOT));
     }
 
     @Test
@@ -1010,29 +1013,31 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
         supplierIds.add(supp2.getOrganizationId());
         marketplaceService.addOrganizationsToMarketplace(supplierIds,
                 GLOBAL_MP_ID);
-        MarketplaceToOrganization mto1 = runTX(new Callable<MarketplaceToOrganization>() {
+        MarketplaceToOrganization mto1 = runTX(
+                new Callable<MarketplaceToOrganization>() {
 
-            @Override
-            public MarketplaceToOrganization call() throws Exception {
-                MarketplaceToOrganization mto = new MarketplaceToOrganization(
-                        mpGlobal, supp1);
-                return (MarketplaceToOrganization) mgr.find(mto);
-            }
-        });
+                    @Override
+                    public MarketplaceToOrganization call() throws Exception {
+                        MarketplaceToOrganization mto = new MarketplaceToOrganization(
+                                mpGlobal, supp1);
+                        return (MarketplaceToOrganization) mgr.find(mto);
+                    }
+                });
         assertNotNull("Relation object expected", mto1);
         assertEquals("Not the same marketplace - ", mpGlobal.getKey(),
                 mto1.getMarketplace_tkey());
         assertEquals("Not the same supplier - ", supp1.getKey(),
                 mto1.getOrganization_tkey());
-        MarketplaceToOrganization mto2 = runTX(new Callable<MarketplaceToOrganization>() {
+        MarketplaceToOrganization mto2 = runTX(
+                new Callable<MarketplaceToOrganization>() {
 
-            @Override
-            public MarketplaceToOrganization call() throws Exception {
-                MarketplaceToOrganization mto = new MarketplaceToOrganization(
-                        mpGlobal, supp2);
-                return (MarketplaceToOrganization) mgr.find(mto);
-            }
-        });
+                    @Override
+                    public MarketplaceToOrganization call() throws Exception {
+                        MarketplaceToOrganization mto = new MarketplaceToOrganization(
+                                mpGlobal, supp2);
+                        return (MarketplaceToOrganization) mgr.find(mto);
+                    }
+                });
         assertNotNull("Relation object expected", mto2);
         assertEquals("Not the same marketplace - ", mpGlobal.getKey(),
                 mto2.getMarketplace_tkey());
@@ -1048,14 +1053,16 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
             marketplaceService.addOrganizationsToMarketplace(
                     Collections.singletonList(supp1.getOrganizationId()),
                     CLOSED_MP_ID);
-            MarketplaceToOrganization mto = runTX(new Callable<MarketplaceToOrganization>() {
-                @Override
-                public MarketplaceToOrganization call() throws Exception {
-                    MarketplaceToOrganization mto = new MarketplaceToOrganization(
-                            mpClosed, supp1);
-                    return (MarketplaceToOrganization) mgr.find(mto);
-                }
-            });
+            MarketplaceToOrganization mto = runTX(
+                    new Callable<MarketplaceToOrganization>() {
+                        @Override
+                        public MarketplaceToOrganization call()
+                                throws Exception {
+                            MarketplaceToOrganization mto = new MarketplaceToOrganization(
+                                    mpClosed, supp1);
+                            return (MarketplaceToOrganization) mgr.find(mto);
+                        }
+                    });
             assertNotNull("Relation object expected", mto);
             assertEquals("Whitelist ref exists",
                     PublishingAccess.PUBLISHING_ACCESS_GRANTED,
@@ -1078,19 +1085,20 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
             throws Throwable {
         container.login(mpOwnerUserKey2, ROLE_MARKETPLACE_OWNER);
 
-        MarketplaceToOrganization ref = runTX(new Callable<MarketplaceToOrganization>() {
+        MarketplaceToOrganization ref = runTX(
+                new Callable<MarketplaceToOrganization>() {
 
-            @Override
-            public MarketplaceToOrganization call() throws Exception {
-                MarketplaceToOrganization mto = new MarketplaceToOrganization(
-                        mpClosed, supp1,
-                        PublishingAccess.PUBLISHING_ACCESS_DENIED);
-                mgr.persist(mto);
-                mgr.flush();
+                    @Override
+                    public MarketplaceToOrganization call() throws Exception {
+                        MarketplaceToOrganization mto = new MarketplaceToOrganization(
+                                mpClosed, supp1,
+                                PublishingAccess.PUBLISHING_ACCESS_DENIED);
+                        mgr.persist(mto);
+                        mgr.flush();
 
-                return mto;
-            }
-        });
+                        return mto;
+                    }
+                });
 
         marketplaceService.addOrganizationsToMarketplace(
                 Collections.singletonList(supp1.getOrganizationId()),
@@ -1115,13 +1123,8 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
                 ref.getOrganization_tkey());
     }
 
-    /**
-     * first marketplace per organization is assigned supplierId as Id
-     * 
-     * @throws Exception
-     */
     @Test
-    public void createMarketplace_FirstMarketplaceGetsOrganizationID()
+    public void createMarketplace_MarketplaceID()
             throws Exception {
         container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR);
         Organization newOrg = runTX(new Callable<Organization>() {
@@ -1139,11 +1142,32 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
                 .createMarketplace(marketplace);
 
         assertNotNull(firstMarketPlace4newOrg);
-        assertEquals(newOrg.getOrganizationId(),
-                firstMarketPlace4newOrg.getMarketplaceId());
+        assertEquals("FIRST_MP", firstMarketPlace4newOrg.getMarketplaceId());
 
     }
 
+    @Test
+    public void createMarketplace_MarketplaceIDNull()
+            throws Exception {
+        container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR);
+        Organization newOrg = runTX(new Callable<Organization>() {
+            @Override
+            public Organization call() throws Exception {
+                Organization org = Organizations.createOrganization(mgr,
+                        OrganizationRoleType.TECHNOLOGY_PROVIDER);
+                return org;
+            }
+        });
+
+        VOMarketplace marketplace = buildMarketplace("FIRST_MP", null,
+                newOrg);
+        VOMarketplace firstMarketPlace4newOrg = marketplaceService
+                .createMarketplace(marketplace);
+
+        assertNotNull(firstMarketPlace4newOrg);
+        assertEquals(newOrg.getOrganizationId(), firstMarketPlace4newOrg.getMarketplaceId());
+
+    }
     /**
      * if the deassigned owning organization has no more marketplaces assigned
      * the deassigned organization will be revoke the organization role
@@ -1161,8 +1185,8 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
                 Organization newOrg = Organizations.createOrganization(mgr,
                         OrganizationRoleType.PLATFORM_OPERATOR,
                         OrganizationRoleType.TECHNOLOGY_PROVIDER);
-                PlatformUser createUserForOrg = Organizations.createUserForOrg(
-                        mgr, newOrg, true, "admin");
+                PlatformUser createUserForOrg = Organizations
+                        .createUserForOrg(mgr, newOrg, true, "admin");
                 mpOwnerUserKey = createUserForOrg.getKey();
                 PlatformUsers.grantRoles(mgr, createUserForOrg,
                         UserRoleType.PLATFORM_OPERATOR);
@@ -1174,8 +1198,8 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
         container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR);
         // setup: create a marketplace for supp1
         VOMarketplace marketPlaceSupplier1 = marketplaceService
-                .createMarketplace(this.buildMarketplace("LOCAL",
-                        "LOCAL_SUPP1", supp1));
+                .createMarketplace(
+                        this.buildMarketplace("LOCAL", "LOCAL_SUPP1", supp1));
 
         // verify that organization supp1 has MARKETPLACE_OWNER role
         assertTrue("organization must not been given role MARKETPLACE_OWNER",
@@ -1205,10 +1229,10 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
         container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR);
         // setup: supp1 gets 2 marketplaces
         VOMarketplace marketPlace1Supplier1 = marketplaceService
-                .createMarketplace(this.buildMarketplace("LOCAL1",
-                        "LOCAL1_SUPP1", supp1));
-        marketplaceService.createMarketplace(this.buildMarketplace("LOCAL2",
-                "LOCAL2_SUPP1", supp1));
+                .createMarketplace(
+                        this.buildMarketplace("LOCAL1", "LOCAL1_SUPP1", supp1));
+        marketplaceService.createMarketplace(
+                this.buildMarketplace("LOCAL2", "LOCAL2_SUPP1", supp1));
         // verify that organization supp1 has MARKETPLACE_OWNER role
         Organization updatedOrg = getSupp1WithinTransaction();
         assertTrue("organization must not been given role MARKETPLACE_OWNER",
@@ -1247,8 +1271,8 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
         // add marketplace
         container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR);
         VOMarketplace marketPlaceSupplier1 = marketplaceService
-                .createMarketplace(this.buildMarketplace("LOCAL",
-                        "GLOBAL_SUPP1", supp1));
+                .createMarketplace(
+                        this.buildMarketplace("LOCAL", "GLOBAL_SUPP1", supp1));
         // add user with marketplace owner user role
         userToVerify = runTX(new Callable<PlatformUser>() {
             @Override
@@ -1317,16 +1341,17 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
     public void testCloseMarketplace() throws Exception {
         container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR,
                 ROLE_MARKETPLACE_OWNER);
-        final Organization marketplaceOwner = runTX(new Callable<Organization>() {
-            @Override
-            public Organization call() throws Exception {
-                Organization newOrg = Organizations.createOrganization(mgr,
-                        OrganizationRoleType.PLATFORM_OPERATOR,
-                        OrganizationRoleType.TECHNOLOGY_PROVIDER,
-                        OrganizationRoleType.MARKETPLACE_OWNER);
-                return newOrg;
-            }
-        });
+        final Organization marketplaceOwner = runTX(
+                new Callable<Organization>() {
+                    @Override
+                    public Organization call() throws Exception {
+                        Organization newOrg = Organizations.createOrganization(
+                                mgr, OrganizationRoleType.PLATFORM_OPERATOR,
+                                OrganizationRoleType.TECHNOLOGY_PROVIDER,
+                                OrganizationRoleType.MARKETPLACE_OWNER);
+                        return newOrg;
+                    }
+                });
 
         Marketplace marketplaceFromDB = runTX(new Callable<Marketplace>() {
             @Override
@@ -1362,16 +1387,17 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
     public void testOpenMarketplace() throws Exception {
         container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR,
                 ROLE_MARKETPLACE_OWNER);
-        final Organization marketplaceOwner = runTX(new Callable<Organization>() {
-            @Override
-            public Organization call() throws Exception {
-                Organization newOrg = Organizations.createOrganization(mgr,
-                        OrganizationRoleType.PLATFORM_OPERATOR,
-                        OrganizationRoleType.TECHNOLOGY_PROVIDER,
-                        OrganizationRoleType.MARKETPLACE_OWNER);
-                return newOrg;
-            }
-        });
+        final Organization marketplaceOwner = runTX(
+                new Callable<Organization>() {
+                    @Override
+                    public Organization call() throws Exception {
+                        Organization newOrg = Organizations.createOrganization(
+                                mgr, OrganizationRoleType.PLATFORM_OPERATOR,
+                                OrganizationRoleType.TECHNOLOGY_PROVIDER,
+                                OrganizationRoleType.MARKETPLACE_OWNER);
+                        return newOrg;
+                    }
+                });
 
         Marketplace marketplaceFromDB = runTX(new Callable<Marketplace>() {
             @Override
@@ -1393,8 +1419,8 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
 
                 assertTrue(mp.isRestricted());
 
-                marketplaceService.openMarketplace(marketRestricted
-                        .getMarketplaceId());
+                marketplaceService
+                        .openMarketplace(marketRestricted.getMarketplaceId());
 
                 Marketplace mpOpened = mgr.getReference(Marketplace.class,
                         marketRestricted.getKey());
@@ -1444,13 +1470,13 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
                 boolean closedFound = false;
                 boolean openFound = false;
                 for (VOMarketplace voMarketplace : accessibleMarketplaces) {
-                    if (voMarketplace.getMarketplaceId().equals(
-                            marketClosed.getMarketplaceId())) {
+                    if (voMarketplace.getMarketplaceId()
+                            .equals(marketClosed.getMarketplaceId())) {
                         closedFound = true;
                         continue;
                     }
-                    if (voMarketplace.getMarketplaceId().equals(
-                            marketOpen.getMarketplaceId())) {
+                    if (voMarketplace.getMarketplaceId()
+                            .equals(marketOpen.getMarketplaceId())) {
                         openFound = true;
                     }
                 }
@@ -1507,13 +1533,13 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
                 boolean closedFound = false;
                 boolean openFound = false;
                 for (VOMarketplace voMarketplace : accessibleMarketplaces) {
-                    if (voMarketplace.getMarketplaceId().equals(
-                            marketClosed.getMarketplaceId())) {
+                    if (voMarketplace.getMarketplaceId()
+                            .equals(marketClosed.getMarketplaceId())) {
                         closedFound = true;
                         continue;
                     }
-                    if (voMarketplace.getMarketplaceId().equals(
-                            marketOpen.getMarketplaceId())) {
+                    if (voMarketplace.getMarketplaceId()
+                            .equals(marketOpen.getMarketplaceId())) {
                         openFound = true;
                     }
                 }

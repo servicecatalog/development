@@ -363,6 +363,14 @@ public class ConfigurationServiceBean
     }
 
     @Override
+    public String getBaseUrlHttps() {
+        String baseUrlHttps = getConfigurationSetting(
+                ConfigurationKey.BASE_URL_HTTPS, Configuration.GLOBAL_CONTEXT)
+                        .getValue();
+        return baseUrlHttps;
+    }
+
+    @Override
     public boolean isPaymentInfoAvailable() {
 
         String setting = getConfigurationSetting(
@@ -378,5 +386,16 @@ public class ConfigurationServiceBean
 
     public void setDm(DataService dm) {
         this.dm = dm;
+    }
+
+    @Override
+    public boolean isKafkaEnabled() {
+        String setting = getConfigurationSetting(
+                ConfigurationKey.KAFKA_BOOTSTRAP_SERVERS,
+                Configuration.GLOBAL_CONTEXT).getValue();
+        if (setting == null || setting.trim().isEmpty()) {
+            return false;
+        }        
+        return true;
     }
 }

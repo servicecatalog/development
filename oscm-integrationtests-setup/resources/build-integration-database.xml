@@ -100,6 +100,31 @@
     </sequential>
   </macrodef>
   
+  <macrodef name="create.user">
+    <attribute name="failonerror" default="false" />
+    <attribute name="dbuser" />
+    <attribute name="dbuserpwd" />
+      <sequential>
+        <echo message="Creating user @{dbuser} " />
+        <runDbScript failonerror="@{failonerror}">
+          \set ON_ERROR_STOP
+          CREATE ROLE @{dbuser} LOGIN PASSWORD '@{dbuserpwd}';
+        </runDbScript>
+      </sequential>
+  </macrodef>
+	
+  <macrodef name="delete.user">
+    <attribute name="failonerror" default="false" />
+    <attribute name="dbuser" />
+      <sequential>
+        <echo message="Removing user @{dbuser} " />
+        <runDbScript failonerror="false">
+          \set ON_ERROR_STOP
+          DROP ROLE @{dbuser};
+        </runDbScript>
+      </sequential>
+  </macrodef>
+
   <path id="postgresql-jdbc.path">
     <fileset dir="${dev.dir}/libraries/postgresql-jdbc/javalib/" includes="*.jar" />
   </path>
@@ -148,10 +173,18 @@
     <create.db dbname="${db.unit.name}" dbuser="${db.unit.user}" dbschema="${db.unit.schema}" />
   </target>
 
+  <target name="unit.CreateUser" description="">
+    <create.user dbuser="${db.unit.user}" dbuserpwd="${db.unit.pwd}" />
+  </target>
+
   <target name="unit.DropForced" description="">
     <delete.forced.db dbname="${db.unit.name}" failonerror="false" />
   </target>
 
+  <target name="unit.DropUser" description="">
+    <delete.user dbuser="${db.unit.user}" />
+  </target>
+	
   <target name="unit.UpdateSchema" description="">
     <ant antfile="${work.dir}/../build-db.xml" target="updateSchema">
       <property name="work.dir" value="${work.dir}/.." />
@@ -176,10 +209,18 @@
     <create.db dbname="${db.appunit.name}" dbuser="${db.appunit.user}" dbschema="${db.appunit.schema}" />
   </target>
 
+  <target name="appunit.CreateUser" description="Creates the user of the asynchronous provisioning proxy test database, database properties are configured via the db-appunit.properties file">
+    <create.user dbuser="${db.appunit.user}" dbuserpwd="${db.appunit.pwd}" />
+  </target>
+	
   <target name="appunit.DropForced" description="Forced drop of the asynchronous provisioning proxy test database">
     <delete.forced.db dbname="${db.appunit.name}" failonerror="false" />
   </target>
 
+  <target name="appunit.DropUser" description="">
+    <delete.user dbuser="${db.appunit.user}" />
+  </target>
+	
   <target name="appunit.UpdateSchema" description="">
     <ant antfile="${work.dir}/../build-db-app.xml" target="updateSchema" inheritAll="false">
       <property name="work.dir" value="${work.dir}/../.." />
@@ -202,6 +243,8 @@
   
   <target name="appunit.Init" description="Recreates the asynchronous provisioning proxy test datatbase">
     <antcall target="appunit.DropForced" />
+    <antcall target="appunit.DropUser" />    	
+    <antcall target="appunit.CreateUser" />
     <antcall target="appunit.Create" />
     <antcall target="appunit.UpdateSchema" />
     <antcall target="appunit.InsertConfigSettings" />
@@ -209,6 +252,8 @@
   
   <target name="initUnittestDBAndAppunittestDB" description="init Unittests DB And Appunittests DB">
     <antcall target="unit.DropForced" />
+    <antcall target="unit.DropUser" />
+    <antcall target="unit.CreateUser" />
     <antcall target="unit.Create" />
     <antcall target="unit.UpdateSchema" />
     <antcall target="unit.STANDALONE.InsertConfigSettings" />

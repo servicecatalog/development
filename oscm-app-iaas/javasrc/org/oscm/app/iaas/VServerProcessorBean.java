@@ -1073,7 +1073,7 @@ public class VServerProcessorBean extends BaseProvisioningProcessor {
         if (diskImageIdUnique) {
             logger.info(
                     "No disk image with referenced ID {} defined. Using disk image with same name and ID {}",
-                    new String[] { imageIdOrName,
+                    new Object[] { imageIdOrName,
                             diskImageForName.getDiskImageId() });
             return diskImageForName;
         }

@@ -215,7 +215,7 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
                         productSessionManagement, tenantProvisioning,
                         tagServiceLocal,
                         container.get(MarketingPermissionServiceLocal.class),
-                        container.get(ConfigurationServiceLocal.class));
+                        container.get(ConfigurationServiceLocal.class), false);
             }
         });
     }
@@ -1529,8 +1529,7 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
                     List<RoleDefinition> roles = reference.getRoleDefinitions();
                     assertNotNull(roles);
                     assertEquals(2, roles.size());
-                    Set<String> ids = new HashSet<>(
-                            Arrays.asList(roleIds));
+                    Set<String> ids = new HashSet<>(Arrays.asList(roleIds));
                     for (RoleDefinition role : roles) {
                         assertTrue(ids.remove(role.getRoleId()));
                     }
@@ -1761,9 +1760,12 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         String[] actionUrls = new String[] { "http://someUrl0",
                 "http://someUrl1" };
         String[] locales = new String[] { "en" };
-        String[][] params = new String[][] { new String[] {
-                "param1:true:" + OperationParameterType.REQUEST_SELECT.name(),
-                "param2:false:" + OperationParameterType.INPUT_STRING.name() },
+        String[][] params = new String[][] {
+                new String[] {
+                        "param1:true:"
+                                + OperationParameterType.REQUEST_SELECT.name(),
+                        "param2:false:"
+                                + OperationParameterType.INPUT_STRING.name() },
                 new String[] { "param1:false:"
                         + OperationParameterType.INPUT_STRING.name() } };
         String xml = TSXML.createTSXMLWithOperationsAndOperationParams(opIds,

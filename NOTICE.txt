@@ -90,6 +90,7 @@ This software includes the following software developed by The Apache Software F
    - Apache IO 1.4
    - Apache Jakarta Oro 2.08
    - Apache Json 2.0.6
+   - Apache Kafka 0.10.2.1
    - Apache Lang 3.3.2
    - Apache Lang 2.6
    - Apache Log4j 1.2.16

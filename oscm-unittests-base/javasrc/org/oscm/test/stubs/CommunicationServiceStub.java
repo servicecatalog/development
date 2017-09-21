@@ -48,6 +48,12 @@ public class CommunicationServiceStub implements CommunicationServiceLocal {
     }
 
     @Override
+    public String getMarketplaceUrlHttps(String marketplaceId)
+            throws MailOperationException {
+        return "";
+    }
+
+    @Override
     public SendMailStatus<Organization> sendMail(EmailType type,
             Object[] params, Marketplace marketplace,
             Organization... organizations) {
@@ -60,7 +66,17 @@ public class CommunicationServiceStub implements CommunicationServiceLocal {
     }
 
     @Override
+    public String getBaseUrlHttps() {
+        return null;
+    }
+
+    @Override
     public String getBaseUrlWithTenant(String tenantId) throws MailOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getBaseUrlHttpsWithTenant(String tenantId) throws MailOperationException {
         throw new UnsupportedOperationException();
     }
 }
