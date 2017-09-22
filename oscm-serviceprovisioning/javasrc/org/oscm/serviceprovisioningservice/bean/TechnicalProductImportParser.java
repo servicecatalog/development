@@ -25,17 +25,6 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
-import org.xml.sax.SAXParseException;
-import org.xml.sax.XMLReader;
-
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.ResourceLoader;
@@ -51,16 +40,6 @@ import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TechnicalProductOperation;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
-import org.oscm.serviceprovisioningservice.assembler.TagAssembler;
-import org.oscm.serviceprovisioningservice.local.TagServiceLocal;
-import org.oscm.sessionservice.local.SessionServiceLocal;
-import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.types.enumtypes.OperationParameterType;
-import org.oscm.types.enumtypes.PlatformEventIdentifier;
-import org.oscm.types.enumtypes.PlatformParameterIdentifiers;
-import org.oscm.types.enumtypes.ProvisioningType;
-import org.oscm.validator.BLValidator;
 import org.oscm.internal.types.enumtypes.EventType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.ParameterType;
@@ -81,6 +60,28 @@ import org.oscm.internal.types.exception.UnchangeableAllowingOnBehalfActingExcep
 import org.oscm.internal.types.exception.UpdateConstraintException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOLocalizedText;
+import org.oscm.kafka.service.KafkaServer;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.serviceprovisioningservice.assembler.TagAssembler;
+import org.oscm.serviceprovisioningservice.local.TagServiceLocal;
+import org.oscm.sessionservice.local.SessionServiceLocal;
+import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.types.enumtypes.OperationParameterType;
+import org.oscm.types.enumtypes.PlatformEventIdentifier;
+import org.oscm.types.enumtypes.PlatformParameterIdentifiers;
+import org.oscm.types.enumtypes.ProvisioningType;
+import org.oscm.validator.BLValidator;
+import org.xml.sax.Attributes;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.XMLReader;
+
 import com.sun.org.apache.xerces.internal.impl.Constants;
 
 public class TechnicalProductImportParser extends ImportParserBase {
@@ -195,6 +196,8 @@ public class TechnicalProductImportParser extends ImportParserBase {
 
     private final MarketingPermissionServiceLocal ms;
 
+    private boolean isKafkaServerEnabled = false;
+
     /**
      * Constructor
      * 
@@ -206,16 +209,19 @@ public class TechnicalProductImportParser extends ImportParserBase {
      *            the organization (technology provider).
      * @param ms
      *            the marketing permission service
+     * @param isKafkaServerEnabled
+     *            boolean flag for kafka server
      */
     private TechnicalProductImportParser(DataService dm,
             LocalizerServiceLocal localizer, Organization org,
             TenantProvisioningServiceBean tenantProvisioning,
-            MarketingPermissionServiceLocal ms) {
+            MarketingPermissionServiceLocal ms, boolean isKafkaServerEnabled) {
         this.dm = dm;
         this.localizer = localizer;
         this.org = org;
         this.tenantProvisioning = tenantProvisioning;
         this.ms = ms;
+        this.isKafkaServerEnabled = isKafkaServerEnabled;
         parameterParser = new TechnicalProductParameterImportParser();
         init();
     }
@@ -241,8 +247,9 @@ public class TechnicalProductImportParser extends ImportParserBase {
             SessionServiceLocal pm,
             TenantProvisioningServiceBean tenantProvisioning,
             TagServiceLocal tagService, MarketingPermissionServiceLocal ms,
-            ConfigurationServiceLocal confService) {
-        this(dm, localizer, org, tenantProvisioning, ms);
+            ConfigurationServiceLocal confService,
+            boolean isKafkaServerEnabled) {
+        this(dm, localizer, org, tenantProvisioning, ms, isKafkaServerEnabled);
         this.pm = pm;
         this.tagService = tagService;
     }
@@ -428,18 +435,15 @@ public class TechnicalProductImportParser extends ImportParserBase {
         } catch (Exception e) {
             if (appException instanceof OperationNotPermittedException) {
                 throw (OperationNotPermittedException) appException;
-            } else
-                if (appException instanceof TechnicalServiceActiveException) {
+            } else if (appException instanceof TechnicalServiceActiveException) {
                 throw (TechnicalServiceActiveException) appException;
             } else if (appException instanceof UpdateConstraintException) {
                 throw (UpdateConstraintException) appException;
-            } else
-                if (appException instanceof TechnicalServiceMultiSubscriptions) {
+            } else if (appException instanceof TechnicalServiceMultiSubscriptions) {
                 throw (TechnicalServiceMultiSubscriptions) appException;
             } else if (appException instanceof UnchangeableAllowingOnBehalfActingException) {
                 throw (UnchangeableAllowingOnBehalfActingException) appException;
-            } else
-                if (appException instanceof BillingAdapterNotFoundException) {
+            } else if (appException instanceof BillingAdapterNotFoundException) {
                 throw (BillingAdapterNotFoundException) appException;
             }
             rc = RC_FATAL;
@@ -526,6 +530,37 @@ public class TechnicalProductImportParser extends ImportParserBase {
                         techProduct.getAccessType().name());
             }
         }
+    }
+
+    void checkEventBasedProvisioning() {
+
+        if (this.isKafkaServerEnabled) {
+            if (techProduct.getAccessType() == ServiceAccessType.DIRECT
+                    && techProduct.getProvisioningURL().isEmpty() && techProduct
+                            .getProvisioningType() == ProvisioningType.SYNCHRONOUS) {
+                addError(ATTRIBUTE_PROVISIONING_TYPE,
+                        "Attribute " + ATTRIBUTE_PROVISIONING_TYPE + " must be "
+                                + ProvisioningType.ASYNCHRONOUS.name()
+                                + " in case attribute " + ATTRIBUTE_ACCESS_TYPE
+                                + " is " + ServiceAccessType.DIRECT + " and "
+                                + ATTRIBUTE_PROVISIONING_URL + " is empty");
+                return;
+            }
+        }
+    }
+
+    boolean isEventBasedProvisioning(Attributes atts) {
+        if (!this.isKafkaServerEnabled) {
+            return false;
+        }
+        if (ServiceAccessType.DIRECT.name()
+                .equals(atts.getValue(ATTRIBUTE_ACCESS_TYPE))
+                && isBlank(atts.getValue(ATTRIBUTE_PROVISIONING_URL))
+                && ProvisioningType.ASYNCHRONOUS.name()
+                        .equals(atts.getValue(ATTRIBUTE_PROVISIONING_TYPE))) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -774,7 +809,8 @@ public class TechnicalProductImportParser extends ImportParserBase {
                                 + provisioningUrl;
                     }
                 }
-                if (isBlank(provisioningUrl)) {
+                if (isBlank(provisioningUrl)
+                        && !isEventBasedProvisioning(atts)) {
                     addError(name,
                             "The attributes '" + ATTRIBUTE_PROVISIONING_URL
                                     + "', '"
@@ -1261,6 +1297,7 @@ public class TechnicalProductImportParser extends ImportParserBase {
                 throw new SAXException(e);
             }
             checkMandatoryAccessInfo();
+            checkEventBasedProvisioning();
             persist(techProduct);
 
             // if the organization is supplier and technology provider, it

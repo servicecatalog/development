@@ -11,6 +11,7 @@ package org.oscm.app.common;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.never;
+import static org.oscm.app.common.Constants.APPLICATION_SERVER_HOME_CONSTANT;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -97,19 +98,19 @@ public class InitializerTest {
     }
 
     private void setSysSetting(String value) {
-        oldSysSetting = System.getProperty("catalina.home");
+        oldSysSetting = System.getProperty(APPLICATION_SERVER_HOME_CONSTANT);
         if (value != null) {
-            System.setProperty("catalina.home", value);
+            System.setProperty(APPLICATION_SERVER_HOME_CONSTANT, value);
         } else {
-            System.clearProperty("catalina.home");
+            System.clearProperty(APPLICATION_SERVER_HOME_CONSTANT);
         }
     }
 
     private void resetSysSetting() {
         if (oldSysSetting != null) {
-            System.setProperty("catalina.home", oldSysSetting);
+            System.setProperty(APPLICATION_SERVER_HOME_CONSTANT, oldSysSetting);
         } else {
-            System.clearProperty("catalina.home");
+            System.clearProperty(APPLICATION_SERVER_HOME_CONSTANT);
         }
     }
 

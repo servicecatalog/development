@@ -122,4 +122,7 @@
   <module>
     <ejb>oscm-tenantmgmt.jar</ejb>
   </module>
+  <module>
+    <ejb>oscm-kafka.jar</ejb>
+  </module>
 </application>

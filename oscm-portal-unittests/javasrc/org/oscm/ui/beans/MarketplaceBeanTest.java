@@ -25,6 +25,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.oscm.internal.types.exception.MarketplaceValidationException;
+import org.oscm.internal.types.exception.UserRoleAssignmentException;
 import org.oscm.test.stubs.MarketplaceServiceStub;
 import org.oscm.ui.model.Marketplace;
 import org.oscm.ui.model.Organization;
@@ -185,7 +187,7 @@ public class MarketplaceBeanTest {
 
             @Override
             public VOMarketplace createMarketplace(VOMarketplace marketplace)
-                    throws OperationNotPermittedException {
+                    throws OperationNotPermittedException, ObjectNotFoundException, ValidationException, UserRoleAssignmentException, MarketplaceValidationException {
 
                 marketplace.setMarketplaceId(mpId);
                 passedVoMp = marketplace;

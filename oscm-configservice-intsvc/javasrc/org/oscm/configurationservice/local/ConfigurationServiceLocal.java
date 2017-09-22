@@ -126,6 +126,8 @@ public interface ConfigurationServiceLocal {
      * @return base url
      */
     public String getBaseURL();
+
+    public String getBaseUrlHttps();
     
     /**
      * checks if payment information is available
@@ -135,4 +137,13 @@ public interface ConfigurationServiceLocal {
      * @see ConfigurationKey#HIDDEN_UI_ELEMENTS
      */
     public boolean isPaymentInfoAvailable();
+    
+    /**
+     * checks if kafka server is set
+     * 
+     * @return <code>true</code> if information is available (default value), otherwise
+     *         <code>false</code>
+     * @see ConfigurationKey#KAFKA_BOOTSTRAP_SERVERS
+     */
+    public boolean isKafkaEnabled();
 }

@@ -160,8 +160,19 @@ public class ConfigurationServiceStub implements ConfigurationService,
     }
 
     @Override
+    public String getBaseUrlHttps() {
+        return getConfigurationSetting(ConfigurationKey.BASE_URL_HTTPS,
+                Configuration.GLOBAL_CONTEXT).getValue();
+    }
+
+    @Override
     public boolean isPaymentInfoAvailable() {
         return true;
+    }
+
+    @Override
+    public boolean isKafkaEnabled() {
+        return false;
     }
 
 }

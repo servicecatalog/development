@@ -86,6 +86,7 @@ public class NewMarketplaceBean extends BaseBean {
         vmp.setSocialBookmarkEnabled(nmp.isSocialBookmarkEnabled());
         vmp.setCategoriesEnabled(nmp.isCategoriesEnabled());
         vmp.setTenantId(nmp.getTenantId());
+        vmp.setMarketplaceId(nmp.getId());
         return vmp;
     }
 

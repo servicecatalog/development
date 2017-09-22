@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -425,7 +426,7 @@ public class SubscriptionWizardConversation implements Serializable {
             rewriteParametersAndUdas();
             VOSubscription rc = getSubscriptionService().subscribeToService(
                     model.getSubscription(), model.getService().getVO(),
-                    new ArrayList<VOUsageLicense>(),
+                    Collections.emptyList(),
                     model.getSelectedPaymentInfo(),
                     model.getSelectedBillingContact(),
                     subscriptionsHelper.getVoUdaFromUdaRows(

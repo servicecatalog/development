@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.faces.context.FacesContext;
 import javax.security.auth.login.LoginException;
@@ -77,6 +78,7 @@ import org.oscm.internal.types.exception.MailOperationException;
 import org.oscm.internal.types.exception.MandatoryUdaMissingException;
 import org.oscm.internal.types.exception.MarketingPermissionNotFoundException;
 import org.oscm.internal.types.exception.MarketplaceAccessTypeUneligibleForOperationException;
+import org.oscm.internal.types.exception.MarketplaceValidationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
@@ -2318,8 +2320,7 @@ public class MockService implements IdentityService, SubscriptionService,
 
     @Override
     public VOMarketplace createMarketplace(VOMarketplace marketplace)
-            throws OperationNotPermittedException, ObjectNotFoundException,
-            ValidationException, UserRoleAssignmentException {
+            throws OperationNotPermittedException, ObjectNotFoundException, ValidationException, UserRoleAssignmentException, MarketplaceValidationException {
         return null;
     }
 
@@ -2826,6 +2827,48 @@ public class MockService implements IdentityService, SubscriptionService,
     @Override
     public String getMarketplaceIdForKey(Long key)
             throws ObjectNotFoundException {
+        return null;
+    }
+
+    @Override
+    public void abortAsyncSubscription(UUID subscriptionUUID)
+            throws ObjectNotFoundException, SubscriptionStateException,
+            OrganizationAuthoritiesException, OperationNotPermittedException {
+    }
+
+    @Override
+    public void updateAsyncSubscriptionProgress(UUID subscriptionUUID,
+            String progress)
+            throws ObjectNotFoundException, SubscriptionStateException,
+            OrganizationAuthoritiesException, OperationNotPermittedException {
+    }
+
+    @Override
+    public void completeAsyncSubscription(UUID subscriptionUUID,
+            VOInstanceInfo instanceInfo) throws ObjectNotFoundException,
+            SubscriptionStateException, TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException,
+            OrganizationAuthoritiesException, OperationNotPermittedException,
+            ValidationException {
+    }
+
+    @Override
+    public void completeAsyncModifySubscription(UUID subscriptionUUID,
+            VOInstanceInfo instance) throws ObjectNotFoundException,
+            SubscriptionStateException, TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException,
+            OrganizationAuthoritiesException, OperationNotPermittedException {
+    }
+
+    @Override
+    public void abortAsyncModifySubscription(UUID subscriptionUUID,
+            String reason)
+            throws ObjectNotFoundException, SubscriptionStateException,
+            OrganizationAuthoritiesException, OperationNotPermittedException {
+    }
+
+    @Override
+    public VOSubscription getSubscription(UUID uuid) {
         return null;
     }
 

@@ -263,6 +263,25 @@ public class CommunicationServiceBean implements CommunicationServiceLocal {
         }
     }
 
+    public String getBaseUrlHttpsWithTenant(String tenantId) throws MailOperationException {
+        StringBuffer url = new StringBuffer();
+        try {
+            url.append(getBaseUrlHttps());
+            if (StringUtils.isNotBlank(tenantId)) {
+                removeTrailingSlashes(url);
+                url.append("?" + TENANT_ID + "=");
+                url.append(URLEncoder.encode(tenantId.trim(), ENCODING));
+            }
+            return url.toString();
+        } catch (UnsupportedEncodingException e) {
+            logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.ERROR_ENCODE_ORGANIZATION_ID_FAILED);
+            MailOperationException mof = new MailOperationException(
+                    "Tenant URL creation failed!", e);
+            throw mof;
+        }
+    }
+
     public String getMarketplaceUrl(String marketplaceId)
             throws MailOperationException {
         // send acknowledge e-mail
@@ -286,8 +305,35 @@ public class CommunicationServiceBean implements CommunicationServiceLocal {
         }
     }
 
+    public String getMarketplaceUrlHttps(String marketplaceId)
+            throws MailOperationException {
+        // send acknowledge e-mail
+        StringBuffer url = new StringBuffer();
+        try {
+            url.append(getBaseUrlHttps());
+            if (marketplaceId != null && marketplaceId.trim().length() > 0) {
+                removeTrailingSlashes(url);
+                url.append(org.oscm.types.constants.marketplace.Marketplace.MARKETPLACE_ROOT);
+                url.append("?mId=");
+                url.append(URLEncoder.encode(marketplaceId.trim(), ENCODING));
+            }
+            return url.toString();
+        } catch (UnsupportedEncodingException e) {
+            // log exception
+            logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.ERROR_ENCODE_ORGANIZATION_ID_FAILED);
+            MailOperationException mof = new MailOperationException(
+                    "Marketplace URL creation failed!", e);
+            throw mof;
+        }
+    }
+
     public String getBaseUrl() {
         return confSvc.getBaseURL();
+    }
+
+    public String getBaseUrlHttps() {
+        return confSvc.getBaseUrlHttps();
     }
 
     private Session lookupMailResource() {

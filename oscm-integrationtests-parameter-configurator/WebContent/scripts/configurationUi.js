@@ -106,15 +106,15 @@ BssParameterConfigurator.prototype = {
                 var optionIds = this._parameters[i].getOptionIds();
 	        for (var op=0; op < optionIds.length; op++) {
                     var currentOption = document.getElementById(this._parameters[i].getId() + ":option:" + optionIds[op]);
-                    if(currentOption.checked){
-                        totalPrice += this._parameters[i].getOptions()[op].pricePerSubscription;
+                    if(currentOption.checked) {
+                        totalPrice += (this._parameters[i].getOptions()[op].pricePerSubscription)*1000000;
                     }
                 }
-	    } else {
-                totalPrice += this._parameters[i].getPricePerSubscription();
-	    }
+	        } else {
+                totalPrice += (this._parameters[i].getPricePerSubscription())*1000000;
+	        }
         }
-        price.innerHTML = totalPrice;
+        price.innerHTML = totalPrice/1000000;
     },
 
     generateButtons : function() {

@@ -35,6 +35,8 @@ import org.oscm.app.v2_0.intf.ControllerAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.oscm.app.common.Constants.APPLICATION_SERVER_HOME_CONSTANT;
+
 @Singleton
 @Startup
 public class Initializer {
@@ -66,7 +68,7 @@ public class Initializer {
         try {
             // Get default config folder of GF instance
             String instanceRoot = System
-                    .getProperty("catalina.home");
+                    .getProperty(APPLICATION_SERVER_HOME_CONSTANT);
             String controllerId = controllerAccess.getControllerId();
             if (instanceRoot != null) {
                 File root = new File(instanceRoot);
