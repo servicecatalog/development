@@ -100,4 +100,11 @@ public class BasicAuthFilter implements Filter {
 
     }
 
+    public void setConfigService(ConfigurationService configService) {
+        this.configService = configService;
+    }
+
+    public void setIdentityService(IdentityService identityService) {
+        this.identityService = identityService;
+    }
 }

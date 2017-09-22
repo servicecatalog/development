@@ -37,7 +37,10 @@ import org.oscm.rest.trigger.data.ProcessRepresentation;
  * @author miethaner
  */
 public class RestTriggerResourceTest {
+    @Test
+    public void test() {
 
+    }
 //    @Test
 //    public void testAction() throws Exception {
 //        RestTriggerResource.Action action = new RestTriggerResource()
