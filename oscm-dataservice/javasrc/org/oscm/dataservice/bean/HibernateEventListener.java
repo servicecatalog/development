@@ -28,7 +28,7 @@ import org.oscm.logging.LoggerFactory;
 /**
  * Hibernate specific listener implementation to catch insert, modification and
  * delete events for history object creation and index updates.
- * 
+ *
  * @author hoffmann
  */
 public class HibernateEventListener implements PostUpdateEventListener,
@@ -55,6 +55,8 @@ public class HibernateEventListener implements PostUpdateEventListener,
         if (event.getEntity() instanceof DomainObjectWithVersioning<?>) {
             final int i = getVersionColumn(event);
             if ((Integer) event.getOldState()[i] < ((Number) event.getState()[i]).intValue()) {
+                createHistory(event.getPersister(), event.getEntity(),
+                    ModificationType.MODIFY);
                 handleIndexing(event.getEntity(), ModificationType.MODIFY);
             }
         }
