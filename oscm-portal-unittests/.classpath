@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="javasrc"/>
 	<classpathentry kind="lib" path="/libraries/junit/javalib/junit-4.5.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/javaee-api-7.0-1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-portal"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry kind="lib" path="/libraries/apache-log4j/javalib/log4j-1.2.16.jar"/>
@@ -42,6 +41,5 @@
 	<classpathentry kind="lib" path="/libraries/jackson/javalib/jackson-annotations.jar"/>
 	<classpathentry kind="lib" path="/libraries/jackson/javalib/jackson-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/jackson/javalib/jackson-databind.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/javaee-api-7.0-1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
