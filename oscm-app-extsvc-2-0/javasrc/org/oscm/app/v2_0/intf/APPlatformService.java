@@ -367,4 +367,5 @@ public interface APPlatformService {
      * @return true if token and signature match
      */
     public boolean checkToken(String token, String signature);
+
 }

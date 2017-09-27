@@ -148,7 +148,7 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
 
         besDAO = container.get(BesDAO.class);
 
-        platformService = container.get(APPlatformService.class);
+        platformService = container.get(APPlatformServiceBean.class);
 
         em = container.getPersistenceUnit("oscm-app");
 

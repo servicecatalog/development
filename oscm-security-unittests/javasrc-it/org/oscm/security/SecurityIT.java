@@ -316,7 +316,8 @@ public class SecurityIT extends BaseAdmUmTest {
         ADMRealmImpl realmImpl = new TestADMRealmImpl(userKey);
         List<String> groups = Collections
                 .list(realmImpl.getGroupNames(userKey));
-        assertEquals(Arrays.asList(ADMRealmImpl.GROUPLIST_USER), groups);
+        assertEquals(Arrays.asList(ADMRealmImpl.GROUPLIST_USER).size(), groups.size());
+        assertEquals(Arrays.asList(ADMRealmImpl.GROUPLIST_USER).get(0), groups);
     }
 
     @Test(expected = SQLException.class)

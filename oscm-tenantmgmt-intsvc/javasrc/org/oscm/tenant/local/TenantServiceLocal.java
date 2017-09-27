@@ -14,6 +14,9 @@ import org.oscm.domobjects.TenantSetting;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 
+import javax.ejb.Local;
+
+@Local
 public interface TenantServiceLocal {
 
     List<Tenant> getAllTenants();

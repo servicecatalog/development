@@ -18,10 +18,13 @@ import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.paginator.Pagination;
 import org.oscm.paginator.PaginationFullTextFilter;
 
+import javax.ejb.Remote;
+
 /**
  * @author tokoda
  * 
  */
+@Remote
 public interface SubscriptionsService {
 
     /**

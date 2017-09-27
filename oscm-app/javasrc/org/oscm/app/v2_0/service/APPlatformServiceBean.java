@@ -68,17 +68,37 @@ public class APPlatformServiceBean implements APPlatformService {
     private static final Logger logger = LoggerFactory
             .getLogger(APPlatformServiceBean.class);
 
+    public void setConfigService(APPConfigurationServiceBean configService) {
+        this.configService = configService;
+    }
+
     @EJB
     protected APPConfigurationServiceBean configService;
+
+    public void setConcurrencyService(APPConcurrencyServiceBean concurrencyService) {
+        this.concurrencyService = concurrencyService;
+    }
 
     @EJB
     protected APPConcurrencyServiceBean concurrencyService;
 
+    public void setMailService(APPCommunicationServiceBean mailService) {
+        this.mailService = mailService;
+    }
+
     @EJB
     protected APPCommunicationServiceBean mailService;
 
+    public void setAuthService(APPAuthenticationServiceBean authService) {
+        this.authService = authService;
+    }
+
     @EJB
     protected APPAuthenticationServiceBean authService;
+
+    public void setInstanceDAO(ServiceInstanceDAO instanceDAO) {
+        this.instanceDAO = instanceDAO;
+    }
 
     @EJB
     protected ServiceInstanceDAO instanceDAO;

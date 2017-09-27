@@ -38,6 +38,7 @@ import org.oscm.billingservice.service.BillingServiceBean;
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
+import org.oscm.dataservice.bean.HibernateIndexer;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.CatalogEntry;
 import org.oscm.domobjects.ConfigurationSetting;
@@ -49,6 +50,7 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.UserRole;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.eventservice.bean.EventServiceBean;
 import org.oscm.i18nservice.bean.ImageResourceServiceBean;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
@@ -153,6 +155,7 @@ public class SubscriptionUpgradeSetup {
     private static PlatformUser adminUser;
 
     public static void setup(TestContainer container) throws Exception {
+        AESEncrypter.generateKey();
         container.addBean(new AuditLogDao());
         addConfigurationServiceStub(container);
         container.addBean(new AuditLogServiceBean());
@@ -170,6 +173,7 @@ public class SubscriptionUpgradeSetup {
         container.addBean(mock(ApplicationServiceLocal.class));
         addIdentityServiceStub(container);
         addTenantProvisioningServiceStub(container);
+        container.addBean(mock(HibernateIndexer.class));
         container.addBean(mock(CommunicationServiceLocal.class));
         container.addBean(mock(ImageResourceServiceLocal.class));
         container.addBean(mock(TaskQueueServiceLocal.class));
@@ -255,6 +259,7 @@ public class SubscriptionUpgradeSetup {
         container.addBean(new ApplicationServiceBean());
         container.addBean(new AccountServiceManagementBean());
         container.addBean(new EventServiceBean());
+
     }
 
     private static LocalizerServiceLocal mockLocalizer() {

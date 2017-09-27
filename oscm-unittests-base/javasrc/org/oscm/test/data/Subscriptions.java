@@ -209,6 +209,7 @@ public class Subscriptions {
 
             newSub.setBillingContact(bc);
             newSub.setCutOffDay(cutOffDay);
+            newSub.setUuid(UUID.randomUUID());
 
             if (paymentInfo != null) {
                 mgr.persist(paymentInfo);
