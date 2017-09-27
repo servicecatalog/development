@@ -8,6 +8,8 @@
 
 package org.oscm.app.common;
 
+import static org.oscm.app.common.Constants.APPLICATION_SERVER_HOME_CONSTANT;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,11 +22,7 @@ import java.util.Collection;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.ejb.Timeout;
-import javax.ejb.Timer;
-import javax.ejb.TimerService;
+import javax.ejb.*;
 import javax.inject.Inject;
 
 import org.apache.commons.io.FileUtils;
@@ -34,8 +32,6 @@ import org.apache.log4j.PropertyConfigurator;
 import org.oscm.app.v2_0.intf.ControllerAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.oscm.app.common.Constants.APPLICATION_SERVER_HOME_CONSTANT;
 
 @Singleton
 @Startup
@@ -66,7 +62,6 @@ public class Initializer {
     @PostConstruct
     private void postConstruct() {
         try {
-            // Get default config folder of GF instance
             String instanceRoot = System
                     .getProperty(APPLICATION_SERVER_HOME_CONSTANT);
             String controllerId = controllerAccess.getControllerId();
