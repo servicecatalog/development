@@ -4,8 +4,6 @@
 
 package org.oscm.communicationservice.bean;
 
-import static org.oscm.communicationservice.Constants.*;
-
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -15,9 +13,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
-
-import javax.ejb.*;
-import javax.mail.*;
+import javax.ejb.EJB;
+import javax.ejb.Local;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.mail.Address;
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -26,6 +33,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.oscm.communicationservice.data.SendMailStatus;
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
 import org.oscm.communicationservice.smtp.SMTPAuthenticator;
@@ -45,6 +53,17 @@ import org.oscm.types.constants.Configuration;
 import org.oscm.types.enumtypes.EmailType;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.validator.BLValidator;
+
+import static org.oscm.communicationservice.Constants.ENCODING;
+import static org.oscm.communicationservice.Constants.MAIL_PASSWORD;
+import static org.oscm.communicationservice.Constants.MAIL_RESOURCE;
+import static org.oscm.communicationservice.Constants.MAIL_SMTP_AUTH;
+import static org.oscm.communicationservice.Constants.MAIL_USER;
+import static org.oscm.communicationservice.Constants.RESOURCE_SUBJECT;
+import static org.oscm.communicationservice.Constants.RESOURCE_TEXT;
+import static org.oscm.communicationservice.Constants.RESOURCE_TEXT_FOOTER;
+import static org.oscm.communicationservice.Constants.RESOURCE_TEXT_HEADER;
+import static org.oscm.communicationservice.Constants.TENANT_ID;
 
 /**
  * Session Bean implementation class CommunicationServiceBean
@@ -343,6 +362,20 @@ public class CommunicationServiceBean implements CommunicationServiceLocal {
             Object resource = context.lookup(MAIL_RESOURCE);
             if (resource instanceof Session) {
                 session = (Session) resource;
+                //// TODO: 2017-09-27 clean it
+                if ("smtp".equalsIgnoreCase(session.getProperty("mail.transport.protocol"))) {
+                    Properties properties = session.getProperties();
+                    properties.putIfAbsent("mail.smtp.auth", "true");
+                    properties.putIfAbsent("mail.smtp.starttls.enable", "true");
+                    String username = session.getProperty("mail.smtp.user");
+                    String password = session.getProperty("mail.smtp.password");
+                    session = Session.getInstance(session.getProperties(), new Authenticator() {
+                        @Override
+                        protected PasswordAuthentication getPasswordAuthentication() {
+                            return new PasswordAuthentication(username, password);
+                        }
+                    });
+                }
             } else if ("com.sun.enterprise.deployment.MailConfiguration"
                     .equals(resource.getClass().getName())) {
                 // since Glassfish <3.0 has a bug here, we need reflection
