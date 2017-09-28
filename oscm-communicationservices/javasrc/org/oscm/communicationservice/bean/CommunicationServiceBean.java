@@ -56,8 +56,11 @@ import org.oscm.validator.BLValidator;
 
 import static org.oscm.communicationservice.Constants.ENCODING;
 import static org.oscm.communicationservice.Constants.MAIL_PASSWORD;
+import static org.oscm.communicationservice.Constants.MAIL_PROTOCOL_SMTP;
 import static org.oscm.communicationservice.Constants.MAIL_RESOURCE;
 import static org.oscm.communicationservice.Constants.MAIL_SMTP_AUTH;
+import static org.oscm.communicationservice.Constants.MAIL_SMTP_USER;
+import static org.oscm.communicationservice.Constants.MAIL_TLS_ENABLED;
 import static org.oscm.communicationservice.Constants.MAIL_USER;
 import static org.oscm.communicationservice.Constants.RESOURCE_SUBJECT;
 import static org.oscm.communicationservice.Constants.RESOURCE_TEXT;
@@ -362,13 +365,12 @@ public class CommunicationServiceBean implements CommunicationServiceLocal {
             Object resource = context.lookup(MAIL_RESOURCE);
             if (resource instanceof Session) {
                 session = (Session) resource;
-                //// TODO: 2017-09-27 clean it
-                if ("smtp".equalsIgnoreCase(session.getProperty("mail.transport.protocol"))) {
+                if (MAIL_PROTOCOL_SMTP.equalsIgnoreCase(session.getProperty("mail.transport.protocol"))) {
                     Properties properties = session.getProperties();
-                    properties.putIfAbsent("mail.smtp.auth", "true");
-                    properties.putIfAbsent("mail.smtp.starttls.enable", "true");
-                    String username = session.getProperty("mail.smtp.user");
-                    String password = session.getProperty("mail.smtp.password");
+                    properties.putIfAbsent(MAIL_SMTP_AUTH, "true");
+                    properties.putIfAbsent(MAIL_TLS_ENABLED, "true");
+                    String username = session.getProperty(MAIL_SMTP_USER);
+                    String password = session.getProperty(MAIL_PASSWORD);
                     session = Session.getInstance(session.getProperties(), new Authenticator() {
                         @Override
                         protected PasswordAuthentication getPasswordAuthentication() {
