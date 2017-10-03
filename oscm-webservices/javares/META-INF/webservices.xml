@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright FUJITSU LIMITED 2017-->
 
-<webservices xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  version="1.2" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://www.ibm.com/webservices/xsd/javaee_web_services_1_2.xsd"> 
+<webservices xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  version="1.4" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/javaee_web_services_1_4.xsd">
   <webservice-description>
     <display-name>AccountService</display-name>
     <webservice-description-name>AccountService</webservice-description-name>
@@ -15,7 +15,7 @@
       <service-impl-bean>
         <ejb-link>AccountServiceWS1</ejb-link>
       </service-impl-bean>
-      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+      <handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">
         <handler-chain>
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
@@ -33,7 +33,7 @@
       <!--<service-impl-bean>-->
         <!--<ejb-link>AccountServiceWS2</ejb-link>-->
       <!--</service-impl-bean>-->
-      <!--<handler-chains xmlns="http://java.sun.com/xml/ns/javaee">-->
+      <!--<handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">-->
         <!--<handler-chain>-->
           <!--<handler>-->
             <!--<handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>-->
@@ -55,7 +55,7 @@
       <service-impl-bean>
         <ejb-link>BillingServiceWS1</ejb-link>
       </service-impl-bean>
-      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+      <handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">
         <handler-chain>
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
@@ -72,7 +72,7 @@
       <!--<service-impl-bean>-->
         <!--<ejb-link>BillingServiceWS2</ejb-link>-->
       <!--</service-impl-bean>-->
-      <!--<handler-chains xmlns="http://java.sun.com/xml/ns/javaee">-->
+      <!--<handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">-->
         <!--<handler-chain>-->
           <!--<handler>-->
             <!--<handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>-->
@@ -94,7 +94,7 @@
       <service-impl-bean>
         <ejb-link>EventServiceWS1</ejb-link>
       </service-impl-bean>
-      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+      <handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">
         <handler-chain>
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
@@ -111,7 +111,7 @@
       <!--<service-impl-bean>-->
         <!--<ejb-link>EventServiceWS2</ejb-link>-->
       <!--</service-impl-bean>-->
-      <!--<handler-chains xmlns="http://java.sun.com/xml/ns/javaee">-->
+      <!--<handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">-->
         <!--<handler-chain>-->
           <!--<handler>-->
             <!--<handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>-->
@@ -133,7 +133,7 @@
       <service-impl-bean>
         <ejb-link>IdentityServiceWS1</ejb-link>
       </service-impl-bean>
-      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+      <handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">
         <handler-chain>
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
@@ -150,7 +150,7 @@
       <!--<service-impl-bean>-->
         <!--<ejb-link>IdentityServiceWS2</ejb-link>-->
       <!--</service-impl-bean>-->
-      <!--<handler-chains xmlns="http://java.sun.com/xml/ns/javaee">-->
+      <!--<handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">-->
         <!--<handler-chain>-->
           <!--<handler>-->
             <!--<handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>-->
@@ -172,7 +172,7 @@
       <service-impl-bean>
         <ejb-link>SessionServiceWS1</ejb-link>
       </service-impl-bean>
-      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+      <handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">
         <handler-chain>
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
@@ -190,7 +190,7 @@
       <!--<service-impl-bean>-->
         <!--<ejb-link>SessionServiceWS2</ejb-link>-->
       <!--</service-impl-bean>-->
-      <!--<handler-chains xmlns="http://java.sun.com/xml/ns/javaee">-->
+      <!--<handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">-->
         <!--<handler-chain>-->
           <!--<handler>-->
             <!--<handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>-->
@@ -214,7 +214,7 @@
       <service-impl-bean>
         <ejb-link>ReportingServiceWS1</ejb-link>
       </service-impl-bean>
-      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+      <handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">
         <handler-chain>
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
@@ -231,7 +231,7 @@
       <!--<service-impl-bean>-->
         <!--<ejb-link>ReportingServiceWS2</ejb-link>-->
       <!--</service-impl-bean>-->
-      <!--<handler-chains xmlns="http://java.sun.com/xml/ns/javaee">-->
+      <!--<handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">-->
         <!--<handler-chain>-->
           <!--<handler>-->
             <!--<handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>-->
@@ -253,7 +253,7 @@
       <service-impl-bean>
         <ejb-link>TagServiceWS1</ejb-link>
       </service-impl-bean>
-      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+      <handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">
         <handler-chain>
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
@@ -270,7 +270,7 @@
       <!--<service-impl-bean>-->
         <!--<ejb-link>TagServiceWS2</ejb-link>-->
       <!--</service-impl-bean>-->
-      <!--<handler-chains xmlns="http://java.sun.com/xml/ns/javaee">-->
+      <!--<handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">-->
         <!--<handler-chain>-->
           <!--<handler>-->
             <!--<handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>-->
@@ -292,7 +292,7 @@
       <service-impl-bean>
         <ejb-link>ServiceProvisioningServiceWS1</ejb-link>
       </service-impl-bean>
-      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+      <handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">
         <handler-chain>
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
@@ -309,7 +309,7 @@
       <!--<service-impl-bean>-->
         <!--<ejb-link>ServiceProvisioningServiceWS2</ejb-link>-->
       <!--</service-impl-bean>-->
-      <!--<handler-chains xmlns="http://java.sun.com/xml/ns/javaee">-->
+      <!--<handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">-->
         <!--<handler-chain>-->
           <!--<handler>-->
             <!--<handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>-->
@@ -331,7 +331,7 @@
       <service-impl-bean>
         <ejb-link>SearchServiceWS1</ejb-link>
       </service-impl-bean>
-      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+      <handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">
         <handler-chain>
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
@@ -347,7 +347,7 @@
       <!--<service-impl-bean>-->
         <!--<ejb-link>SearchServiceWS2</ejb-link>-->
       <!--</service-impl-bean>-->
-      <!--<handler-chains xmlns="http://java.sun.com/xml/ns/javaee">-->
+      <!--<handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">-->
         <!--<handler-chain>-->
           <!--<handler>-->
             <!--<handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>-->
@@ -369,7 +369,7 @@
       <service-impl-bean>
         <ejb-link>SubscriptionServiceWS1</ejb-link>
       </service-impl-bean>
-      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+      <handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">
         <handler-chain>
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
@@ -386,7 +386,7 @@
       <!--<service-impl-bean>-->
         <!--<ejb-link>SubscriptionServiceWS2</ejb-link>-->
       <!--</service-impl-bean>-->
-      <!--<handler-chains xmlns="http://java.sun.com/xml/ns/javaee">-->
+      <!--<handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">-->
         <!--<handler-chain>-->
           <!--<handler>-->
             <!--<handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>-->
@@ -408,7 +408,7 @@
       <service-impl-bean>
         <ejb-link>TriggerServiceWS1</ejb-link>
       </service-impl-bean>
-      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+      <handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">
         <handler-chain>
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
@@ -426,7 +426,7 @@
       <!--<service-impl-bean>-->
         <!--<ejb-link>TriggerServiceWS2</ejb-link>-->
       <!--</service-impl-bean>-->
-      <!--<handler-chains xmlns="http://java.sun.com/xml/ns/javaee">-->
+      <!--<handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">-->
         <!--<handler-chain>-->
           <!--<handler>-->
             <!--<handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>-->
@@ -448,7 +448,7 @@
       <service-impl-bean>
         <ejb-link>TriggerDefinitionServiceWS1</ejb-link>
       </service-impl-bean>
-      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+      <handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">
         <handler-chain>
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
@@ -466,7 +466,7 @@
       <!--<service-impl-bean>-->
         <!--<ejb-link>TriggerDefinitionServiceWS2</ejb-link>-->
       <!--</service-impl-bean>-->
-      <!--<handler-chains xmlns="http://java.sun.com/xml/ns/javaee">-->
+      <!--<handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">-->
         <!--<handler-chain>-->
           <!--<handler>-->
             <!--<handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>-->
@@ -488,7 +488,7 @@
       <service-impl-bean>
         <ejb-link>VatServiceWS1</ejb-link>
       </service-impl-bean>
-      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+      <handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">
         <handler-chain>
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
@@ -505,7 +505,7 @@
       <!--<service-impl-bean>-->
         <!--<ejb-link>VatServiceWS2</ejb-link>-->
       <!--</service-impl-bean>-->
-      <!--<handler-chains xmlns="http://java.sun.com/xml/ns/javaee">-->
+      <!--<handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">-->
         <!--<handler-chain>-->
           <!--<handler>-->
             <!--<handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>-->
@@ -528,7 +528,7 @@
       <service-impl-bean>
         <ejb-link>MarketplaceServiceWS1</ejb-link>
       </service-impl-bean>
-      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+      <handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">
         <handler-chain>
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
@@ -546,7 +546,7 @@
       <!--<service-impl-bean>-->
         <!--<ejb-link>MarketplaceServiceWS2</ejb-link>-->
       <!--</service-impl-bean>-->
-      <!--<handler-chains xmlns="http://java.sun.com/xml/ns/javaee">-->
+      <!--<handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">-->
         <!--<handler-chain>-->
           <!--<handler>-->
             <!--<handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>-->
@@ -570,7 +570,7 @@
       <service-impl-bean>
         <ejb-link>ReviewServiceWS1</ejb-link>
       </service-impl-bean>
-      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+      <handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">
         <handler-chain>
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
@@ -587,7 +587,7 @@
       <!--<service-impl-bean>-->
         <!--<ejb-link>ReviewServiceWS2</ejb-link>-->
       <!--</service-impl-bean>-->
-      <!--<handler-chains xmlns="http://java.sun.com/xml/ns/javaee">-->
+      <!--<handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">-->
         <!--<handler-chain>-->
           <!--<handler>-->
             <!--<handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>-->
@@ -611,7 +611,7 @@
       <service-impl-bean>
         <ejb-link>PaymentRegistrationServiceWS</ejb-link>
       </service-impl-bean>
-      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+      <handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">
         <handler-chain>
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
@@ -634,7 +634,7 @@
       <service-impl-bean>
         <ejb-link>DiscountServiceWS1</ejb-link>
       </service-impl-bean>
-      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+      <handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">
         <handler-chain>
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
@@ -651,7 +651,7 @@
       <!--<service-impl-bean>-->
         <!--<ejb-link>DiscountServiceWS2</ejb-link>-->
       <!--</service-impl-bean>-->
-      <!--<handler-chains xmlns="http://java.sun.com/xml/ns/javaee">-->
+      <!--<handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">-->
         <!--<handler-chain>-->
           <!--<handler>-->
             <!--<handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>-->
@@ -674,7 +674,7 @@
       <service-impl-bean>
         <ejb-link>CategorizationServiceWS1</ejb-link>
       </service-impl-bean>
-      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+      <handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">
         <handler-chain>
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
@@ -691,7 +691,7 @@
       <!--<service-impl-bean>-->
         <!--<ejb-link>CategorizationServiceWS2</ejb-link>-->
       <!--</service-impl-bean>-->
-      <!--<handler-chains xmlns="http://java.sun.com/xml/ns/javaee">-->
+      <!--<handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">-->
         <!--<handler-chain>-->
           <!--<handler>-->
             <!--<handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>-->
@@ -714,7 +714,7 @@
       <service-impl-bean>
         <ejb-link>OrganizationalUnitServiceWS1</ejb-link>
       </service-impl-bean>
-      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+      <handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">
         <handler-chain>
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
@@ -731,7 +731,7 @@
       <!--<service-impl-bean>-->
         <!--<ejb-link>OrganizationalUnitServiceWS2</ejb-link>-->
       <!--</service-impl-bean>-->
-      <!--<handler-chains xmlns="http://java.sun.com/xml/ns/javaee">-->
+      <!--<handler-chains xmlns="http://xmlns.jcp.org/xml/ns/javaee">-->
         <!--<handler-chain>-->
           <!--<handler>-->
             <!--<handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>-->
