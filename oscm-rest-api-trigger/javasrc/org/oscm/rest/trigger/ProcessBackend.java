@@ -46,17 +46,14 @@ public class ProcessBackend {
         return (content, params) -> {
 
             try {
-                service.approveAction(params.getId().longValue());
+                getService().approveAction(params.getId());
             } catch (ObjectNotFoundException e) {
                 throw WebException.notFound().message(e.getMessage())
                         .build();
             } catch (OperationNotPermittedException e) {
                 throw WebException.forbidden().message(e.getMessage())
                         .build();
-            } catch (TriggerProcessStatusException e) {
-                throw WebException.conflict().message(e.getMessage())
-                        .build();
-            } catch (ExecutionTargetException e) {
+            } catch (TriggerProcessStatusException | ExecutionTargetException e) {
                 throw WebException.conflict().message(e.getMessage())
                         .build();
             } catch (Exception e) {
@@ -82,7 +79,7 @@ public class ProcessBackend {
                 reason.add(new VOLocalizedText(
                         Locale.ENGLISH.getLanguage(), content.getComment()));
 
-                service.rejectAction(params.getId().longValue(), reason);
+                getService().rejectAction(params.getId(), reason);
             } catch (ObjectNotFoundException e) {
                 throw WebException.notFound().message(e.getMessage())
                         .build();
@@ -115,7 +112,7 @@ public class ProcessBackend {
                 reason.add(new VOLocalizedText(
                         Locale.ENGLISH.getLanguage(), content.getComment()));
 
-                service.cancelActions(Arrays.asList(params.getId()), reason);
+                getService().cancelActions(Arrays.asList(params.getId()), reason);
             } catch (ObjectNotFoundException e) {
                 throw WebException.notFound().message(e.getMessage())
                         .build();
@@ -139,4 +136,7 @@ public class ProcessBackend {
 
     }
 
+    public TriggerService getService() {
+        return service;
+    }
 }

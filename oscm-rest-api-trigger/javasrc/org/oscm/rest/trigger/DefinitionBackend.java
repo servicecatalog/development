@@ -47,7 +47,7 @@ public class DefinitionBackend {
 
             VOTriggerDefinition definition;
             try {
-                definition = service.getTriggerDefinition(params.getId());
+                definition = getService().getTriggerDefinition(params.getId());
             } catch (ObjectNotFoundException e) {
                 throw WebException.notFound().message(e.getMessage())
                         .build();
@@ -75,7 +75,7 @@ public class DefinitionBackend {
 
             Collection<VOTriggerDefinition> definitions;
             try {
-                definitions = service.getTriggerDefinitions();
+                definitions = getService().getTriggerDefinitions();
             } catch (Exception e) {
                 if (e instanceof javax.ejb.EJBAccessException) {
                     throw WebException.forbidden()
@@ -103,7 +103,7 @@ public class DefinitionBackend {
         return (content, params) -> {
 
             try {
-                return service
+                return getService()
                         .createTriggerDefinition(tranferToVO(content));
             } catch (TriggerDefinitionDataException e) {
                 throw WebException.conflict().message(e.getMessage())
@@ -133,11 +133,11 @@ public class DefinitionBackend {
                 VOTriggerDefinition definition = tranferToVO(content);
 
                 if (content.getETag() == null) {
-                    definition.setVersion(service.getTriggerDefinition(
+                    definition.setVersion(getService().getTriggerDefinition(
                             params.getId()).getVersion());
                 }
 
-                service.updateTriggerDefinition(definition);
+                getService().updateTriggerDefinition(definition);
             } catch (ObjectNotFoundException e) {
                 throw WebException.notFound().message(e.getMessage())
                         .build();
@@ -169,7 +169,7 @@ public class DefinitionBackend {
         return params -> {
 
             try {
-                service.deleteTriggerDefinition(params.getId());
+                getService().deleteTriggerDefinition(params.getId());
             } catch (ObjectNotFoundException e) {
                 throw WebException.notFound().message(e.getMessage())
                         .build();
@@ -224,5 +224,9 @@ public class DefinitionBackend {
         }
 
         return definition;
+    }
+
+    public TriggerDefinitionService getService() {
+        return service;
     }
 }

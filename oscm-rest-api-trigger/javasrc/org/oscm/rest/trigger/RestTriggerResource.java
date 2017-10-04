@@ -56,7 +56,7 @@ public class RestTriggerResource extends RestResource {
         @Override
         public Response getItem(@Context UriInfo uriInfo,
                                 @BeanParam RequestParameters params) throws Exception {
-            return get(uriInfo, triggerBackend.getItem(), params, true);
+            return get(uriInfo, getTriggerBackend().getItem(), params, true);
         }
 
         /**
@@ -68,7 +68,7 @@ public class RestTriggerResource extends RestResource {
         @Override
         public Response getCollection(@Context UriInfo uriInfo,
                                       @BeanParam RequestParameters params) throws Exception {
-            return get(uriInfo, triggerBackend.getCollection(), params, false);
+            return get(uriInfo, getTriggerBackend().getCollection(), params, false);
         }
 
         /**
@@ -82,7 +82,7 @@ public class RestTriggerResource extends RestResource {
         public Response postCollection(@Context UriInfo uriInfo,
                                        DefinitionRepresentation content,
                                        @BeanParam RequestParameters params) throws Exception {
-            return post(uriInfo, triggerBackend.postCollection(), content,
+            return post(uriInfo, getTriggerBackend().postCollection(), content,
                     params);
         }
 
@@ -97,7 +97,7 @@ public class RestTriggerResource extends RestResource {
         public Response putItem(@Context UriInfo uriInfo,
                                 DefinitionRepresentation content,
                                 @BeanParam RequestParameters params) throws Exception {
-            return put(uriInfo, triggerBackend.putItem(), content, params);
+            return put(uriInfo, getTriggerBackend().putItem(), content, params);
         }
 
         /**
@@ -109,7 +109,7 @@ public class RestTriggerResource extends RestResource {
         @Override
         public Response deleteItem(@Context UriInfo uriInfo,
                                    @BeanParam RequestParameters params) throws Exception {
-            return delete(uriInfo, triggerBackend.deleteItem(), params);
+            return delete(uriInfo, getTriggerBackend().deleteItem(), params);
         }
 
     }
@@ -201,7 +201,7 @@ public class RestTriggerResource extends RestResource {
                                    @BeanParam RequestParameters params) throws Exception {
             ProcessRepresentation process = new ProcessRepresentation();
             process.setComment("");
-            return put(uriInfo, processBackend.putApprove(), process, params);
+            return put(uriInfo, getProcessBackend().putApprove(), process, params);
         }
 
         /**
@@ -223,7 +223,7 @@ public class RestTriggerResource extends RestResource {
         public Response putReject(@Context UriInfo uriInfo,
                                   ProcessRepresentation content,
                                   @BeanParam RequestParameters params) throws Exception {
-            return put(uriInfo, processBackend.putReject(), content, params);
+            return put(uriInfo, getProcessBackend().putReject(), content, params);
         }
 
     }
@@ -236,5 +236,13 @@ public class RestTriggerResource extends RestResource {
     @Path(TriggerCommonParams.PATH_PROCESSES)
     public Process redirectToProcess() {
         return new Process();
+    }
+
+    public DefinitionBackend getTriggerBackend() {
+        return triggerBackend;
+    }
+
+    public ProcessBackend getProcessBackend() {
+        return processBackend;
     }
 }
