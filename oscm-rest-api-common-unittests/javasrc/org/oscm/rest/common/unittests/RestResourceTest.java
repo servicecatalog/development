@@ -9,31 +9,19 @@
 package org.oscm.rest.common.unittests;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotSame;
-import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.oscm.rest.common.CommonParams.PARAM_VERSION;
-import static org.oscm.rest.common.CommonParams.VERSION_1;
 
-
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
-import org.apache.cxf.jaxrs.impl.RequestImpl;
-import org.apache.cxf.jaxrs.impl.UriBuilderImpl;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.oscm.rest.common.*;
