@@ -118,4 +118,7 @@ public class RequestParameters {
     public void update() {
     }
 
+    public void setNoneMatch(String noneMatch) {
+        this.noneMatch = noneMatch;
+    }
 }

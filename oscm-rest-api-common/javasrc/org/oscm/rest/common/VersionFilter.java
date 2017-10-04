@@ -47,7 +47,7 @@ public class VersionFilter implements ContainerRequestFilter {
 
             int vnr = versionValidator.doIt(version);
 
-            Method method = resourceInfo.getResourceMethod();
+            Method method = getResourceInfo().getResourceMethod();
 
             if (method.isAnnotationPresent(Since.class)) {
 
@@ -73,5 +73,9 @@ public class VersionFilter implements ContainerRequestFilter {
             throw WebException.notFound()
                     .message(CommonParams.ERROR_INVALID_VERSION).build();
         }
+    }
+
+    public ResourceInfo getResourceInfo() {
+        return resourceInfo;
     }
 }

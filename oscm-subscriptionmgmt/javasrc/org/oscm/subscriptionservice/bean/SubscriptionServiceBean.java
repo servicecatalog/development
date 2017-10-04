@@ -5803,32 +5803,32 @@ public class SubscriptionServiceBean
         ArgumentValidator.notNull("organizationId", organizationId);
         ArgumentValidator.notNull("instance", instanceInfo);
 
-        PlatformUser user = dataManager.getCurrentUser();
-
-        Subscription subscription = manageBean.findSubscription(subscriptionId,
-                organizationId);
-        PermissionCheck.owns(subscription.getProduct().getTechnicalProduct(),
-                user.getOrganization(), LOG, null);
-
-        List<ParameterDefinition> parameterDefinitions = subscription
-                .getProduct().getTechnicalProduct().getParameterDefinitions();
-
-        for (ParameterDefinition parameterDefinition : parameterDefinitions) {
-            if (!parameterDefinition.getParameterId()
-                    .equals(VMS_NUMBER_PARAM)) {
-                continue;
-            }
-            Parameter parameter = getSubscriptionDao()
-                    .getParameterForSubscription(parameterDefinition,
-                            subscription.getParameterSet());
-            if (parameter == null) {
-                parameter = new Parameter();
-                parameter.setParameterDefinition(parameterDefinition);
-                parameter.setParameterSet(subscription.getParameterSet());
-            }
-            parameter.setValue(Integer.toString(instanceInfo.getVmsNumber()));
-            dataManager.merge(parameter);
-            return;
-        }
+//        PlatformUser user = dataManager.getCurrentUser();
+//
+//        Subscription subscription = manageBean.findSubscription(subscriptionId,
+//                organizationId);
+//        PermissionCheck.owns(subscription.getProduct().getTechnicalProduct(),
+//                user.getOrganization(), LOG, null);
+//
+//        List<ParameterDefinition> parameterDefinitions = subscription
+//                .getProduct().getTechnicalProduct().getParameterDefinitions();
+//
+//        for (ParameterDefinition parameterDefinition : parameterDefinitions) {
+//            if (!parameterDefinition.getParameterId()
+//                    .equals(VMS_NUMBER_PARAM)) {
+//                continue;
+//            }
+//            Parameter parameter = getSubscriptionDao()
+//                    .getParameterForSubscription(parameterDefinition,
+//                            subscription.getParameterSet());
+//            if (parameter == null) {
+//                parameter = new Parameter();
+//                parameter.setParameterDefinition(parameterDefinition);
+//                parameter.setParameterSet(subscription.getParameterSet());
+//            }
+//            parameter.setValue(Integer.toString(instanceInfo.getVmsNumber()));
+//            dataManager.merge(parameter);
+//            return;
+//        }
     }
 }

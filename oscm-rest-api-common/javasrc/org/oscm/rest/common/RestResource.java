@@ -191,6 +191,10 @@ public abstract class RestResource {
      */
     protected int getVersion(UriInfo uriInfo) throws WebApplicationException {
         List<String> strings = uriInfo.getPathParameters().get(PARAM_VERSION);
+        if (strings == null) {
+            throw WebException.notFound()
+                    .message(CommonParams.ERROR_INVALID_VERSION).build();
+        }
         return versionValidator.doIt(strings.get(0));
     }
 

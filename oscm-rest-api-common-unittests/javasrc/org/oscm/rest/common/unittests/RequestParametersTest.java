@@ -23,103 +23,99 @@ import org.oscm.rest.common.RequestParameters;
  * @author miethaner
  */
 public class RequestParametersTest {
+
+    private class TestParameters extends RequestParameters {
+
+        @Override
+        public void validateParameters() throws WebApplicationException {
+        }
+
+        @Override
+        public void update() {
+        }
+    }
+
     @Test
-    public void test() {
+    public void testIdValidation() throws Exception {
+
+        RequestParameters params = new TestParameters();
+
+        params.setId(1L);
+
+        try {
+            params.validateId();
+        } catch (WebApplicationException e) {
+            fail();
+        }
+
+        params.setId(null);
+
+        try {
+            params.validateId();
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.NOT_FOUND.getStatusCode(),
+                    e.getResponse().getStatus());
+        }
 
     }
-//
-//    private class TestParameters extends RequestParameters {
-//
-//        @Override
-//        public void validateParameters() throws WebApplicationException {
-//        }
-//
-//        @Override
-//        public void update() {
-//        }
-//    }
-//
-//    @Test
-//    public void testIdValidation() throws Exception {
-//
-//        RequestParameters params = new TestParameters();
-//
-//        params.setId(new Long(1L));
-//
-//        try {
-//            params.validateId();
-//        } catch (WebApplicationException e) {
-//            fail();
-//        }
-//
-//        params.setId(null);
-//
-//        try {
-//            params.validateId();
-//            fail();
-//        } catch (WebApplicationException e) {
-//            assertEquals(Status.NOT_FOUND.getStatusCode(),
-//                    e.getResponse().getStatus());
-//        }
-//
-//    }
-//
-//    @Test
-//    public void testEtagValidation() throws Exception {
-//
-//        RequestParameters params = new TestParameters();
-//
-//        params.setMatch("*");
-//        params.setNoneMatch("*");
-//
-//        try {
-//            params.validateETag();
-//            assertEquals(null, params.getETag());
-//        } catch (WebApplicationException e) {
-//            fail();
-//        }
-//
-//        params = new TestParameters();
-//        params.setMatch("1");
-//
-//        try {
-//            params.validateETag();
-//            assertEquals(new Long(1L), params.getETag());
-//        } catch (WebApplicationException e) {
-//            fail();
-//        }
-//
-//        params = new TestParameters();
-//        params.setNoneMatch("1");
-//
-//        try {
-//            params.validateETag();
-//            assertEquals(new Long(1L), params.getETag());
-//        } catch (WebApplicationException e) {
-//            fail();
-//        }
-//
-//        params = new TestParameters();
-//        params.setMatch("abc");
-//
-//        try {
-//            params.validateETag();
-//            fail();
-//        } catch (WebApplicationException e) {
-//            assertEquals(Status.BAD_REQUEST.getStatusCode(),
-//                    e.getResponse().getStatus());
-//        }
-//
-//        params = new TestParameters();
-//        params.setNoneMatch("abc");
-//
-//        try {
-//            params.validateETag();
-//            fail();
-//        } catch (WebApplicationException e) {
-//            assertEquals(Status.BAD_REQUEST.getStatusCode(),
-//                    e.getResponse().getStatus());
-//        }
-//    }
+
+    @Test
+    public void testEtagValidation() throws Exception {
+
+        RequestParameters params = new TestParameters();
+
+        params.setMatch("*");
+        params.setNoneMatch("*");
+
+        try {
+            params.validateETag();
+            assertEquals(null, params.getETag());
+        } catch (WebApplicationException e) {
+            fail();
+        }
+
+        params = new TestParameters();
+        params.setMatch("1");
+
+        try {
+            params.validateETag();
+            assertEquals(new Long(1L), params.getETag());
+        } catch (WebApplicationException e) {
+            fail();
+        }
+
+        params = new TestParameters();
+        params.setNoneMatch("1");
+
+        try {
+            params.validateETag();
+            assertEquals(new Long(1L), params.getETag());
+        } catch (WebApplicationException e) {
+            fail();
+        }
+
+        params = new TestParameters();
+        params.setMatch("abc");
+
+        try {
+            params.validateETag();
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.BAD_REQUEST.getStatusCode(),
+                    e.getResponse().getStatus());
+        }
+
+        params = new TestParameters();
+        params.setNoneMatch("abc");
+
+        try {
+            params.validateETag();
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.BAD_REQUEST.getStatusCode(),
+                    e.getResponse().getStatus());
+        }
+    }
 
 }

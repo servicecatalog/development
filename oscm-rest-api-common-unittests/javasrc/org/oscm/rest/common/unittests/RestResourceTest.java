@@ -116,8 +116,8 @@ public class RestResourceTest extends RestResource {
 
         UriInfo uriinfo = mock(UriInfo.class);
         MultivaluedMap<String, String> map = new MultivaluedHashMap<>();
-        map.putSingle(CommonParams.PARAM_VERSION, Integer.valueOf(CommonParams.VERSION_1).toString());
-        Mockito.when(uriinfo.getQueryParameters()).thenReturn(map);
+        map.putSingle(CommonParams.PARAM_VERSION, "v" + Integer.valueOf(CommonParams.VERSION_1).toString());
+        Mockito.when(uriinfo.getPathParameters()).thenReturn(map);
 
         Response response = get(uriinfo, backendGet, params, true);
 
@@ -137,8 +137,8 @@ public class RestResourceTest extends RestResource {
 
         UriInfo uriinfo = mock(UriInfo.class);
         MultivaluedMap<String, String> map = new MultivaluedHashMap<>();
-        map.putSingle(CommonParams.PARAM_VERSION, Integer.valueOf(CommonParams.VERSION_1).toString());
-        Mockito.when(uriinfo.getQueryParameters()).thenReturn(map);
+        map.putSingle(CommonParams.PARAM_VERSION, "v" + Integer.valueOf(CommonParams.VERSION_1).toString());
+        Mockito.when(uriinfo.getPathParameters()).thenReturn(map);
         Response response = post(uriinfo, backendPost, content, params);
 
         assertEquals(Status.CREATED.getStatusCode(), response.getStatus());
@@ -156,8 +156,8 @@ public class RestResourceTest extends RestResource {
 
         UriInfo uriInfo = mock(UriInfo.class);
         MultivaluedMap<String, String> map = new MultivaluedHashMap<>();
-        map.putSingle(CommonParams.PARAM_VERSION, Integer.valueOf(CommonParams.VERSION_1).toString());
-        Mockito.when(uriInfo.getQueryParameters()).thenReturn(map);
+        map.putSingle(CommonParams.PARAM_VERSION, "v" + Integer.valueOf(CommonParams.VERSION_1).toString());
+        Mockito.when(uriInfo.getPathParameters()).thenReturn(map);
 
         Response response = put(uriInfo, backendPut, content, params);
 
@@ -177,8 +177,8 @@ public class RestResourceTest extends RestResource {
 
         UriInfo uriinfo = mock(UriInfo.class);
         MultivaluedMap<String, String> map = new MultivaluedHashMap<>();
-        map.putSingle(CommonParams.PARAM_VERSION, Integer.valueOf(CommonParams.VERSION_1).toString());
-        Mockito.when(uriinfo.getQueryParameters()).thenReturn(map);
+        map.putSingle(CommonParams.PARAM_VERSION, "v" + Integer.valueOf(CommonParams.VERSION_1).toString());
+        Mockito.when(uriinfo.getPathParameters()).thenReturn(map);
 
         Response response = put(uriinfo, backendPutETag, content, params);
 
@@ -192,8 +192,8 @@ public class RestResourceTest extends RestResource {
         params.setId(1L);
         UriInfo uriinfo = mock(UriInfo.class);
         MultivaluedMap<String, String> map = new MultivaluedHashMap<>();
-        map.putSingle(CommonParams.PARAM_VERSION, Integer.valueOf(CommonParams.VERSION_1).toString());
-        Mockito.when(uriinfo.getQueryParameters()).thenReturn(map);
+        map.putSingle(CommonParams.PARAM_VERSION, "v" + Integer.valueOf(CommonParams.VERSION_1).toString());
+        Mockito.when(uriinfo.getPathParameters()).thenReturn(map);
 
         Response response = delete(uriinfo, backendDelete, params);
 
@@ -206,9 +206,9 @@ public class RestResourceTest extends RestResource {
         UriInfo uriInfoWith = mock(UriInfo.class);
         UriInfo uriInfoWithout = mock(UriInfo.class);
         MultivaluedMap<String, String> map = new MultivaluedHashMap<>();
-        map.putSingle(CommonParams.PARAM_VERSION, Integer.valueOf(CommonParams.VERSION_1).toString());
-        Mockito.when(uriInfoWith.getQueryParameters()).thenReturn(map);
-        Mockito.when(uriInfoWithout.getQueryParameters()).thenReturn(new MultivaluedHashMap<>());
+        map.putSingle(CommonParams.PARAM_VERSION, "v" + Integer.valueOf(CommonParams.VERSION_1).toString());
+        Mockito.when(uriInfoWith.getPathParameters()).thenReturn(map);
+        Mockito.when(uriInfoWithout.getPathParameters()).thenReturn(new MultivaluedHashMap<>());
 
         MockRequestParameters params = new MockRequestParameters();
 
