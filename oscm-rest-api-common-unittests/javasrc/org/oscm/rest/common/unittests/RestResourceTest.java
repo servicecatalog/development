@@ -8,21 +8,35 @@
 
 package org.oscm.rest.common.unittests;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotSame;
+import static org.hamcrest.CoreMatchers.any;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.oscm.rest.common.CommonParams.PARAM_VERSION;
+import static org.oscm.rest.common.CommonParams.VERSION_1;
 
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.Status;
 
+import org.apache.cxf.jaxrs.impl.RequestImpl;
+import org.apache.cxf.jaxrs.impl.UriBuilderImpl;
 import org.junit.Test;
-import org.oscm.rest.common.Representation;
-import org.oscm.rest.common.RequestParameters;
-import org.oscm.rest.common.RestBackend;
-import org.oscm.rest.common.RestResource;
+import org.mockito.Mockito;
+import org.oscm.rest.common.*;
 
 /**
  * Unit test for RestEndpoint
@@ -34,14 +48,6 @@ public class RestResourceTest extends RestResource {
     private class MockRepresentation extends Representation {
         @Override
         public void validateContent() throws WebApplicationException {
-        }
-
-        @Override
-        public void update() {
-        }
-
-        @Override
-        public void convert() {
         }
     }
 
@@ -80,154 +86,146 @@ public class RestResourceTest extends RestResource {
         }
     };
 
-    /*private RestBackend.Put<MockRepresentation, MockRequestParameters> backendPut = new RestBackend.Put<MockRepresentation, MockRequestParameters>() {
+    private RestBackend.Put<MockRepresentation, MockRequestParameters> backendPut = new RestBackend.Put<MockRepresentation, MockRequestParameters>() {
 
         @Override
-        public void put(MockRepresentation content, MockRequestParameters params) {
+        public boolean put(MockRepresentation content, MockRequestParameters params) {
 
             assertNotNull(content);
             assertNull(content.getETag());
             assertNotNull(params);
+            return true;
         }
     };
 
     private RestBackend.Put<MockRepresentation, MockRequestParameters> backendPutETag = new RestBackend.Put<MockRepresentation, MockRequestParameters>() {
 
         @Override
-        public void put(MockRepresentation content, MockRequestParameters params) {
+        public boolean put(MockRepresentation content, MockRequestParameters params) {
 
             assertNotNull(content);
             assertNotNull(content.getETag());
             assertNotNull(params);
+            return true;
         }
     };
 
     private RestBackend.Delete<MockRequestParameters> backendDelete = new RestBackend.Delete<MockRequestParameters>() {
 
         @Override
-        public void delete(MockRequestParameters params) {
+        public boolean delete(MockRequestParameters params) {
 
             assertNotNull(params);
+            return true;
         }
-    };*/
+    };
 
-    //TODO glassfish upgrade
     @Test
-    public void testGet() {
+    public void testGet() throws Exception {
 
-        /*MockRequestParameters params = new MockRequestParameters();
-        params.setId(new Long(1L));
+        MockRequestParameters params = new MockRequestParameters();
+        params.setId(1L);
 
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put(CommonParams.PARAM_VERSION, new Integer(CommonParams.VERSION_1));
+        UriInfo uriinfo = mock(UriInfo.class);
+        MultivaluedMap<String, String> map = new MultivaluedHashMap<>();
+        map.putSingle(CommonParams.PARAM_VERSION, Integer.valueOf(CommonParams.VERSION_1).toString());
+        Mockito.when(uriinfo.getQueryParameters()).thenReturn(map);
 
-        ContainerRequest request = Mockito.mock(ContainerRequest.class);
-        Mockito.when(request.getProperty(CommonParams.PARAM_VERSION)).thenReturn(map);
-
-        Response response = get(request, backendGet, params, true);
+        Response response = get(uriinfo, backendGet, params, true);
 
         assertEquals(Status.OK.getStatusCode(), response.getStatus());
         assertNotNull(response.getEntity());
-        assertThat(response.getEntity(), instanceOf(MockRepresentation.class));*/
+        assertThat(response.getEntity(), instanceOf(MockRepresentation.class));
     }
 
     @Test
-    public void testPost() {
-
-        /*MockRepresentation content = new MockRepresentation();
-        content.setId(new Long(1L));
-
-        MockRequestParameters params = new MockRequestParameters();
-        params.setId(new Long(1L));
-
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put(CommonParams.PARAM_VERSION, new Integer(CommonParams.VERSION_1));
-
-        ContainerRequest request = Mockito.mock(ContainerRequest.class);
-        Mockito.when(request.getProperties()).thenReturn(map);
-
-        UriBuilder builder = new UriBuilderImpl();
-        Mockito.when(request.getAbsolutePathBuilder()).thenReturn(builder);
-
-        Response response = post(request, backendPost, content, params);
-
-        assertEquals(Status.CREATED.getStatusCode(), response.getStatus());*/
-    }
-
-    /*@Test
-    public void testPut() {
+    public void testPost() throws Exception {
 
         MockRepresentation content = new MockRepresentation();
-        content.setId(new Long(1L));
-        content.setETag(new Long(1L));
+        content.setId(1L);
 
         MockRequestParameters params = new MockRequestParameters();
-        params.setId(new Long(1L));
+        params.setId(1L);
 
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put(CommonParams.PARAM_VERSION, new Integer(CommonParams.VERSION_1));
+        UriInfo uriinfo = mock(UriInfo.class);
+        MultivaluedMap<String, String> map = new MultivaluedHashMap<>();
+        map.putSingle(CommonParams.PARAM_VERSION, Integer.valueOf(CommonParams.VERSION_1).toString());
+        Mockito.when(uriinfo.getQueryParameters()).thenReturn(map);
+        Response response = post(uriinfo, backendPost, content, params);
 
-        ContainerRequest request = Mockito.mock(ContainerRequest.class);
-        Mockito.when(request.getProperties()).thenReturn(map);
+        assertEquals(Status.CREATED.getStatusCode(), response.getStatus());
+    }
 
-        Response response = put(request, backendPut, content, params);
+    @Test
+    public void testPut() throws Exception {
+
+        MockRepresentation content = new MockRepresentation();
+        content.setId(1L);
+        content.setETag(1L);
+
+        MockRequestParameters params = new MockRequestParameters();
+        params.setId(1L);
+
+        UriInfo uriInfo = mock(UriInfo.class);
+        MultivaluedMap<String, String> map = new MultivaluedHashMap<>();
+        map.putSingle(CommonParams.PARAM_VERSION, Integer.valueOf(CommonParams.VERSION_1).toString());
+        Mockito.when(uriInfo.getQueryParameters()).thenReturn(map);
+
+        Response response = put(uriInfo, backendPut, content, params);
 
         assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatus());
     }
 
     @Test
-    public void testPutWithETag() {
+    public void testPutWithETag() throws Exception {
 
         MockRepresentation content = new MockRepresentation();
-        content.setId(new Long(1L));
-        content.setETag(new Long(1L));
+        content.setId(1L);
+        content.setETag(1L);
 
         MockRequestParameters params = new MockRequestParameters();
-        params.setId(new Long(1L));
+        params.setId(1L);
         params.setMatch("1");
 
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put(CommonParams.PARAM_VERSION, new Integer(CommonParams.VERSION_1));
+        UriInfo uriinfo = mock(UriInfo.class);
+        MultivaluedMap<String, String> map = new MultivaluedHashMap<>();
+        map.putSingle(CommonParams.PARAM_VERSION, Integer.valueOf(CommonParams.VERSION_1).toString());
+        Mockito.when(uriinfo.getQueryParameters()).thenReturn(map);
 
-        ContainerRequest request = Mockito.mock(ContainerRequest.class);
-        Mockito.when(request.getProperties()).thenReturn(map);
-
-        Response response = put(request, backendPutETag, content, params);
-
-        assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatus());
-    }
-
-    @Test
-    public void testDelete() {
-
-        MockRequestParameters params = new MockRequestParameters();
-        params.setId(new Long(1L));
-
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put(CommonParams.PARAM_VERSION, new Integer(CommonParams.VERSION_1));
-
-        ContainerRequest request = Mockito.mock(ContainerRequest.class);
-        Mockito.when(request.getProperties()).thenReturn(map);
-
-        Response response = delete(request, backendDelete, params);
+        Response response = put(uriinfo, backendPutETag, content, params);
 
         assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatus());
     }
 
     @Test
-    public void testVersionAndID() {
+    public void testDelete() throws Exception {
 
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put(CommonParams.PARAM_VERSION, new Integer(CommonParams.VERSION_1));
+        MockRequestParameters params = new MockRequestParameters();
+        params.setId(1L);
+        UriInfo uriinfo = mock(UriInfo.class);
+        MultivaluedMap<String, String> map = new MultivaluedHashMap<>();
+        map.putSingle(CommonParams.PARAM_VERSION, Integer.valueOf(CommonParams.VERSION_1).toString());
+        Mockito.when(uriinfo.getQueryParameters()).thenReturn(map);
 
-        ContainerRequest requestWith = Mockito.mock(ContainerRequest.class);
-        ContainerRequest requestWithout = Mockito.mock(ContainerRequest.class);
-        Mockito.when(requestWith.getProperties()).thenReturn(map);
+        Response response = delete(uriinfo, backendDelete, params);
+
+        assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void testVersionAndID() throws Exception {
+
+        UriInfo uriInfoWith = mock(UriInfo.class);
+        UriInfo uriInfoWithout = mock(UriInfo.class);
+        MultivaluedMap<String, String> map = new MultivaluedHashMap<>();
+        map.putSingle(CommonParams.PARAM_VERSION, Integer.valueOf(CommonParams.VERSION_1).toString());
+        Mockito.when(uriInfoWith.getQueryParameters()).thenReturn(map);
+        Mockito.when(uriInfoWithout.getQueryParameters()).thenReturn(new MultivaluedHashMap<>());
 
         MockRequestParameters params = new MockRequestParameters();
 
         try {
-            get(requestWithout, backendGet, params, false);
+            get(uriInfoWithout, backendGet, params, false);
             fail();
         } catch (WebApplicationException e) {
             assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
@@ -235,7 +233,7 @@ public class RestResourceTest extends RestResource {
         }
 
         try {
-            post(requestWithout, backendPost, null, params);
+            post(uriInfoWithout, backendPost, null, params);
             fail();
         } catch (WebApplicationException e) {
             assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
@@ -243,7 +241,7 @@ public class RestResourceTest extends RestResource {
         }
 
         try {
-            put(requestWithout, backendPut, null, params);
+            put(uriInfoWithout, backendPut, null, params);
             fail();
         } catch (WebApplicationException e) {
             assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
@@ -251,7 +249,7 @@ public class RestResourceTest extends RestResource {
         }
 
         try {
-            delete(requestWithout, backendDelete, params);
+            delete(uriInfoWithout, backendDelete, params);
             fail();
         } catch (WebApplicationException e) {
             assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
@@ -259,7 +257,7 @@ public class RestResourceTest extends RestResource {
         }
 
         try {
-            get(requestWith, backendGet, params, true);
+            get(uriInfoWith, backendGet, params, true);
             fail();
         } catch (WebApplicationException e) {
             assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
@@ -267,7 +265,7 @@ public class RestResourceTest extends RestResource {
         }
 
         try {
-            put(requestWith, backendPut, null, params);
+            put(uriInfoWith, backendPut, null, params);
             fail();
         } catch (WebApplicationException e) {
             assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
@@ -275,11 +273,11 @@ public class RestResourceTest extends RestResource {
         }
 
         try {
-            delete(requestWith, backendDelete, params);
+            delete(uriInfoWith, backendDelete, params);
             fail();
         } catch (WebApplicationException e) {
             assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
                     .getStatus());
         }
-    }*/
+    }
 }

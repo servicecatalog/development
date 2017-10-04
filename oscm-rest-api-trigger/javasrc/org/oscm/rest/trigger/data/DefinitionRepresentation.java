@@ -29,27 +29,8 @@ public class DefinitionRepresentation extends Representation {
         private Long id;
         private String description;
 
-        public Owner() {
-        }
-
         public Owner(Long id, String description) {
             this.id = id;
-            this.description = description;
-        }
-
-        public Long getId() {
-            return id;
-        }
-
-        public void setId(Long id) {
-            this.id = id;
-        }
-
-        public String getName() {
-            return description;
-        }
-
-        public void setName(String description) {
             this.description = description;
         }
     }
@@ -63,14 +44,6 @@ public class DefinitionRepresentation extends Representation {
         public Links(Long owner_id) {
             this.owner_id = owner_id;
         }
-
-        public Long getOwner_id() {
-            return owner_id;
-        }
-
-        public void setOwner_id(Long owner_id) {
-            this.owner_id = owner_id;
-        }
     }
 
     private String description;
@@ -81,9 +54,6 @@ public class DefinitionRepresentation extends Representation {
     private String action;
     private Links links;
 
-    public DefinitionRepresentation() {
-    }
-
     public DefinitionRepresentation(VOTriggerDefinition definition) {
         super(definition);
 
@@ -91,7 +61,7 @@ public class DefinitionRepresentation extends Representation {
             return;
         }
 
-        setETag(new Long(definition.getVersion()));
+        setETag((long) definition.getVersion());
         this.description = definition.getName();
 
         if (definition.getTargetType() != null) {
@@ -104,78 +74,34 @@ public class DefinitionRepresentation extends Representation {
             this.action = definition.getType().toString();
         }
 
-        this.suspend = new Boolean(definition.isSuspendProcess());
+        this.suspend = definition.isSuspendProcess();
 
         if (definition.getOrganization() != null) {
-            this.owner = new Owner(new Long(definition.getOrganization()
-                    .getKey()), definition.getOrganization().getName());
-            this.links = new Links(new Long(definition.getOrganization()
-                    .getKey()));
+            this.owner = new Owner(definition.getOrganization()
+                    .getKey(), definition.getOrganization().getName());
+            this.links = new Links(definition.getOrganization()
+                    .getKey());
         }
-    }
-
-    public Long getOwnerId() {
-        if (links != null) {
-            return links.getOwner_id();
-        } else {
-            return null;
-        }
-    }
-
-    public void setOwnerId(Long owner_id) {
-        if (links == null) {
-            links = new Links();
-        }
-
-        links.setOwner_id(owner_id);
-    }
-
-    public Owner getOwner() {
-        return owner;
-    }
-
-    public void setOwner(Owner owner) {
-        this.owner = owner;
     }
 
     public String getAction() {
         return action;
     }
 
-    public void setAction(String action) {
-        this.action = action;
-    }
-
     public String getDescription() {
         return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public String getType() {
         return target_type;
     }
 
-    public void setType(String target_type) {
-        this.target_type = target_type;
-    }
-
     public String getTargetURL() {
         return target_url;
     }
 
-    public void setTargetURL(String target_url) {
-        this.target_url = target_url;
-    }
-
     public Boolean isSuspending() {
         return suspend;
-    }
-
-    public void setSuspending(Boolean suspend) {
-        this.suspend = suspend;
     }
 
     @Override
@@ -234,18 +160,6 @@ public class DefinitionRepresentation extends Representation {
                         .message(CommonParams.ERROR_BAD_PROPERTY).build();
             }
         }
-    }
-
-    @Override
-    public void update() {
-
-        // nothing to do
-    }
-
-    @Override
-    public void convert() {
-
-        // nothing to do
     }
 
 }
