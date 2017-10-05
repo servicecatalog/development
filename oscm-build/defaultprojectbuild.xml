@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright FUJITSU LIMITED 2017-->
 
-<project name="Default Project Build" default="illegalusage" basedir="." xmlns:jacoco="antlib:org.jacoco.ant">
+<project name="Default Project Build" default="illegalusage" basedir="." xmlns:jacoco="antlib:org.jacoco.ant" xmlns:if="ant:if" xmlns:unless="ant:unless">
 
   <description>
 		Default build script for all projects. Projects that define their own
@@ -9,18 +9,18 @@
 		only. Note that this script is always invoked from the build.xml master.
 	</description>
 
-  <taskdef name="if" classname="net.sf.antcontrib.logic.IfTask"
-      classpath="${workspace.dir}/libraries/apache-ant-contrib/ant-contrib-1.0b3.jar" />
-
   <taskdef name="propertyregex" classname="net.sf.antcontrib.property.RegexTask"
     classpath="${workspace.dir}/libraries/apache-ant-contrib/ant-contrib-1.0b3.jar" />
+	
   <target name="_init">
-
     <property environment="env" />
     <property name="env.HOSTNAME" value="${env.COMPUTERNAME}" />
 
     <!-- Input properties should already be filled in -->
     <property name="project.dir" location="." />
+    <condition property="isUnitTest">
+    	<matches pattern=".*unittests$" string="${project.dir}"/>
+    </condition>
     <property name="result.dir" location="result" />
     <property name="result.log.dir" location="${result.dir}/log/projects" />
     <property file="${workspace.dir}/oscm-devruntime/javares/local/${env.HOSTNAME}/integration.properties" />
@@ -76,7 +76,6 @@
 
     <mkdir dir="${result.log.dir}" />
     <record action="start" name="${result.log.file}" />
-
   </target>
 
   <target name="_copyjavares" if="javares.dir.exists" depends="_init">
@@ -84,6 +83,36 @@
       <fileset dir="${javares.dir}" includes="**/*" />
     </copy>
   </target>
+	
+  <target name="qcompile" if="javasrc.dir.exists" unless="isUnitTest" depends="_init, _copyjavares">
+    <mkdir dir="${result.work.classes.dir}" />
+  	
+    <path id="path_bootclasspath">
+      <fileset dir="${bss.java.home.dir}/lib">
+        <include name="**/*.jar" />
+      </fileset>
+    </path>
+  	
+    <condition property="src.path" value="${javasrc.dir}:${javasrc.it.dir}">
+      <available file="${project.dir}/javasrc-it" />
+    </condition>
+    <condition property="src.path" value="${javasrc.dir}">
+      <not>
+        <available file="${project.dir}/javasrc-it" />
+      </not>
+    </condition>
+  	
+    <javac srcdir="${src.path}" includeantruntime="false" destdir="${result.work.classes.dir}" debug="false" source="${javasource}" target="${javatarget}" encoding="utf-8" compiler="org.eclipse.jdt.core.JDTCompilerAdapter">
+      <compilerclasspath>
+        <fileset dir="${workspace.dir}/libraries/eclipse-ecj/javalib" includes="ecj-4.5.1.jar"/>
+      </compilerclasspath>
+      <classpath refid="dependencies.compile.path" />
+      <bootclasspath refid="path_bootclasspath" />
+      <compilerarg value="-enableJavadoc" />
+      <compilerarg value="-proc:none" />
+      <compilerarg value="-warn:+uselessTypeCheck,+unusedArgument,+hashCode,+null,+boxing" />
+    </javac>
+  </target>	
 
   <target name="compile" if="javasrc.dir.exists" depends="_init, _copyjavares, _checkjre">
     <mkdir dir="${result.work.classes.dir}" />
@@ -226,6 +255,11 @@
   </target>
 
   <target name="package_hook" />
+	
+  <target name="qpackage" if="package.file.exists" unless="isUnitTest" depends="_init, qcompile, package_hook">
+    <mkdir dir="${result.package.dir}" />
+    <resourcepackage packagefile="${package.file}" outputdir="${result.package.dir}" />
+  </target>
 
   <target name="package" if="package.file.exists" depends="_init, compile, wsdl, javadoc, _licenses, package_hook">
     <mkdir dir="${result.package.dir}" />

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright FUJITSU LIMITED 2017-->
 
-<project name="Build all ADM UM Projects" basedir="." xmlns:if="ant:if"  xmlns:jacoco="antlib:org.jacoco.ant">
+<project name="Build all ADM UM Projects" basedir="." xmlns:if="ant:if" xmlns:unless="ant:unless" xmlns:jacoco="antlib:org.jacoco.ant">
 
   <description>
     Main build file for all ADM UM projects. It triggers the build of a given
@@ -327,6 +327,9 @@
     <buildproject target="javadoc" />
   </target>
 
+  <target name="qpackage" depends="_dependencies" description="Resolves dependencies, compiles, creates javadoc and packages">
+    <buildproject target="qpackage" />
+  </target>	
 
   <target name="package" depends="_log, _dependencies, _copyDocument" description="Resolves dependencies, compiles, creates javadoc and packages">
     <buildproject target="package" />
@@ -339,7 +342,6 @@
   <target name="clean">
     <delete dir="${result.dir}" />
   </target>
-
 
   <target name="createKPI" description="only call createKPI macro">
     <createKPI inputFile="${result.reports.test.dir}/TESTS-TestSuites.xml" outputFile="${artifacts.kpi.file}" />
