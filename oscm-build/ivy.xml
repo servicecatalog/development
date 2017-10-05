@@ -401,6 +401,7 @@
     <dependency org="org.codehaus.woodstox" name="woodstox-core-asl" rev="4.2.0" transitive="false"/>
     <dependency org="org.glassfish" name="javax.faces" rev="2.2.12" transitive="false"/>
     <dependency org="org.apache.kafka" name="kafka-clients" rev="0.10.2.1" transitive="false"/>
+    <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="3.1.0" transitive="false"/>
 
     <exclude org="org.netbeans.api"/>
     <exclude org="*" ext="*" type="source"/>

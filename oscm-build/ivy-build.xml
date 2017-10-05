@@ -219,5 +219,6 @@
         <copy file="${ivy.lib.dir}/policy-2.4.jar"
               tofile="${root.dir}/libraries/apache-tomee/javalib/policy-2.4.jar" overwrite="true"/>
         <copy file="${ivy.lib.dir}/kafka-clients-0.10.2.1.jar" tofile="${root.dir}/libraries/apache-kafka/javalib/kafka-clients.jar" overwrite="true"/>
+        <copy file="${ivy.lib.dir}/cxf-rt-frontend-jaxrs-3.1.0.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/cxf-rt-frontend-jaxrs.jar" overwrite="true"/>
     </target>
 </project>
