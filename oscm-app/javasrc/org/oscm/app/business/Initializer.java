@@ -65,7 +65,7 @@ public class Initializer {
                 File root = new File(instanceRoot);
                 if (root.isDirectory()) {
                     // Determine log file
-                    String filePath = "/config/log4j." + controllerId
+                    String filePath = "/conf/log4j." + controllerId
                             + ".properties";
                     logFile = new File(root, filePath);
 
