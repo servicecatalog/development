@@ -10,6 +10,13 @@
  *******************************************************************************/
 package org.oscm.app.openstack.controller;
 
+import static org.oscm.app.openstack.data.FlowState.CREATE_PROJECT;
+import static org.oscm.app.openstack.data.FlowState.CREATION_REQUESTED;
+import static org.oscm.app.openstack.data.FlowState.DELETE_PROJECT;
+import static org.oscm.app.openstack.data.FlowState.DELETION_REQUESTED;
+import static org.oscm.app.openstack.data.FlowState.MODIFICATION_REQUESTED;
+import static org.oscm.app.openstack.data.FlowState.UPDATE_PROJECT;
+
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
@@ -33,7 +40,8 @@ import org.oscm.app.v2_0.data.LocalizedText;
 import org.oscm.app.v2_0.data.OperationParameter;
 import org.oscm.app.v2_0.data.ProvisioningSettings;
 import org.oscm.app.v2_0.data.ServiceUser;
-import org.oscm.app.v2_0.exceptions.*;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.LogAndExceptionConverter;
 import org.oscm.app.v2_0.intf.APPlatformController;
 import org.oscm.app.v2_0.intf.APPlatformService;
 import org.slf4j.Logger;
@@ -62,12 +70,13 @@ public class OpenStackController extends ProvisioningValidator
         implements APPlatformController {
 
     public static final String ID = "ess.openstack";
-    private static final int SERVERS_NUMBER_CANNOT_BE_CHECKED = 0;
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(OpenStackController.class);
 
-    // Reference to an APPlatformService instance
+    private static final int SERVERS_NUMBER_CANNOT_BE_CHECKED = 0;
+    private static final String RESOURCETYPE_VM = "OS::Nova::Server";
+
     private APPlatformService platformService;
 
     /**
@@ -106,10 +115,14 @@ public class OpenStackController extends ProvisioningValidator
 
         try {
             PropertyHandler ph = new PropertyHandler(settings);
-            validateStackName(ph);
-            ph.setState(FlowState.CREATION_REQUESTED);
 
-            // Return generated instance information
+            if (RESOURCETYPE_VM.equals(ph.getResourceType())) {
+                validateStackName(ph);
+                ph.setState(CREATION_REQUESTED);
+            } else {
+                ph.setState(CREATE_PROJECT);
+            }
+
             InstanceDescription id = new InstanceDescription();
             id.setInstanceId("stack-" + UUID.randomUUID().toString());
             id.setBaseUrl("baseurl");
@@ -150,7 +163,12 @@ public class OpenStackController extends ProvisioningValidator
                 LogAndExceptionConverter.getLogText(instanceId, settings));
         try {
             PropertyHandler ph = new PropertyHandler(settings);
-            ph.setState(FlowState.DELETION_REQUESTED);
+
+            if (RESOURCETYPE_VM.equals(ph.getResourceType())) {
+                ph.setState(DELETION_REQUESTED);
+            } else {
+                ph.setState(DELETE_PROJECT);
+            }
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
@@ -195,7 +213,12 @@ public class OpenStackController extends ProvisioningValidator
                     currentSettings.getParameters()
                             .get(PropertyHandler.STACK_NAME));
             PropertyHandler ph = new PropertyHandler(newSettings);
-            ph.setState(FlowState.MODIFICATION_REQUESTED);
+
+            if (RESOURCETYPE_VM.equals(ph.getResourceType())) {
+                ph.setState(MODIFICATION_REQUESTED);
+            } else {
+                ph.setState(UPDATE_PROJECT);
+            }
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(newSettings.getParameters());
@@ -328,6 +351,7 @@ public class OpenStackController extends ProvisioningValidator
                     Context.ACTIVATION);
         }
     }
+
     /**
      * Starts the deactivation of an application instance.
      * <p>
@@ -539,13 +563,12 @@ public class OpenStackController extends ProvisioningValidator
     }
 
     @Override
-    public int getServersNumber(String instanceId,
-        String subscriptionId, String organizationId)
-        throws APPlatformException {
+    public int getServersNumber(String instanceId, String subscriptionId,
+            String organizationId) throws APPlatformException {
 
         ProvisioningSettings settings = platformService
-            .getServiceInstanceDetails(OpenStackController.ID, instanceId,
-                subscriptionId, organizationId);
+                .getServiceInstanceDetails(OpenStackController.ID, instanceId,
+                        subscriptionId, organizationId);
         PropertyHandler ph = new PropertyHandler(settings);
 
         try {

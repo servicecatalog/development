@@ -59,7 +59,8 @@ public class OpenStackControllerTest extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
-
+        settings.getParameters().put("RESOURCE_TYPE",
+                new Setting("RESOURCE_TYPE", "OS::Nova::Server"));
         platformService = mock(APPlatformService.class);
         enableJndiMock();
         context = new InitialContext();
@@ -197,8 +198,8 @@ public class OpenStackControllerTest extends EJBTestBase {
         assertNotNull(instanceStatus);
         assertTrue(instanceStatus.getRunWithTimer());
 
-        assertEquals(FlowState.DEACTIVATION_REQUESTED.toString(), parameters
-                .get(PropertyHandler.STATUS).getValue());
+        assertEquals(FlowState.DEACTIVATION_REQUESTED.toString(),
+                parameters.get(PropertyHandler.STATUS).getValue());
     }
 
     @Test
@@ -211,8 +212,8 @@ public class OpenStackControllerTest extends EJBTestBase {
         if (oldStatus == null) {
             assertNull(parameters.get(PropertyHandler.STATUS));
         } else {
-            assertEquals(oldStatus, parameters.get(PropertyHandler.STATUS)
-                    .getValue());
+            assertEquals(oldStatus,
+                    parameters.get(PropertyHandler.STATUS).getValue());
         }
     }
 
@@ -220,8 +221,8 @@ public class OpenStackControllerTest extends EJBTestBase {
     public void modifyInstance() throws Exception {
 
         modifyInstance("123");
-        assertEquals(FlowState.MODIFICATION_REQUESTED.toString(), parameters
-                .get(PropertyHandler.STATUS).getValue());
+        assertEquals(FlowState.MODIFICATION_REQUESTED.toString(),
+                parameters.get(PropertyHandler.STATUS).getValue());
     }
 
     @Test
@@ -241,12 +242,11 @@ public class OpenStackControllerTest extends EJBTestBase {
 
         parameters.put(PropertyHandler.STATUS, new Setting(
                 PropertyHandler.STATUS, FlowState.STARTING.toString()));
-        configSettings.put(PropertyHandler.READY_TIMEOUT, new Setting(
-                PropertyHandler.READY_TIMEOUT, "10"));
-        parameters.put(
-                PropertyHandler.START_TIME,
-                new Setting(PropertyHandler.START_TIME, String.valueOf(System
-                        .currentTimeMillis())));
+        configSettings.put(PropertyHandler.READY_TIMEOUT,
+                new Setting(PropertyHandler.READY_TIMEOUT, "10"));
+        parameters.put(PropertyHandler.START_TIME,
+                new Setting(PropertyHandler.START_TIME,
+                        String.valueOf(System.currentTimeMillis())));
         Thread.sleep(20);
         getInstanceStatus("123");
     }
@@ -259,17 +259,16 @@ public class OpenStackControllerTest extends EJBTestBase {
         createBasicParameters("Instance4", "fosi_v2.json");
         parameters.put(PropertyHandler.STATUS, new Setting(
                 PropertyHandler.STATUS, FlowState.STARTING.toString()));
-        configSettings.put(PropertyHandler.READY_TIMEOUT, new Setting(
-                PropertyHandler.READY_TIMEOUT, "1000000"));
-        parameters.put(
-                PropertyHandler.START_TIME,
-                new Setting(PropertyHandler.START_TIME, String.valueOf(System
-                        .currentTimeMillis())));
-        streamHandler.put(
-                "/servers/0-Instance-server1",
-                new MockHttpURLConnection(200, MockURLStreamHandler
-                        .respServerDetail("server1", "0-Instance-server1",
-                                ServerStatus.SHUTOFF, "testTenantID")));
+        configSettings.put(PropertyHandler.READY_TIMEOUT,
+                new Setting(PropertyHandler.READY_TIMEOUT, "1000000"));
+        parameters.put(PropertyHandler.START_TIME,
+                new Setting(PropertyHandler.START_TIME,
+                        String.valueOf(System.currentTimeMillis())));
+        streamHandler.put("/servers/0-Instance-server1",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respServerDetail("server1",
+                                "0-Instance-server1", ServerStatus.SHUTOFF,
+                                "testTenantID")));
 
         // when
         Thread.sleep(20);
@@ -290,15 +289,14 @@ public class OpenStackControllerTest extends EJBTestBase {
         createBasicParameters("Instance4", "fosi_v2.json");
         parameters.put(PropertyHandler.STATUS, new Setting(
                 PropertyHandler.STATUS, FlowState.STARTING.toString()));
-        parameters.put(
-                PropertyHandler.START_TIME,
-                new Setting(PropertyHandler.START_TIME, String.valueOf(System
-                        .currentTimeMillis())));
-        streamHandler.put(
-                "/servers/0-Instance-server1",
-                new MockHttpURLConnection(200, MockURLStreamHandler
-                        .respServerDetail("server1", "0-Instance-server1",
-                                ServerStatus.SHUTOFF, "testTenantID")));
+        parameters.put(PropertyHandler.START_TIME,
+                new Setting(PropertyHandler.START_TIME,
+                        String.valueOf(System.currentTimeMillis())));
+        streamHandler.put("/servers/0-Instance-server1",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respServerDetail("server1",
+                                "0-Instance-server1", ServerStatus.SHUTOFF,
+                                "testTenantID")));
 
         // when
         Thread.sleep(20);
@@ -319,15 +317,15 @@ public class OpenStackControllerTest extends EJBTestBase {
         createBasicParameters("Instance4", "fosi_v2.json");
         parameters.put(PropertyHandler.STATUS, new Setting(
                 PropertyHandler.STATUS, FlowState.STARTING.toString()));
-        configSettings.put(PropertyHandler.READY_TIMEOUT, new Setting(
-                PropertyHandler.READY_TIMEOUT, "1000000"));
-        parameters.put(PropertyHandler.START_TIME, new Setting(
-                PropertyHandler.START_TIME, "Timeout"));
-        streamHandler.put(
-                "/servers/0-Instance-server1",
-                new MockHttpURLConnection(200, MockURLStreamHandler
-                        .respServerDetail("server1", "0-Instance-server1",
-                                ServerStatus.SHUTOFF, "testTenantID")));
+        configSettings.put(PropertyHandler.READY_TIMEOUT,
+                new Setting(PropertyHandler.READY_TIMEOUT, "1000000"));
+        parameters.put(PropertyHandler.START_TIME,
+                new Setting(PropertyHandler.START_TIME, "Timeout"));
+        streamHandler.put("/servers/0-Instance-server1",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respServerDetail("server1",
+                                "0-Instance-server1", ServerStatus.SHUTOFF,
+                                "testTenantID")));
 
         // when
         getInstanceStatus("123");
@@ -339,12 +337,11 @@ public class OpenStackControllerTest extends EJBTestBase {
 
         parameters.put(PropertyHandler.STATUS, new Setting(
                 PropertyHandler.STATUS, FlowState.STOPPING.toString()));
-        configSettings.put(PropertyHandler.READY_TIMEOUT, new Setting(
-                PropertyHandler.READY_TIMEOUT, "10"));
-        parameters.put(
-                PropertyHandler.START_TIME,
-                new Setting(PropertyHandler.START_TIME, String.valueOf(System
-                        .currentTimeMillis())));
+        configSettings.put(PropertyHandler.READY_TIMEOUT,
+                new Setting(PropertyHandler.READY_TIMEOUT, "10"));
+        parameters.put(PropertyHandler.START_TIME,
+                new Setting(PropertyHandler.START_TIME,
+                        String.valueOf(System.currentTimeMillis())));
         Thread.sleep(20);
         getInstanceStatus("123");
     }
@@ -357,17 +354,16 @@ public class OpenStackControllerTest extends EJBTestBase {
         createBasicParameters("Instance4", "fosi_v2.json");
         parameters.put(PropertyHandler.STATUS, new Setting(
                 PropertyHandler.STATUS, FlowState.STOPPING.toString()));
-        configSettings.put(PropertyHandler.READY_TIMEOUT, new Setting(
-                PropertyHandler.READY_TIMEOUT, "1000000"));
-        parameters.put(
-                PropertyHandler.START_TIME,
-                new Setting(PropertyHandler.START_TIME, String.valueOf(System
-                        .currentTimeMillis())));
-        streamHandler.put(
-                "/servers/0-Instance-server1",
-                new MockHttpURLConnection(200, MockURLStreamHandler
-                        .respServerDetail("server1", "0-Instance-server1",
-                                ServerStatus.ACTIVE, "testTenantID")));
+        configSettings.put(PropertyHandler.READY_TIMEOUT,
+                new Setting(PropertyHandler.READY_TIMEOUT, "1000000"));
+        parameters.put(PropertyHandler.START_TIME,
+                new Setting(PropertyHandler.START_TIME,
+                        String.valueOf(System.currentTimeMillis())));
+        streamHandler.put("/servers/0-Instance-server1",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respServerDetail("server1",
+                                "0-Instance-server1", ServerStatus.ACTIVE,
+                                "testTenantID")));
 
         // when
         Thread.sleep(20);
@@ -388,15 +384,14 @@ public class OpenStackControllerTest extends EJBTestBase {
         createBasicParameters("Instance4", "fosi_v2.json");
         parameters.put(PropertyHandler.STATUS, new Setting(
                 PropertyHandler.STATUS, FlowState.STOPPING.toString()));
-        parameters.put(
-                PropertyHandler.START_TIME,
-                new Setting(PropertyHandler.START_TIME, String.valueOf(System
-                        .currentTimeMillis())));
-        streamHandler.put(
-                "/servers/0-Instance-server1",
-                new MockHttpURLConnection(200, MockURLStreamHandler
-                        .respServerDetail("server1", "0-Instance-server1",
-                                ServerStatus.ACTIVE, "testTenantID")));
+        parameters.put(PropertyHandler.START_TIME,
+                new Setting(PropertyHandler.START_TIME,
+                        String.valueOf(System.currentTimeMillis())));
+        streamHandler.put("/servers/0-Instance-server1",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respServerDetail("server1",
+                                "0-Instance-server1", ServerStatus.ACTIVE,
+                                "testTenantID")));
 
         // when
         Thread.sleep(20);
@@ -417,15 +412,15 @@ public class OpenStackControllerTest extends EJBTestBase {
         createBasicParameters("Instance4", "fosi_v2.json");
         parameters.put(PropertyHandler.STATUS, new Setting(
                 PropertyHandler.STATUS, FlowState.STOPPING.toString()));
-        configSettings.put(PropertyHandler.READY_TIMEOUT, new Setting(
-                PropertyHandler.READY_TIMEOUT, "1000000"));
-        parameters.put(PropertyHandler.START_TIME, new Setting(
-                PropertyHandler.START_TIME, "Timeout"));
-        streamHandler.put(
-                "/servers/0-Instance-server1",
-                new MockHttpURLConnection(200, MockURLStreamHandler
-                        .respServerDetail("server1", "0-Instance-server1",
-                                ServerStatus.ACTIVE, "testTenantID")));
+        configSettings.put(PropertyHandler.READY_TIMEOUT,
+                new Setting(PropertyHandler.READY_TIMEOUT, "1000000"));
+        parameters.put(PropertyHandler.START_TIME,
+                new Setting(PropertyHandler.START_TIME, "Timeout"));
+        streamHandler.put("/servers/0-Instance-server1",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respServerDetail("server1",
+                                "0-Instance-server1", ServerStatus.ACTIVE,
+                                "testTenantID")));
 
         // when
         getInstanceStatus("123");
@@ -439,12 +434,11 @@ public class OpenStackControllerTest extends EJBTestBase {
         createBasicParameters("Instance4", "fosi_v2.json");
         parameters.put(PropertyHandler.STATUS, new Setting(
                 PropertyHandler.STATUS, FlowState.ACTIVATING.toString()));
-        configSettings.put(PropertyHandler.READY_TIMEOUT, new Setting(
-                PropertyHandler.READY_TIMEOUT, "1000000"));
-        parameters.put(
-                PropertyHandler.START_TIME,
-                new Setting(PropertyHandler.START_TIME, String.valueOf(System
-                        .currentTimeMillis())));
+        configSettings.put(PropertyHandler.READY_TIMEOUT,
+                new Setting(PropertyHandler.READY_TIMEOUT, "1000000"));
+        parameters.put(PropertyHandler.START_TIME,
+                new Setting(PropertyHandler.START_TIME,
+                        String.valueOf(System.currentTimeMillis())));
 
         // when
         Thread.sleep(20);
@@ -464,8 +458,8 @@ public class OpenStackControllerTest extends EJBTestBase {
         createBasicParameters("Instance4", "fosi_v2.json");
         parameters.put(PropertyHandler.STATUS, new Setting(
                 PropertyHandler.STATUS, FlowState.ACTIVATING.toString()));
-        configSettings.put(PropertyHandler.READY_TIMEOUT, new Setting(
-                PropertyHandler.READY_TIMEOUT, "1000000"));
+        configSettings.put(PropertyHandler.READY_TIMEOUT,
+                new Setting(PropertyHandler.READY_TIMEOUT, "1000000"));
 
         // when
         Thread.sleep(20);
@@ -496,13 +490,14 @@ public class OpenStackControllerTest extends EJBTestBase {
     }
 
     private InstanceDescription createInstanceInternal() throws Exception {
-        InstanceDescription instance = runTX(new Callable<InstanceDescription>() {
+        InstanceDescription instance = runTX(
+                new Callable<InstanceDescription>() {
 
-            @Override
-            public InstanceDescription call() throws Exception {
-                return controller.createInstance(settings);
-            }
-        });
+                    @Override
+                    public InstanceDescription call() throws Exception {
+                        return controller.createInstance(settings);
+                    }
+                });
         return instance;
     }
 
@@ -512,8 +507,8 @@ public class OpenStackControllerTest extends EJBTestBase {
 
             @Override
             public InstanceStatus call() throws Exception {
-                return controller
-                        .modifyInstance(instanceId, settings, settings);
+                return controller.modifyInstance(instanceId, settings,
+                        settings);
             }
         });
     }
@@ -577,13 +572,15 @@ public class OpenStackControllerTest extends EJBTestBase {
 
     private InstanceStatusUsers createUsers(final String instanceId,
             final List<ServiceUser> users) throws Exception {
-        InstanceStatusUsers instance = runTX(new Callable<InstanceStatusUsers>() {
+        InstanceStatusUsers instance = runTX(
+                new Callable<InstanceStatusUsers>() {
 
-            @Override
-            public InstanceStatusUsers call() throws Exception {
-                return controller.createUsers(instanceId, settings, users);
-            }
-        });
+                    @Override
+                    public InstanceStatusUsers call() throws Exception {
+                        return controller.createUsers(instanceId, settings,
+                                users);
+                    }
+                });
         return instance;
     }
 
@@ -609,32 +606,34 @@ public class OpenStackControllerTest extends EJBTestBase {
         });
     }
 
-    private void createBasicParameters(String instanceName, String templateName) {
-        parameters.put(PropertyHandler.STACK_ID, new Setting(
-                PropertyHandler.STACK_ID, "sID"));
-        parameters.put(PropertyHandler.STACK_NAME, new Setting(
-                PropertyHandler.STACK_NAME, instanceName));
-        parameters.put(PropertyHandler.TEMPLATE_NAME, new Setting(
-                PropertyHandler.TEMPLATE_NAME, templateName));
+    private void createBasicParameters(String instanceName,
+            String templateName) {
+        parameters.put(PropertyHandler.STACK_ID,
+                new Setting(PropertyHandler.STACK_ID, "sID"));
+        parameters.put(PropertyHandler.STACK_NAME,
+                new Setting(PropertyHandler.STACK_NAME, instanceName));
+        parameters.put(PropertyHandler.TEMPLATE_NAME,
+                new Setting(PropertyHandler.TEMPLATE_NAME, templateName));
         parameters.put(PropertyHandler.TEMPLATE_PARAMETER_PREFIX + "KeyName",
-                new Setting(PropertyHandler.TEMPLATE_PARAMETER_PREFIX
-                        + "KeyName", "key"));
+                new Setting(
+                        PropertyHandler.TEMPLATE_PARAMETER_PREFIX + "KeyName",
+                        "key"));
         parameters.put(PropertyHandler.ACCESS_INFO_PATTERN, new Setting(
                 PropertyHandler.ACCESS_INFO_PATTERN, "access info"));
-        configSettings.put(PropertyHandler.KEYSTONE_API_URL, new Setting(
-                PropertyHandler.KEYSTONE_API_URL,
-                "http://keystone:8080/v3/auth"));
-        configSettings.put(PropertyHandler.DOMAIN_NAME, new Setting(
-                PropertyHandler.DOMAIN_NAME, "testDomain"));
-        configSettings.put(PropertyHandler.TENANT_ID, new Setting(
-                PropertyHandler.TENANT_ID, "testTenantID"));
-        configSettings.put(PropertyHandler.API_USER_NAME, new Setting(
-                PropertyHandler.API_USER_NAME, "api_user"));
-        configSettings.put(PropertyHandler.API_USER_PWD, new Setting(
-                PropertyHandler.API_USER_PWD, "secret"));
-        configSettings.put(PropertyHandler.TEMPLATE_BASE_URL, new Setting(
-                PropertyHandler.TEMPLATE_BASE_URL,
-                "http://estfarmaki2:8880/templates/"));
+        configSettings.put(PropertyHandler.KEYSTONE_API_URL,
+                new Setting(PropertyHandler.KEYSTONE_API_URL,
+                        "http://keystone:8080/v3/auth"));
+        configSettings.put(PropertyHandler.DOMAIN_NAME,
+                new Setting(PropertyHandler.DOMAIN_NAME, "testDomain"));
+        configSettings.put(PropertyHandler.TENANT_ID,
+                new Setting(PropertyHandler.TENANT_ID, "testTenantID"));
+        configSettings.put(PropertyHandler.API_USER_NAME,
+                new Setting(PropertyHandler.API_USER_NAME, "api_user"));
+        configSettings.put(PropertyHandler.API_USER_PWD,
+                new Setting(PropertyHandler.API_USER_PWD, "secret"));
+        configSettings.put(PropertyHandler.TEMPLATE_BASE_URL,
+                new Setting(PropertyHandler.TEMPLATE_BASE_URL,
+                        "http://estfarmaki2:8880/templates/"));
     }
 
 }

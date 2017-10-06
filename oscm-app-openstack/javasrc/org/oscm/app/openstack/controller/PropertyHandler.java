@@ -40,7 +40,6 @@ public class PropertyHandler {
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(PropertyHandler.class);
-
     private final ProvisioningSettings settings;
 
     public static final String STACK_NAME = "STACK_NAME";
@@ -92,6 +91,11 @@ public class PropertyHandler {
     public static final String START_TIME = "START_TIME";
 
     public static final String TEMPLATE_PARAMETER_ARRAY_PREFIX = "TP_ARRAY_";
+
+    /**
+     * OS::Nova::Server, OS::Keystone::Project
+     */
+    public static final String RESOURCE_TYPE = "RESOURCE_TYPE";
 
     /**
      * Default constructor.
@@ -455,6 +459,10 @@ public class PropertyHandler {
         }
         return 0;
 
+    }
+
+    public String getResourceType() {
+        return getValidatedProperty(settings.getParameters(), RESOURCE_TYPE);
     }
 
     private String getValue(String key, Map<String, Setting> source) {
