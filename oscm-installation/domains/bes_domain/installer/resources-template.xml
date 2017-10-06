@@ -22,7 +22,7 @@
     <property name="TraceLevel" value="-1"></property>
   </jdbc-connection-pool>
   <jdbc-resource pool-name="BSSPool" jndi-name="BSSDS"></jdbc-resource>
-  <mail-resource host="@MAIL.HOST@" jndi-name="mail/BSSMail" from="@MAIL.FROM@" user="@MAIL.USER@">
+  <mail-resource host="@MAIL.HOST@" jndi-name="APPMail" from="@MAIL.FROM@" user="@MAIL.USER@">
     <description>Mail session for BSS</description>
     <property name="mail-smtp-timeout" value="@MAIL.TIMEOUT@"></property>
     <property name="mail-smtp-connectiontimeout" value="@MAIL.CONNECTIONTIMEOUT@"></property>

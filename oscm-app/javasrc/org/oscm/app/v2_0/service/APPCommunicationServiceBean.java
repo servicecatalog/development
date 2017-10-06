@@ -42,7 +42,7 @@ public class APPCommunicationServiceBean {
             .getLogger(APPCommunicationServiceBean.class);
 
     private static final String MAIL_CHARSET = "UTF-8";
-    private static final String DEFAULT_MAIL_RESOURCE = "java:openejb/Resource/APPMail";
+    public static final String DEFAULT_MAIL_RESOURCE = "java:openejb/Resource/APPMail";
 
     @EJB
     protected APPConfigurationServiceBean configService;

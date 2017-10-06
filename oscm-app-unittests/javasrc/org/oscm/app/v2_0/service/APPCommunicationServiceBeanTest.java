@@ -19,6 +19,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.oscm.app.v2_0.service.APPCommunicationServiceBean.DEFAULT_MAIL_RESOURCE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,7 +63,7 @@ public class APPCommunicationServiceBeanTest {
         Properties properties = new Properties();
         properties.put("mail.from", "test@ess.intern");
         mailMock = Session.getInstance(properties);
-        initialContext.bind("mail/BSSMail", mailMock);
+        initialContext.bind(DEFAULT_MAIL_RESOURCE, mailMock);
         configurationService = mock(APPConfigurationServiceBean.class);
         commService = spy(new APPCommunicationServiceBean());
         commService.configService = configurationService;
@@ -163,7 +164,7 @@ public class APPCommunicationServiceBeanTest {
         when(
                 configurationService
                         .getProxyConfigurationSetting(PlatformConfigurationKey.APP_MAIL_RESOURCE))
-                .thenReturn("mail/BSSMail");
+                .thenReturn(DEFAULT_MAIL_RESOURCE);
 
         // when
         MimeMessage message = commService
