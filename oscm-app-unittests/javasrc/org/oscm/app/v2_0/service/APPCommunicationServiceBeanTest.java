@@ -61,7 +61,7 @@ public class APPCommunicationServiceBeanTest {
         }
         InitialContext initialContext = new InitialContext();
         Properties properties = new Properties();
-        properties.put("mail.from", "test@ess.intern");
+        properties.put("smtp.mail.from", "test@ess.intern");
         mailMock = Session.getInstance(properties);
         initialContext.bind(DEFAULT_MAIL_RESOURCE, mailMock);
         configurationService = mock(APPConfigurationServiceBean.class);
@@ -86,7 +86,7 @@ public class APPCommunicationServiceBeanTest {
     @Test(expected = APPlatformException.class)
     public void testSendMailInvalidFromAddress() throws Exception {
         // enforce InvalidAddressException
-        mailMock.getProperties().put("mail.from", "");
+        mailMock.getProperties().put("smtp.mail.from", "");
 
         commService.sendMail(Collections.singletonList("test@noreply.de"),
                 "subject", "text");
