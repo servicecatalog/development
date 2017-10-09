@@ -85,7 +85,7 @@ public class InitializerTest {
     private File createLog4jFile() throws IOException {
         File tmpFile = File.createTempFile("log4j", ".tmp");
         File log4jFile = new File(tmpFile.getParentFile(),
-                "temp_unit_test/config/log4j.ess.common.properties");
+                "temp_unit_test/conf/log4j.ess.common.properties");
         tmpFile.delete();
         log4jFile.getParentFile().mkdirs();
         FileWriter fw = new FileWriter(log4jFile);

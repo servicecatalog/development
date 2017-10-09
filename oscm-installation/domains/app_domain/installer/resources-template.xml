@@ -22,7 +22,7 @@
     <property name="TraceLevel" value="-1"></property>
   </jdbc-connection-pool>
   <jdbc-resource pool-name="BSSAppPool" jndi-name="BSSAppDS"></jdbc-resource>
-  <mail-resource host="@MAIL.HOST@" jndi-name="mail/APPMail" from="@MAIL.FROM@" user="@MAIL.USER@">
+  <mail-resource host="@MAIL.HOST@" jndi-name="APPMail" from="@MAIL.FROM@" user="@MAIL.USER@">
     <description>Mail session for APP</description>
     <property name="mail-smtp-auth" value="@MAIL.AUTH@"></property>
     <property name="mail-smtp-port" value="@MAIL.PORT@"></property>

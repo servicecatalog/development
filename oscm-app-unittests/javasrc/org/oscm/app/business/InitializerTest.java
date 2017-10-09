@@ -49,8 +49,8 @@ public class InitializerTest {
     private String oldSysSetting;
     private String log4jFolderPath;
 
-    private String FILE_PATH = "temp_unit_test/config/log4j.app.core.properties";
-    private String FILE_PATH_CONFIG = "/config/log4j.app.core.properties";
+    private String FILE_PATH = "temp_unit_test/conf/log4j.app.core.properties";
+    private String FILE_PATH_CONFIG = "/conf/log4j.app.core.properties";
     private String FUJITSU_PACKAGE = "com.fujitsu.bss.app";
     private String OSCM_PACKAGE = "org.oscm.app";
 

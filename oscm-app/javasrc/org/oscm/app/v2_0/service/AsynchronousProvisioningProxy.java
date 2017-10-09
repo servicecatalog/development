@@ -750,7 +750,9 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
     @Override
     public BaseResult saveAttributes(String organizationId,
             List<ServiceAttribute> attributeValues, User requestingUser) {
-
+        if (attributeValues == null) {
+            return provResult.newOkBaseResult();
+        }
         try {
 
             Query q = em.createNamedQuery("CustomAttribute.deleteForOrg");
