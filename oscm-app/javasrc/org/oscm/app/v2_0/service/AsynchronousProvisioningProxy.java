@@ -758,6 +758,9 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
             q.executeUpdate();
 
             CustomAttribute ca;
+            if (attributeValues == null) {
+                attributeValues = new ArrayList<>();
+            }
             for (ServiceAttribute attr : attributeValues) {
                 ca = new CustomAttribute();
                 ca.setOrganizationId(organizationId);
