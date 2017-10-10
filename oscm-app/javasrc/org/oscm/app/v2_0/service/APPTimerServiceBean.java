@@ -1238,7 +1238,7 @@ public class APPTimerServiceBean implements Cloneable {
                         .append("/").append(EVENT_KEY_NOTIFY).append("?")
                         .append("sid=")
                         .append(URLEncoder.encode(si.getInstanceId(), "UTF-8"))
-                        .append('&').append("cid=")
+                        .append('&').append("controllerid=")
                         .append(URLEncoder.encode(si.getControllerId(),
                                 "UTF-8"))
                         .append('&').append(EVENT_KEY_RESUME).append('=')
@@ -1364,7 +1364,7 @@ public class APPTimerServiceBean implements Cloneable {
                     .append("sid=")
                     .append(URLEncoder.encode(instance.getInstanceId(),
                             "UTF-8"))
-                    .append('&').append("cid=")
+                    .append('&').append("controllerid=")
                     .append(URLEncoder.encode(instance.getControllerId(),
                             "UTF-8"))
                     .append('&').append(EVENT_KEY_RESUME).append('=')
