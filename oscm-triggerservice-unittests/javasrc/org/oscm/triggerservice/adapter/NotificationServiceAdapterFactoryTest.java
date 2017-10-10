@@ -45,14 +45,13 @@ public class NotificationServiceAdapterFactoryTest {
     }
 
     @Test
-    @Ignore
     public void getAdapter() throws Exception {
 
         TriggerDefinition td = new TriggerDefinition();
         td.setTarget("http://test:8080/test");
         td.setTargetType(TriggerTargetType.REST_SERVICE);
 
-        Integer wsTimeout = new Integer(500);
+        Integer wsTimeout = 500;
 
         ConfigurationServiceLocal cs = Mockito
                 .mock(ConfigurationServiceLocal.class);
