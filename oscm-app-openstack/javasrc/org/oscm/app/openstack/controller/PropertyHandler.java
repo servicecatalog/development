@@ -129,6 +129,20 @@ public class PropertyHandler {
     public static final String TIMER_INTERVAL = "TIMER_INTERVAL";
 
     /**
+     * To create a billing event the technical service id is required and will be stored as service parameter.
+     */
+    public static final String TECHNICAL_SERVICE_INSTANCE_ID = "TECHNICAL_SERVICE_INSTANCE_ID";
+    
+    /**
+     * Boolean service parameter. 
+     * <ul>
+     * <li>True: Billing events will be generated for this tenant subscription
+     * <li>False: Service is free of charge. No billing events will be generated 
+     * <ul> 
+     */
+    public static final String IS_CHARGING = "IS_CHARGING";
+
+    /**
      * Default constructor.
      * 
      * @param settings
@@ -140,6 +154,10 @@ public class PropertyHandler {
         this.settings = settings;
     }
 
+    public boolean isCharging() {
+        return Boolean.parseBoolean(settings.getParameters().get(IS_CHARGING).getValue());
+    }
+    
     /**
      * Returns the internal state of the current provisioning operation as set
      * by the controller or the dispatcher.

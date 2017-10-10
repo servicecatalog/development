@@ -26,6 +26,14 @@
          <LocalizedDescription locale="en">OS::Nova::Server, OS::Keystone::Project</LocalizedDescription>
       </ParameterDefinition>
       
+      <ParameterDefinition id="TECHNICAL_SERVICE_INSTANCE_ID" valueType="STRING" mandatory="true" configurable="true" default="">
+         <LocalizedDescription locale="en">Technical Service Identifier</LocalizedDescription>
+      </ParameterDefinition>
+
+      <ParameterDefinition id="IS_CHARGING" valueType="BOOLEAN" mandatory="true" configurable="true" default="true">
+         <LocalizedDescription locale="en">This service generates costs</LocalizedDescription>
+      </ParameterDefinition>
+      
       <ParameterDefinition id="PROJECT_NAME" valueType="STRING" mandatory="true" configurable="true" modificationType="ONE_TIME">
          <LocalizedDescription locale="en">Openstack project name</LocalizedDescription>
       </ParameterDefinition>
