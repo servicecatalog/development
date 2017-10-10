@@ -31,6 +31,7 @@ import org.openstack4j.model.compute.builder.QuotaSetUpdateBuilder;
 import org.openstack4j.model.identity.v3.Project;
 import org.openstack4j.model.identity.v3.Role;
 import org.openstack4j.model.identity.v3.User;
+import org.openstack4j.model.storage.block.builder.BlockQuotaSetBuilder;
 import org.openstack4j.openstack.OSFactory;
 import org.oscm.app.openstack.controller.PropertyHandler;
 import org.slf4j.Logger;
@@ -124,9 +125,6 @@ public class OpenstackClient {
         if (!Strings.isNullOrEmpty(ph.getQuotaCores())) {
             builder.cores(Integer.valueOf(ph.getQuotaCores()));
         }
-        if (!Strings.isNullOrEmpty(ph.getQuotaGb())) {
-            // ???
-        }
         if (!Strings.isNullOrEmpty(ph.getQuotaInstances())) {
             builder.instances(Integer.valueOf(ph.getQuotaInstances()));
         }
@@ -139,11 +137,18 @@ public class OpenstackClient {
         if (!Strings.isNullOrEmpty(ph.getQuotaRam())) {
             builder.ram(Integer.valueOf(ph.getQuotaRam()));
         }
-        if (!Strings.isNullOrEmpty(ph.getQuotaVolumes())) {
-            // ???
-        }
         client.compute().quotaSets().updateForTenant(ph.getProjectId(),
                 builder.build());
+
+        BlockQuotaSetBuilder blockBuilder = Builders.blockQuotaSet();
+        if (!Strings.isNullOrEmpty(ph.getQuotaVolumes())) {
+            blockBuilder.volumes(Integer.valueOf(ph.getQuotaVolumes()));
+        }
+        if (!Strings.isNullOrEmpty(ph.getQuotaGb())) {
+            blockBuilder.gigabytes(Integer.valueOf(ph.getQuotaGb()));
+        }
+        client.blockStorage().quotaSets().updateForTenant(ph.getProjectId(),
+                blockBuilder.build());
     }
 
     public void deleteUser() {
