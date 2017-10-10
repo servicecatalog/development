@@ -121,6 +121,13 @@ public class PropertyHandler {
 
     public static final String PROJECT_QUOTA_VOLUMES = "PROJECT_QUOTA_VOLUMES";
 
+    /*
+     * The execution interval for the BillingTimerServiceBean that 
+     * generates billing events for Openstack Tenant subscriptions.
+     * This is a controller setting (not a service instance parameter).
+     */
+    public static final String TIMER_INTERVAL = "TIMER_INTERVAL";
+
     /**
      * Default constructor.
      * 
