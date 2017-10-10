@@ -24,7 +24,9 @@ import org.openstack4j.api.Builders;
 import org.openstack4j.api.OSClient.OSClientV3;
 import org.openstack4j.core.transport.Config;
 import org.openstack4j.core.transport.ProxyHost;
+import org.openstack4j.model.compute.QuotaSet;
 import org.openstack4j.model.compute.QuotaSetUpdate;
+import org.openstack4j.model.compute.SimpleTenantUsage;
 import org.openstack4j.model.identity.v3.Project;
 import org.openstack4j.model.identity.v3.Role;
 import org.openstack4j.model.identity.v3.User;
@@ -121,6 +123,14 @@ public class OpenstackClient {
 
     public void deleteProject() {
         client.identity().projects().delete(ph.getProjectId());
+    }
+
+    public SimpleTenantUsage getUsage(String projectId, String startTime, String endTime) {
+        return client.compute().quotaSets().getTenantUsage(projectId, startTime, endTime);
+    }
+
+    public QuotaSet getQuotas(String projectId) {
+        return client.compute().quotaSets().get(projectId);
     }
 
 }
