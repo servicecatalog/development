@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import org.openstack4j.model.identity.v3.Project;
 import org.oscm.app.openstack.HeatProcessor;
 import org.oscm.app.openstack.NovaProcessor;
 import org.oscm.app.openstack.OpenstackClient;
@@ -126,11 +125,10 @@ public class Dispatcher {
             switch (currentState) {
             case CREATE_PROJECT:
                 OpenstackClient client = new OpenstackClient(properties);
-                Project project = client.createProject();
-                org.openstack4j.model.identity.v3.User user = client
-                        .createUser();
-                client.addUserToProject(project.getId(), user.getId());
-                // client.updateQuota(project.getId(), numInst);
+                client.createProject();
+                client.createUser();
+                client.addUserToProject();
+                client.updateQuota();
                 properties.setState(FINISHED);
                 break;
 
@@ -142,7 +140,8 @@ public class Dispatcher {
                 break;
 
             case UPDATE_PROJECT:
-                // client.updateQuota(project.getId(), numInst);
+                OpenstackClient client3 = new OpenstackClient(properties);
+                client3.updateQuota();
                 properties.setState(FINISHED);
                 break;
 

@@ -37,7 +37,35 @@
       <ParameterDefinition id="PROJECT_USER_PWD" valueType="STRING" mandatory="true" configurable="true" modificationType="ONE_TIME">
          <LocalizedDescription locale="en">Password of the projects' admin user</LocalizedDescription>
       </ParameterDefinition>
-
+      
+      <ParameterDefinition id="PROJECT_QUOTA_CORES" valueType="STRING" mandatory="true" configurable="true">
+         <LocalizedDescription locale="en">Quota Cores</LocalizedDescription>
+      </ParameterDefinition>
+      
+      <ParameterDefinition id="PROJECT_QUOTA_IP" valueType="STRING" mandatory="true" configurable="true">
+         <LocalizedDescription locale="en">Quota Floating IPs</LocalizedDescription>
+      </ParameterDefinition>
+            
+      <ParameterDefinition id="PROJECT_QUOTA_GB" valueType="STRING" mandatory="true" configurable="true">
+         <LocalizedDescription locale="en">Quota GB</LocalizedDescription>
+      </ParameterDefinition>
+      
+      <ParameterDefinition id="PROJECT_QUOTA_INSTANCES" valueType="STRING" mandatory="true" configurable="true">
+         <LocalizedDescription locale="en">Quota Instances</LocalizedDescription>
+      </ParameterDefinition>
+      
+      <ParameterDefinition id="PROJECT_QUOTA_KEYS" valueType="STRING" mandatory="true" configurable="true">
+         <LocalizedDescription locale="en">Quota Key Pairs</LocalizedDescription>
+      </ParameterDefinition>
+      
+      <ParameterDefinition id="PROJECT_QUOTA_RAM" valueType="STRING" mandatory="true" configurable="true">
+         <LocalizedDescription locale="en">Quota RAM</LocalizedDescription>
+      </ParameterDefinition>
+      
+      <ParameterDefinition id="PROJECT_QUOTA_VOLUMES" valueType="STRING" mandatory="true" configurable="true">
+         <LocalizedDescription locale="en">Quota Volumes</LocalizedDescription>
+      </ParameterDefinition>
+      
       <ParameterDefinition id="STACK_NAME" valueType="STRING" mandatory="true" configurable="true" default="" modificationType="ONE_TIME">
          <LocalizedDescription locale="en">OpenStack instance name</LocalizedDescription>
       </ParameterDefinition>

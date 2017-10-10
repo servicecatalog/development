@@ -107,6 +107,20 @@ public class PropertyHandler {
 
     public static final String PROJECT_USER_PWD = "PROJECT_USER_PWD";
 
+    public static final String PROJECT_QUOTA_CORES = "PROJECT_QUOTA_CORES";
+
+    public static final String PROJECT_QUOTA_IP = "PROJECT_QUOTA_IP";
+
+    public static final String PROJECT_QUOTA_GB = "PROJECT_QUOTA_GB";
+
+    public static final String PROJECT_QUOTA_INSTANCES = "PROJECT_QUOTA_INSTANCES";
+
+    public static final String PROJECT_QUOTA_KEYS = "PROJECT_QUOTA_KEYS";
+
+    public static final String PROJECT_QUOTA_RAM = "PROJECT_QUOTA_RAM";
+
+    public static final String PROJECT_QUOTA_VOLUMES = "PROJECT_QUOTA_VOLUMES";
+
     /**
      * Default constructor.
      * 
@@ -508,9 +522,37 @@ public class PropertyHandler {
     public void setProjectUserId(String userId) {
         setValue(PROJECT_USER_ID, userId, settings.getParameters());
     }
-
+    
     public String getProjectUserId() {
         return getValue(PROJECT_USER_ID, settings.getParameters());
+    }
+
+    public String getQuotaCores() {
+        return getValue(PROJECT_QUOTA_CORES, settings.getParameters());
+    }
+
+    public String getQuotaIp() {
+        return getValue(PROJECT_QUOTA_IP, settings.getParameters());
+    }
+
+    public String getQuotaGb() {
+        return getValue(PROJECT_QUOTA_GB, settings.getParameters());
+    }
+
+    public String getQuotaInstances() {
+        return getValue(PROJECT_QUOTA_INSTANCES, settings.getParameters());
+    }
+
+    public String getQuotaKeys() {
+        return getValue(PROJECT_QUOTA_KEYS, settings.getParameters());
+    }
+
+    public String getQuotaRam() {
+        return getValue(PROJECT_QUOTA_RAM, settings.getParameters());
+    }
+
+    public String getQuotaVolumes() {
+        return getValue(PROJECT_QUOTA_VOLUMES, settings.getParameters());
     }
 
 }

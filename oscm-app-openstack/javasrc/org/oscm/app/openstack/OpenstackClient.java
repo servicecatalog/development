@@ -26,8 +26,8 @@ import org.openstack4j.api.client.IOSClientBuilder.V3;
 import org.openstack4j.core.transport.Config;
 import org.openstack4j.core.transport.ProxyHost;
 import org.openstack4j.model.compute.QuotaSet;
-import org.openstack4j.model.compute.QuotaSetUpdate;
 import org.openstack4j.model.compute.SimpleTenantUsage;
+import org.openstack4j.model.compute.builder.QuotaSetUpdateBuilder;
 import org.openstack4j.model.identity.v3.Project;
 import org.openstack4j.model.identity.v3.Role;
 import org.openstack4j.model.identity.v3.User;
@@ -35,6 +35,8 @@ import org.openstack4j.openstack.OSFactory;
 import org.oscm.app.openstack.controller.PropertyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
 
 /**
  * @author kulle
@@ -96,26 +98,52 @@ public class OpenstackClient {
     }
 
     public Project createProject() {
-        return client.identity().projects()
+        Project project = client.identity().projects()
                 .create(Builders.project().name(ph.getProjectName())
                         .description("OSCM").enabled(true).build());
+        ph.setProjectId(project.getId());
+        return project;
     }
 
     public User createUser() {
-        return client.identity().users()
+        User user = client.identity().users()
                 .create(Builders.user().name(ph.getProjectUser())
                         .password(ph.getProjectUserPwd()).build());
+        ph.setProjectUserId(user.getId());
+        return user;
     }
 
-    public void addUserToProject(String projectId, String userId) {
+    public void addUserToProject() {
         Role adminRole = client.identity().roles().getByName(ROLE_ADMIN).get(0);
-        client.identity().roles().grantProjectUserRole(projectId, userId,
-                adminRole.getId());
+        client.identity().roles().grantProjectUserRole(ph.getProjectId(),
+                ph.getProjectUserId(), adminRole.getId());
     }
 
-    public void updateQuota(String projectId, int numInst) {
-        QuotaSetUpdate qs = Builders.quotaSet().instances(numInst).build();
-        client.compute().quotaSets().updateForTenant(projectId, qs);
+    public void updateQuota() {
+        QuotaSetUpdateBuilder builder = Builders.quotaSet();
+        if (!Strings.isNullOrEmpty(ph.getQuotaCores())) {
+            builder.cores(Integer.valueOf(ph.getQuotaCores()));
+        }
+        if (!Strings.isNullOrEmpty(ph.getQuotaGb())) {
+            // ???
+        }
+        if (!Strings.isNullOrEmpty(ph.getQuotaInstances())) {
+            builder.instances(Integer.valueOf(ph.getQuotaInstances()));
+        }
+        if (!Strings.isNullOrEmpty(ph.getQuotaIp())) {
+            builder.floatingIps(Integer.valueOf(ph.getQuotaIp()));
+        }
+        if (!Strings.isNullOrEmpty(ph.getQuotaKeys())) {
+            builder.keyPairs(Integer.valueOf(ph.getQuotaKeys()));
+        }
+        if (!Strings.isNullOrEmpty(ph.getQuotaRam())) {
+            builder.ram(Integer.valueOf(ph.getQuotaRam()));
+        }
+        if (!Strings.isNullOrEmpty(ph.getQuotaVolumes())) {
+            // ???
+        }
+        client.compute().quotaSets().updateForTenant(ph.getProjectId(),
+                builder.build());
     }
 
     public void deleteUser() {
@@ -126,8 +154,10 @@ public class OpenstackClient {
         client.identity().projects().delete(ph.getProjectId());
     }
 
-    public SimpleTenantUsage getUsage(String projectId, String startTime, String endTime) {
-        return client.compute().quotaSets().getTenantUsage(projectId, startTime, endTime);
+    public SimpleTenantUsage getUsage(String projectId, String startTime,
+            String endTime) {
+        return client.compute().quotaSets().getTenantUsage(projectId, startTime,
+                endTime);
     }
 
     public QuotaSet getQuotas(String projectId) {
