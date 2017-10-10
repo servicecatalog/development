@@ -8,7 +8,10 @@
 		build files should import this build file and overwrite specific targets
 		only. Note that this script is always invoked from the build.xml master.
 	</description>
-
+	
+  <taskdef name="if" classname="net.sf.antcontrib.logic.IfTask"
+      classpath="${workspace.dir}/libraries/apache-ant-contrib/ant-contrib-1.0b3.jar" />
+	
   <taskdef name="propertyregex" classname="net.sf.antcontrib.property.RegexTask"
     classpath="${workspace.dir}/libraries/apache-ant-contrib/ant-contrib-1.0b3.jar" />
 	

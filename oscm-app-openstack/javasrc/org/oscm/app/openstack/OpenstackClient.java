@@ -22,6 +22,7 @@ import java.net.URL;
 
 import org.openstack4j.api.Builders;
 import org.openstack4j.api.OSClient.OSClientV3;
+import org.openstack4j.api.client.IOSClientBuilder.V3;
 import org.openstack4j.core.transport.Config;
 import org.openstack4j.core.transport.ProxyHost;
 import org.openstack4j.model.compute.QuotaSet;
@@ -56,10 +57,10 @@ public class OpenstackClient {
         if (useProxy() && !useProxyByPass(new URL(ph.getKeystoneUrl()))) {
             config = config.withProxy(newProxyHost());
         }
-        client = OSFactory.builderV3().endpoint(ph.getKeystoneUrl())
+        V3 credentials = OSFactory.builderV3().endpoint(ph.getKeystoneUrl())
                 .withConfig(config).credentials(ph.getUserName(),
-                        ph.getPassword(), byName(ph.getDomainName()))
-                .authenticate();
+                        ph.getPassword(), byName(ph.getDomainName()));
+        client = credentials.authenticate();
     }
 
     private boolean useProxy() {

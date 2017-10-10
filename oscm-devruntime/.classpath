@@ -28,8 +28,8 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/modules/javax.mail.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/libraries/postgresql-jdbc/javalib/postgresql-9.4-1206-jdbc42.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
+	<classpathentry kind="lib" path="/libraries/postgresql-jdbc/javalib/postgresql-42.1.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
