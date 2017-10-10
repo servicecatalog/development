@@ -61,9 +61,9 @@ public class APPCommunicationServiceBeanTest {
         }
         InitialContext initialContext = new InitialContext();
         Properties properties = new Properties();
-        properties.put("smtp.mail.from", "test@ess.intern");
+        properties.put("mail.smtp.from", "test@ess.intern");
         mailMock = Session.getInstance(properties);
-        initialContext.bind(DEFAULT_MAIL_RESOURCE, mailMock);
+        initialContext.bind("java:openejb/Resource/" + DEFAULT_MAIL_RESOURCE, mailMock);
         configurationService = mock(APPConfigurationServiceBean.class);
         commService = spy(new APPCommunicationServiceBean());
         commService.configService = configurationService;
@@ -86,7 +86,7 @@ public class APPCommunicationServiceBeanTest {
     @Test(expected = APPlatformException.class)
     public void testSendMailInvalidFromAddress() throws Exception {
         // enforce InvalidAddressException
-        mailMock.getProperties().put("smtp.mail.from", "");
+        mailMock.getProperties().put("mail.smtp.from", "");
 
         commService.sendMail(Collections.singletonList("test@noreply.de"),
                 "subject", "text");
