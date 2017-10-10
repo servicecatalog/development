@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.oscm.app.openstack.controller;
 
+import static org.oscm.app.openstack.data.FlowState.FINISHED;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -17,8 +19,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import org.openstack4j.model.identity.v3.Project;
 import org.oscm.app.openstack.HeatProcessor;
 import org.oscm.app.openstack.NovaProcessor;
+import org.oscm.app.openstack.OpenstackClient;
 import org.oscm.app.openstack.data.FlowState;
 import org.oscm.app.openstack.data.Server;
 import org.oscm.app.openstack.data.Stack;
@@ -120,6 +124,28 @@ public class Dispatcher {
         try {
             // Dispatch next step depending on current internal status
             switch (currentState) {
+            case CREATE_PROJECT:
+                OpenstackClient client = new OpenstackClient(properties);
+                Project project = client.createProject();
+                org.openstack4j.model.identity.v3.User user = client
+                        .createUser();
+                client.addUserToProject(project.getId(), user.getId());
+                // client.updateQuota(project.getId(), numInst);
+                properties.setState(FINISHED);
+                break;
+
+            case DELETE_PROJECT:
+                OpenstackClient client2 = new OpenstackClient(properties);
+                client2.deleteUser();
+                client2.deleteProject();
+                properties.setState(FINISHED);
+                break;
+
+            case UPDATE_PROJECT:
+                // client.updateQuota(project.getId(), numInst);
+                properties.setState(FINISHED);
+                break;
+
             case CREATION_REQUESTED:
                 getHeatProcessor().createStack(properties);
                 newState = FlowState.CREATING_STACK;
@@ -155,14 +181,13 @@ public class Dispatcher {
                         false);
                 errorServers = new ArrayList<Server>();
                 for (Server server : servers) {
-                    if (server.getStatus().equals(
-                            ServerStatus.ACTIVE.toString())) {
+                    if (server.getStatus()
+                            .equals(ServerStatus.ACTIVE.toString())) {
                         successServers.add(server);
                     }
-                    if (server.getStatus()
-                            .equals(ServerStatus.ERROR.toString())
-                            || server.getStatus().equals(
-                                    ServerStatus.UNKNOWN.toString())) {
+                    if (server.getStatus().equals(ServerStatus.ERROR.toString())
+                            || server.getStatus()
+                                    .equals(ServerStatus.UNKNOWN.toString())) {
                         errorServers.add(server);
                     }
                 }
@@ -179,8 +204,8 @@ public class Dispatcher {
                     } else {
                         logger.info(FlowState.STARTING
                                 + " servers are not yet ready. "
-                                + Integer.toString(servers.size()
-                                        - successServers.size())
+                                + Integer.toString(
+                                        servers.size() - successServers.size())
                                 + " VMs are not started. Nothing will be done.");
 
                         messages = Messages.getAll(
@@ -214,14 +239,13 @@ public class Dispatcher {
                         false);
                 errorServers = new ArrayList<Server>();
                 for (Server server : servers) {
-                    if (server.getStatus().equals(
-                            ServerStatus.SHUTOFF.toString())) {
+                    if (server.getStatus()
+                            .equals(ServerStatus.SHUTOFF.toString())) {
                         successServers.add(server);
                     }
-                    if (server.getStatus()
-                            .equals(ServerStatus.ERROR.toString())
-                            || server.getStatus().equals(
-                                    ServerStatus.UNKNOWN.toString())) {
+                    if (server.getStatus().equals(ServerStatus.ERROR.toString())
+                            || server.getStatus()
+                                    .equals(ServerStatus.UNKNOWN.toString())) {
                         errorServers.add(server);
                     }
                 }
@@ -235,10 +259,9 @@ public class Dispatcher {
                     result.setAccessInfo(getAccessInfo(stack));
                     newState = FlowState.FINISHED;
                 } else {
-                    logger.info(FlowState.STOPPING
-                            + " Servers is not yet ready"
-                            + Integer.toString(servers.size()
-                                    - successServers.size())
+                    logger.info(FlowState.STOPPING + " Servers is not yet ready"
+                            + Integer.toString(
+                                    servers.size() - successServers.size())
                             + "VMs are not stopped. Nothing will be done.");
 
                     messages = Messages.getAll(
@@ -252,9 +275,9 @@ public class Dispatcher {
                 boolean resuming = getHeatProcessor().resumeStack(properties);
                 newState = resuming ? FlowState.ACTIVATING : FlowState.FINISHED;
                 if (resuming) {
-                    result.setAccessInfo(Messages.get(
-                            properties.getCustomerLocale(),
-                            "accessInfo_NOT_AVAILABLE"));
+                    result.setAccessInfo(
+                            Messages.get(properties.getCustomerLocale(),
+                                    "accessInfo_NOT_AVAILABLE"));
                 } else {
                     stack = getHeatProcessor().getStackDetails(properties);
                     result.setAccessInfo(getAccessInfo(stack));
@@ -271,11 +294,12 @@ public class Dispatcher {
                     newState = FlowState.FINISHED;
                 } else if (StackStatus.RESUME_FAILED.name().equals(status)
                         && statusReason.contains("Failed to find instance")) {
-                    throw new InstanceNotAliveException(
-                            Messages.getAll("error_activating_failed_instance_not_found"));
+                    throw new InstanceNotAliveException(Messages.getAll(
+                            "error_activating_failed_instance_not_found"));
                 } else if (StackStatus.RESUME_FAILED.name().equals(status)) {
-                    throw new SuspendException(Messages.getAll(
-                            "error_activating_failed", stack.getStatusReason()));
+                    throw new SuspendException(
+                            Messages.getAll("error_activating_failed",
+                                    stack.getStatusReason()));
                 } else {
                     logger.info(FlowState.ACTIVATING
                             + " Instance is not yet ready, status: " + status
@@ -288,9 +312,9 @@ public class Dispatcher {
                         .suspendStack(properties);
                 newState = suspending ? FlowState.DEACTIVATING
                         : FlowState.FINISHED;
-                result.setAccessInfo(Messages.get(
-                        properties.getCustomerLocale(),
-                        "accessInfo_NOT_AVAILABLE"));
+                result.setAccessInfo(
+                        Messages.get(properties.getCustomerLocale(),
+                                "accessInfo_NOT_AVAILABLE"));
                 break;
 
             case DEACTIVATING:
@@ -299,18 +323,18 @@ public class Dispatcher {
                 statusReason = stack.getStatusReason();
                 logger.debug("Status of stack is: " + status);
                 if (StackStatus.SUSPEND_COMPLETE.name().equals(status)) {
-                    result.setAccessInfo(Messages.get(
-                            properties.getCustomerLocale(),
-                            "accessInfo_NOT_AVAILABLE"));
+                    result.setAccessInfo(
+                            Messages.get(properties.getCustomerLocale(),
+                                    "accessInfo_NOT_AVAILABLE"));
                     newState = FlowState.FINISHED;
                 } else if (StackStatus.SUSPEND_FAILED.name().equals(status)
                         && statusReason.contains("Failed to find instance")) {
-                    throw new InstanceNotAliveException(
-                            Messages.getAll("error_deactivating_failed_instance_not_found"));
+                    throw new InstanceNotAliveException(Messages.getAll(
+                            "error_deactivating_failed_instance_not_found"));
                 } else if (StackStatus.SUSPEND_FAILED.name().equals(status)) {
-                    throw new SuspendException(Messages.getAll(
-                            "error_deactivating_failed",
-                            stack.getStatusReason()));
+                    throw new SuspendException(
+                            Messages.getAll("error_deactivating_failed",
+                                    stack.getStatusReason()));
                 } else {
                     logger.info(FlowState.DEACTIVATING
                             + " Instance is not yet ready, status: " + status
@@ -370,8 +394,9 @@ public class Dispatcher {
                     status = stack.getStatus();
                     statusReason = stack.getStatusReason();
                     if (StackStatus.DELETE_COMPLETE.name().equals(status)
-                            || (StackStatus.DELETE_FAILED.name().equals(status) && statusReason
-                                    .contains("Failed to find instance"))) {
+                            || (StackStatus.DELETE_FAILED.name().equals(status)
+                                    && statusReason.contains(
+                                            "Failed to find instance"))) {
                         if (mail != null) {
                             newState = dispatchManualOperation(instanceId,
                                     properties, mail,
@@ -379,10 +404,11 @@ public class Dispatcher {
                         } else {
                             newState = FlowState.DESTROYED;
                         }
-                    } else if (StackStatus.DELETE_FAILED.name().equals(status)) {
-                        throw new SuspendException(Messages.getAll(
-                                "error_deleting_stack_failed",
-                                stack.getStatusReason()));
+                    } else if (StackStatus.DELETE_FAILED.name()
+                            .equals(status)) {
+                        throw new SuspendException(
+                                Messages.getAll("error_deleting_stack_failed",
+                                        stack.getStatusReason()));
                     } else {
                         logger.info(FlowState.DELETING_STACK
                                 + " Instance is not yet ready, status: "
@@ -427,15 +453,16 @@ public class Dispatcher {
             if (e.getResponseCode() == 404) {
                 if (FlowState.DEACTIVATION_REQUESTED == currentState
                         || FlowState.DEACTIVATING == currentState) {
-                    throw new InstanceNotAliveException(
-                            Messages.getAll("error_deactivating_failed_instance_not_found"));
+                    throw new InstanceNotAliveException(Messages.getAll(
+                            "error_deactivating_failed_instance_not_found"));
                 } else if (FlowState.ACTIVATION_REQUESTED == currentState
                         || FlowState.ACTIVATING == currentState) {
-                    throw new InstanceNotAliveException(
-                            Messages.getAll("error_activating_failed_instance_not_found"));
+                    throw new InstanceNotAliveException(Messages.getAll(
+                            "error_activating_failed_instance_not_found"));
                 }
-                throw new AbortException(Messages.getAll(
-                        "error_heat_resource_not_found", e.getMessage()),
+                throw new AbortException(
+                        Messages.getAll("error_heat_resource_not_found",
+                                e.getMessage()),
                         Messages.getAll("error_heat_resource_not_found",
                                 e.getMessage()));
 
@@ -476,8 +503,8 @@ public class Dispatcher {
         return result;
     }
 
-    protected HeatProcessor getHeatProcessor() throws AuthenticationException,
-            APPlatformException {
+    protected HeatProcessor getHeatProcessor()
+            throws AuthenticationException, APPlatformException {
         return new HeatProcessor();
     }
 
@@ -504,13 +531,13 @@ public class Dispatcher {
         if (StackStatus.CREATE_COMPLETE.equals(status)) {
             StringBuffer eventLink = new StringBuffer(
                     platformService.getEventServiceUrl());
-            eventLink.append("?sid=").append(
-                    URLEncoder.encode(instanceId, "UTF-8"));
+            eventLink.append("?sid=")
+                    .append(URLEncoder.encode(instanceId, "UTF-8"));
             eventLink.append("&cid=").append(OpenStackController.ID);
             eventLink.append("&command=finish");
             String subject = Messages.get(locale,
-                    "mail_openstack_manual_completion.subject", new Object[] {
-                            instanceId, subscriptionId });
+                    "mail_openstack_manual_completion.subject",
+                    new Object[] { instanceId, subscriptionId });
             String details = properties.getStackConfigurationAsString();
             String text = Messages.get(locale,
                     "mail_openstack_manual_completion.text",
@@ -521,22 +548,22 @@ public class Dispatcher {
             return FlowState.MANUAL;
         } else if (StackStatus.UPDATE_COMPLETE.equals(status)) {
             String subject = Messages.get(locale,
-                    "mail_openstack_manual_modification.subject", new Object[] {
-                            instanceId, subscriptionId });
+                    "mail_openstack_manual_modification.subject",
+                    new Object[] { instanceId, subscriptionId });
             String details = properties.getStackConfigurationAsString();
             String text = Messages.get(locale,
-                    "mail_openstack_manual_modification.text", new Object[] {
-                            instanceId, subscriptionId, details });
+                    "mail_openstack_manual_modification.text",
+                    new Object[] { instanceId, subscriptionId, details });
             platformService.sendMail(Collections.singletonList(mail), subject,
                     text);
             return FlowState.FINISHED;
         } else if (StackStatus.DELETE_COMPLETE.equals(status)) {
             String subject = Messages.get(locale,
-                    "mail_openstack_manual_delete.subject", new Object[] {
-                            instanceId, subscriptionId });
+                    "mail_openstack_manual_delete.subject",
+                    new Object[] { instanceId, subscriptionId });
             String text = Messages.get(locale,
-                    "mail_openstack_manual_delete.text", new Object[] {
-                            instanceId, subscriptionId });
+                    "mail_openstack_manual_delete.text",
+                    new Object[] { instanceId, subscriptionId });
             platformService.sendMail(Collections.singletonList(mail), subject,
                     text);
             return FlowState.DESTROYED;

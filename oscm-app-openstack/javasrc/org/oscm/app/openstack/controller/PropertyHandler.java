@@ -97,6 +97,16 @@ public class PropertyHandler {
      */
     public static final String RESOURCE_TYPE = "RESOURCE_TYPE";
 
+    public static final String PROJECT_ID = "PROJECT_ID";
+
+    public static final String PROJECT_USER_ID = "PROJECT_ID";
+
+    public static final String PROJECT_NAME = "PROJECT_NAME";
+
+    public static final String PROJECT_USER = "PROJECT_USER";
+
+    public static final String PROJECT_USER_PWD = "PROJECT_USER_PWD";
+
     /**
      * Default constructor.
      * 
@@ -473,6 +483,34 @@ public class PropertyHandler {
     private void setValue(String key, String value,
             Map<String, Setting> target) {
         target.put(key, new Setting(key, value));
+    }
+
+    public String getProjectName() {
+        return getValue(PROJECT_NAME, settings.getParameters());
+    }
+
+    public String getProjectUser() {
+        return getValue(PROJECT_USER, settings.getParameters());
+    }
+
+    public String getProjectUserPwd() {
+        return getValue(PROJECT_USER_PWD, settings.getParameters());
+    }
+
+    public void setProjectId(String projectId) {
+        setValue(PROJECT_ID, projectId, settings.getParameters());
+    }
+
+    public String getProjectId() {
+        return getValue(PROJECT_ID, settings.getParameters());
+    }
+
+    public void setProjectUserId(String userId) {
+        setValue(PROJECT_USER_ID, userId, settings.getParameters());
+    }
+
+    public String getProjectUserId() {
+        return getValue(PROJECT_USER_ID, settings.getParameters());
     }
 
 }

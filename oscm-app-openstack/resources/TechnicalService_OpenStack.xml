@@ -2,8 +2,8 @@
 <tns:TechnicalServices xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="oscm.serviceprovisioning/1.9/TechnicalService.xsd" xsi:schemaLocation="oscm.serviceprovisioning/1.9/TechnicalService.xsd ../../oscm-serviceprovisioning/javares/TechnicalServices.xsd">
    
    <tns:TechnicalService 
-   		id="OPENSTACK_V5" 
-   		build="20140708" 
+   		id="OPENSTACK" 
+   		build="V5" 
    		accessType="DIRECT" 
    		allowingOnBehalfActing="false" 
    		baseUrl="" 
@@ -26,6 +26,18 @@
          <LocalizedDescription locale="en">OS::Nova::Server, OS::Keystone::Project</LocalizedDescription>
       </ParameterDefinition>
       
+      <ParameterDefinition id="PROJECT_NAME" valueType="STRING" mandatory="true" configurable="true" modificationType="ONE_TIME">
+         <LocalizedDescription locale="en">Openstack project name</LocalizedDescription>
+      </ParameterDefinition>
+
+      <ParameterDefinition id="PROJECT_USER" valueType="STRING" mandatory="true" configurable="true" modificationType="ONE_TIME">
+         <LocalizedDescription locale="en">The projects' admin user</LocalizedDescription>
+      </ParameterDefinition>
+
+      <ParameterDefinition id="PROJECT_USER_PWD" valueType="STRING" mandatory="true" configurable="true" modificationType="ONE_TIME">
+         <LocalizedDescription locale="en">Password of the projects' admin user</LocalizedDescription>
+      </ParameterDefinition>
+
       <ParameterDefinition id="STACK_NAME" valueType="STRING" mandatory="true" configurable="true" default="" modificationType="ONE_TIME">
          <LocalizedDescription locale="en">OpenStack instance name</LocalizedDescription>
       </ParameterDefinition>
