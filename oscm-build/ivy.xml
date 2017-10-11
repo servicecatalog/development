@@ -404,8 +404,6 @@
     <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="3.1.0" transitive="false"/>
     <dependency org="org.apache.cxf" name="cxf-core" rev="3.1.10" transitive="false"/>
 
-    <dependency org="javax.mail" name="javax.mail-api" rev="1.5.4"/>
-
     <exclude org="org.netbeans.api"/>
     <exclude org="*" ext="*" type="source"/>
     <exclude org="*" ext="*" type="javadoc"/>

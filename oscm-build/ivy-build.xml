@@ -223,7 +223,5 @@
         <copy file="${ivy.lib.dir}/cxf-core-3.1.10.jar"
               tofile="${root.dir}/libraries/apache-tomee/javalib/cxf-core.jar" overwrite="true"/>
 
-        <copy file="${ivy.lib.dir}/javax.mail-api-1.5.4.jar" tofile="${root.dir}/libraries/javax/javalib/javax.mail-api-1.5.4.jar" overwrite="true" />
-
     </target>
 </project>
