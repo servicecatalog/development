@@ -38,7 +38,7 @@
 	</target>
 	
 	<target name="Openstack.BUILD" description="Builds the Openstack controller">
-		<ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="qpackage">
+		<ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
 			<property name="projects" value="oscm-app-openstack" />
 		</ant>
 	</target>	

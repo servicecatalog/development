@@ -10,12 +10,14 @@
  *******************************************************************************/
 package org.oscm.app.openstack.controller;
 
+import static org.oscm.app.openstack.controller.PropertyHandler.STACK_NAME;
 import static org.oscm.app.openstack.data.FlowState.CREATE_PROJECT;
 import static org.oscm.app.openstack.data.FlowState.CREATION_REQUESTED;
 import static org.oscm.app.openstack.data.FlowState.DELETE_PROJECT;
 import static org.oscm.app.openstack.data.FlowState.DELETION_REQUESTED;
 import static org.oscm.app.openstack.data.FlowState.MODIFICATION_REQUESTED;
 import static org.oscm.app.openstack.data.FlowState.UPDATE_PROJECT;
+import static org.oscm.app.v2_0.data.Context.MODIFICATION;
 
 import java.util.List;
 import java.util.Properties;
@@ -159,6 +161,7 @@ public class OpenStackController extends ProvisioningValidator
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public InstanceStatus deleteInstance(String instanceId,
             ProvisioningSettings settings) throws APPlatformException {
+
         LOGGER.info("deleteInstance({})",
                 LogAndExceptionConverter.getLogText(instanceId, settings));
         try {
@@ -200,21 +203,19 @@ public class OpenStackController extends ProvisioningValidator
      *         of the application instance
      * @throws APPlatformException
      */
-
     @Override
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public InstanceStatus modifyInstance(String instanceId,
             ProvisioningSettings currentSettings,
             ProvisioningSettings newSettings) throws APPlatformException {
+
         LOGGER.info("modifyInstance({})", LogAndExceptionConverter
                 .getLogText(instanceId, currentSettings));
         try {
-            newSettings.getParameters().put(PropertyHandler.STACK_NAME,
-                    currentSettings.getParameters()
-                            .get(PropertyHandler.STACK_NAME));
             PropertyHandler ph = new PropertyHandler(newSettings);
-
             if (RESOURCETYPE_VM.equals(ph.getResourceType())) {
+                newSettings.getParameters().put(STACK_NAME,
+                        currentSettings.getParameters().get(STACK_NAME));
                 ph.setState(MODIFICATION_REQUESTED);
             } else {
                 ph.setState(UPDATE_PROJECT);
@@ -226,7 +227,7 @@ public class OpenStackController extends ProvisioningValidator
             return result;
         } catch (Exception t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
-                    Context.MODIFICATION);
+                    MODIFICATION);
         }
     }
 
@@ -248,11 +249,11 @@ public class OpenStackController extends ProvisioningValidator
      *         of the application instance
      * @throws APPlatformException
      */
-
     @Override
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public InstanceStatus getInstanceStatus(String instanceId,
             ProvisioningSettings settings) throws APPlatformException {
+
         LOGGER.debug("getInstanceStatus({})",
                 LogAndExceptionConverter.getLogText(instanceId, settings));
         try {

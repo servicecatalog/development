@@ -8,7 +8,9 @@
 
 package org.oscm.app.openstack;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.System.getProperty;
+import static org.openstack4j.model.common.Identifier.byId;
 import static org.openstack4j.model.common.Identifier.byName;
 import static org.oscm.app.openstack.proxy.ProxySettings.HTTPS_PROXY_HOST;
 import static org.oscm.app.openstack.proxy.ProxySettings.HTTPS_PROXY_PASSWORD;
@@ -22,7 +24,6 @@ import java.net.URL;
 
 import org.openstack4j.api.Builders;
 import org.openstack4j.api.OSClient.OSClientV3;
-import org.openstack4j.api.client.IOSClientBuilder.V3;
 import org.openstack4j.core.transport.Config;
 import org.openstack4j.core.transport.ProxyHost;
 import org.openstack4j.model.compute.QuotaSet;
@@ -36,8 +37,6 @@ import org.openstack4j.openstack.OSFactory;
 import org.oscm.app.openstack.controller.PropertyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Strings;
 
 /**
  * @author kulle
@@ -56,14 +55,29 @@ public class OpenstackClient {
 
     public OpenstackClient(PropertyHandler ph) throws MalformedURLException {
         this.ph = ph;
+        client = authenticate(ph.getUserName(), ph.getPassword(), null);
+    }
+
+    private OSClientV3 authenticate(String user, String password,
+            String projectId) throws MalformedURLException {
+
         Config config = Config.newConfig();
         if (useProxy() && !useProxyByPass(new URL(ph.getKeystoneUrl()))) {
             config = config.withProxy(newProxyHost());
         }
-        V3 credentials = OSFactory.builderV3().endpoint(ph.getKeystoneUrl())
-                .withConfig(config).credentials(ph.getUserName(),
-                        ph.getPassword(), byName(ph.getDomainName()));
-        client = credentials.authenticate();
+
+        if (isNullOrEmpty(projectId)) {
+            return OSFactory.builderV3().endpoint(ph.getKeystoneUrl())
+                    .withConfig(config)
+                    .credentials(user, password, byName(ph.getDomainName()))
+                    .authenticate();
+
+        }
+
+        return OSFactory.builderV3().endpoint(ph.getKeystoneUrl())
+                .withConfig(config)
+                .credentials(user, password, byName(ph.getDomainName()))
+                .scopeToProject(byId(projectId)).authenticate();
     }
 
     private boolean useProxy() {
@@ -101,7 +115,7 @@ public class OpenstackClient {
     public Project createProject() {
         Project project = client.identity().projects()
                 .create(Builders.project().name(ph.getProjectName())
-                        .description("OSCM").enabled(true).build());
+                        .description("Managed by OSCM").enabled(true).build());
         ph.setProjectId(project.getId());
         return project;
     }
@@ -109,6 +123,7 @@ public class OpenstackClient {
     public User createUser() {
         User user = client.identity().users()
                 .create(Builders.user().name(ph.getProjectUser())
+                        .description("Managed by OSCM")
                         .password(ph.getProjectUserPwd()).build());
         ph.setProjectUserId(user.getId());
         return user;
@@ -120,35 +135,56 @@ public class OpenstackClient {
                 ph.getProjectUserId(), adminRole.getId());
     }
 
-    public void updateQuota() {
+    public void updateQuota() throws MalformedURLException {
+        OSClientV3 client = authenticate(ph.getProjectUser(),
+                ph.getProjectUserPwd(), ph.getProjectId());
+
         QuotaSetUpdateBuilder builder = Builders.quotaSet();
-        if (!Strings.isNullOrEmpty(ph.getQuotaCores())) {
+        if (!isNullOrEmpty(ph.getQuotaCores())) {
             builder.cores(Integer.valueOf(ph.getQuotaCores()));
         }
-        if (!Strings.isNullOrEmpty(ph.getQuotaInstances())) {
+        if (!isNullOrEmpty(ph.getQuotaInstances())) {
             builder.instances(Integer.valueOf(ph.getQuotaInstances()));
         }
-        if (!Strings.isNullOrEmpty(ph.getQuotaIp())) {
+        if (!isNullOrEmpty(ph.getQuotaIp())) {
             builder.floatingIps(Integer.valueOf(ph.getQuotaIp()));
         }
-        if (!Strings.isNullOrEmpty(ph.getQuotaKeys())) {
+        if (!isNullOrEmpty(ph.getQuotaKeys())) {
             builder.keyPairs(Integer.valueOf(ph.getQuotaKeys()));
         }
-        if (!Strings.isNullOrEmpty(ph.getQuotaRam())) {
+        if (!isNullOrEmpty(ph.getQuotaRam())) {
             builder.ram(Integer.valueOf(ph.getQuotaRam()));
         }
         client.compute().quotaSets().updateForTenant(ph.getProjectId(),
                 builder.build());
 
         BlockQuotaSetBuilder blockBuilder = Builders.blockQuotaSet();
-        if (!Strings.isNullOrEmpty(ph.getQuotaVolumes())) {
+        boolean updateBlockQuota = false;
+        if (!isNullOrEmpty(ph.getQuotaVolumes())) {
             blockBuilder.volumes(Integer.valueOf(ph.getQuotaVolumes()));
+            updateBlockQuota = true;
         }
-        if (!Strings.isNullOrEmpty(ph.getQuotaGb())) {
+        if (!isNullOrEmpty(ph.getQuotaGb())) {
             blockBuilder.gigabytes(Integer.valueOf(ph.getQuotaGb()));
+            updateBlockQuota = true;
         }
-        client.blockStorage().quotaSets().updateForTenant(ph.getProjectId(),
-                blockBuilder.build());
+        if (updateBlockQuota) {
+            client.blockStorage().quotaSets().updateForTenant(ph.getProjectId(),
+                    blockBuilder.build());
+        }
+    }
+
+    public void getQuota() throws MalformedURLException {
+        OSClientV3 client = authenticate(ph.getProjectUser(),
+                ph.getProjectUserPwd(), ph.getProjectId());
+        QuotaSet qs = client.compute().quotaSets().get(ph.getProjectId());
+        ph.setQuotaCores(String.valueOf(qs.getCores()));
+        ph.setQuotaGb(String.valueOf(qs.getGigabytes()));
+        ph.setQuotaInstances(String.valueOf(qs.getInstances()));
+        ph.setQuotaIp(String.valueOf(qs.getFloatingIps()));
+        ph.setQuotaKeys(String.valueOf(qs.getKeyPairs()));
+        ph.setQuotaRam(String.valueOf(qs.getRam()));
+        ph.setQuotaVolumes(String.valueOf(qs.getVolumes()));
     }
 
     public void deleteUser() {

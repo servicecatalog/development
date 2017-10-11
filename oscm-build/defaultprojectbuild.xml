@@ -105,7 +105,7 @@
       </not>
     </condition>
   	
-    <javac srcdir="${src.path}" includeantruntime="false" destdir="${result.work.classes.dir}" debug="false" source="${javasource}" target="${javatarget}" encoding="utf-8" compiler="org.eclipse.jdt.core.JDTCompilerAdapter">
+    <javac srcdir="${src.path}" includeantruntime="false" destdir="${result.work.classes.dir}" debug="true" source="${javasource}" target="${javatarget}" encoding="utf-8" compiler="org.eclipse.jdt.core.JDTCompilerAdapter">
       <compilerclasspath>
         <fileset dir="${workspace.dir}/libraries/eclipse-ecj/javalib" includes="ecj-4.5.1.jar"/>
       </compilerclasspath>

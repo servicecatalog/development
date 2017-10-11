@@ -99,7 +99,7 @@ public class PropertyHandler {
 
     public static final String PROJECT_ID = "PROJECT_ID";
 
-    public static final String PROJECT_USER_ID = "PROJECT_ID";
+    public static final String PROJECT_USER_ID = "PROJECT_USER_ID";
 
     public static final String PROJECT_NAME = "PROJECT_NAME";
 
@@ -122,9 +122,9 @@ public class PropertyHandler {
     public static final String PROJECT_QUOTA_VOLUMES = "PROJECT_QUOTA_VOLUMES";
 
     /*
-     * The execution interval for the BillingTimerServiceBean that 
-     * generates billing events for Openstack Tenant subscriptions.
-     * This is a controller setting (not a service instance parameter).
+     * The execution interval for the BillingTimerServiceBean that generates
+     * billing events for Openstack Tenant subscriptions. This is a controller
+     * setting (not a service instance parameter).
      */
     public static final String TIMER_INTERVAL = "TIMER_INTERVAL";
 
@@ -547,7 +547,7 @@ public class PropertyHandler {
     public void setProjectUserId(String userId) {
         setValue(PROJECT_USER_ID, userId, settings.getParameters());
     }
-    
+
     public String getProjectUserId() {
         return getValue(PROJECT_USER_ID, settings.getParameters());
     }
@@ -578,6 +578,34 @@ public class PropertyHandler {
 
     public String getQuotaVolumes() {
         return getValue(PROJECT_QUOTA_VOLUMES, settings.getParameters());
+    }
+
+    public void setQuotaCores(String value) {
+        setValue(PROJECT_QUOTA_CORES, value, settings.getParameters());
+    }
+
+    public void setQuotaIp(String value) {
+        setValue(PROJECT_QUOTA_IP, value, settings.getParameters());
+    }
+
+    public void setQuotaGb(String value) {
+        setValue(PROJECT_QUOTA_GB, value, settings.getParameters());
+    }
+
+    public void setQuotaInstances(String value) {
+        setValue(PROJECT_QUOTA_INSTANCES, value, settings.getParameters());
+    }
+
+    public void setQuotaKeys(String value) {
+        setValue(PROJECT_QUOTA_KEYS, value, settings.getParameters());
+    }
+
+    public void setQuotaRam(String value) {
+        setValue(PROJECT_QUOTA_RAM, value, settings.getParameters());
+    }
+
+    public void setQuotaVolumes(String value) {
+        setValue(PROJECT_QUOTA_VOLUMES, value, settings.getParameters());
     }
 
 }
