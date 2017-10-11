@@ -5,8 +5,6 @@
 package org.oscm.communicationservice.bean;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -36,7 +34,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.oscm.communicationservice.data.SendMailStatus;
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
-import org.oscm.communicationservice.smtp.SMTPAuthenticator;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Organization;
@@ -61,7 +58,6 @@ import static org.oscm.communicationservice.Constants.MAIL_RESOURCE;
 import static org.oscm.communicationservice.Constants.MAIL_SMTP_AUTH;
 import static org.oscm.communicationservice.Constants.MAIL_SMTP_USER;
 import static org.oscm.communicationservice.Constants.MAIL_TLS_ENABLED;
-import static org.oscm.communicationservice.Constants.MAIL_USER;
 import static org.oscm.communicationservice.Constants.RESOURCE_SUBJECT;
 import static org.oscm.communicationservice.Constants.RESOURCE_TEXT;
 import static org.oscm.communicationservice.Constants.RESOURCE_TEXT_FOOTER;
@@ -377,42 +373,6 @@ public class CommunicationServiceBean implements CommunicationServiceLocal {
                             return new PasswordAuthentication(username, password);
                         }
                     });
-                }
-            } else if ("com.sun.enterprise.deployment.MailConfiguration"
-                    .equals(resource.getClass().getName())) {
-                // since Glassfish <3.0 has a bug here, we need reflection
-                Object propertyObject = null;
-                Exception ex = null;
-                try {
-                    Method method = resource.getClass().getMethod(
-                            "getMailProperties");
-                    propertyObject = method.invoke(resource);
-                } catch (NoSuchMethodException e) {
-                    ex = e;
-                } catch (IllegalArgumentException e) {
-                    ex = e;
-                } catch (InvocationTargetException e) {
-                    ex = e;
-                } catch (IllegalAccessException e) {
-                    ex = e;
-                }
-                if (ex != null) {
-                    SaaSSystemException se = new SaaSSystemException(
-                            "The registered JavaMail resource " + MAIL_RESOURCE
-                                    + " is not configured properly.", ex);
-                    logger.logError(Log4jLogger.SYSTEM_LOG, se,
-                            LogMessageIdentifier.ERROR_MAILING_FAILURE);
-                    throw se;
-                }
-                if (propertyObject instanceof Properties) {
-                    Properties p = (Properties) propertyObject;
-                    Authenticator authenticator = null;
-                    if (Boolean.parseBoolean(p.getProperty(MAIL_SMTP_AUTH))) {
-                        authenticator = SMTPAuthenticator.getInstance(
-                                p.getProperty(MAIL_USER),
-                                p.getProperty(MAIL_PASSWORD));
-                    }
-                    session = Session.getInstance(p, authenticator);
                 }
             }
         } catch (NamingException e) {
