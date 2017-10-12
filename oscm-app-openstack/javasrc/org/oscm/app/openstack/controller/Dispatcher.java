@@ -126,7 +126,12 @@ public class Dispatcher {
             case CREATE_PROJECT:
                 OpenstackClient client = new OpenstackClient(properties);
                 client.createProject();
-                client.createUser();
+                try {
+                    client.createUser();
+                } catch (Exception e) {
+                    client.deleteProject();
+                    throw e;
+                }
                 client.addUserToProject();
                 client.updateQuota();
                 properties.setState(FINISHED);
