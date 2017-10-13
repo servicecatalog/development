@@ -195,10 +195,9 @@ public class OpenstackClient {
         client.identity().projects().delete(ph.getProjectId());
     }
 
-    public SimpleTenantUsage getUsage(String projectId, String startTime,
-            String endTime) {
-        return client.compute().quotaSets().getTenantUsage(projectId, startTime,
-                endTime);
+    public SimpleTenantUsage getUsage(String startTime, String endTime) {
+        return client.compute().quotaSets().getTenantUsage(ph.getProjectId(),
+                startTime, endTime);
     }
 
     public QuotaSet getQuotas(String projectId) {

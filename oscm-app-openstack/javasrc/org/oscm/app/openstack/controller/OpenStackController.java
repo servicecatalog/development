@@ -122,6 +122,7 @@ public class OpenStackController extends ProvisioningValidator
                 validateStackName(ph);
                 ph.setState(CREATION_REQUESTED);
             } else {
+                ph.setLastUsageFetch("");
                 ph.setState(CREATE_PROJECT);
             }
 

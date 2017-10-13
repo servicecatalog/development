@@ -6,7 +6,7 @@
  *
  *******************************************************************************/
 
-package org.oscm.app.openstack.billing;
+package org.oscm.app.openstack.usage;
 
 import org.oscm.app.v2_0.data.PasswordAuthentication;
 

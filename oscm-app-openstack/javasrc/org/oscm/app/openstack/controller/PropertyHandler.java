@@ -24,6 +24,7 @@ import org.oscm.app.v2_0.BSSWebServiceFactory;
 import org.oscm.app.v2_0.data.PasswordAuthentication;
 import org.oscm.app.v2_0.data.ProvisioningSettings;
 import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,10 +41,15 @@ public class PropertyHandler {
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(PropertyHandler.class);
+
     private final ProvisioningSettings settings;
 
+    public static final String INSTANCE_ID = "INSTANCE_ID";
+
     public static final String STACK_NAME = "STACK_NAME";
+
     public static final String STACK_ID = "STACK_ID";
+
     public static final String STACK_NAME_PATTERN = "STACK_NAME_PATTERN";
 
     // Name (not id) of the domain (if omitted, it is taken from
@@ -121,7 +127,7 @@ public class PropertyHandler {
 
     public static final String PROJECT_QUOTA_VOLUMES = "PROJECT_QUOTA_VOLUMES";
 
-    /*
+    /**
      * The execution interval for the BillingTimerServiceBean that generates
      * billing events for Openstack Tenant subscriptions. This is a controller
      * setting (not a service instance parameter).
@@ -129,18 +135,21 @@ public class PropertyHandler {
     public static final String TIMER_INTERVAL = "TIMER_INTERVAL";
 
     /**
-     * To create a billing event the technical service id is required and will be stored as service parameter.
+     * To create a billing event the technical service id is required and will
+     * be stored as service parameter.
      */
-    public static final String TECHNICAL_SERVICE_INSTANCE_ID = "TECHNICAL_SERVICE_INSTANCE_ID";
-    
+    public static final String TECHNICAL_SERVICE_ID = "TECHNICAL_SERVICE_ID";
+
     /**
-     * Boolean service parameter. 
+     * Boolean service parameter.
      * <ul>
      * <li>True: Billing events will be generated for this tenant subscription
-     * <li>False: Service is free of charge. No billing events will be generated 
-     * <ul> 
+     * <li>False: Service is free of charge. No billing events will be generated
+     * <ul>
      */
     public static final String IS_CHARGING = "IS_CHARGING";
+
+    public static final String LAST_USAGE_FETCH = "LAST_USAGE_FETCH";
 
     /**
      * Default constructor.
@@ -155,9 +164,11 @@ public class PropertyHandler {
     }
 
     public boolean isCharging() {
-        return Boolean.parseBoolean(settings.getParameters().get(IS_CHARGING).getValue());
+        Setting setting = settings.getParameters().get(IS_CHARGING);
+        return setting == null ? false
+                : Boolean.parseBoolean(setting.getValue());
     }
-    
+
     /**
      * Returns the internal state of the current provisioning operation as set
      * by the controller or the dispatcher.
@@ -428,7 +439,8 @@ public class PropertyHandler {
     /**
      * Returns service interfaces for BSS web service calls.
      */
-    public <T> T getWebService(Class<T> serviceClass) throws Exception {
+    public <T> T getWebService(Class<T> serviceClass)
+            throws ConfigurationException, MalformedURLException {
         return BSSWebServiceFactory.getBSSWebService(serviceClass,
                 settings.getAuthentication());
     }
@@ -606,6 +618,30 @@ public class PropertyHandler {
 
     public void setQuotaVolumes(String value) {
         setValue(PROJECT_QUOTA_VOLUMES, value, settings.getParameters());
+    }
+
+    public String getLastUsageFetch() {
+        return getValue(LAST_USAGE_FETCH, settings.getParameters());
+    }
+
+    public void setLastUsageFetch(String value) {
+        setValue(LAST_USAGE_FETCH, value, settings.getParameters());
+    }
+
+    public String getInstanceId() {
+        return getValue(INSTANCE_ID, settings.getParameters());
+    }
+
+    public void setInstanceId(String value) {
+        setValue(INSTANCE_ID, value, settings.getParameters());
+    }
+
+    public String getTechnicalServiceId() {
+        return getValue(TECHNICAL_SERVICE_ID, settings.getParameters());
+    }
+
+    public void setTechnicalServiceId(String value) {
+        setValue(TECHNICAL_SERVICE_ID, value, settings.getParameters());
     }
 
 }

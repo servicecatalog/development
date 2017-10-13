@@ -26,7 +26,7 @@
          <LocalizedDescription locale="en">OS::Nova::Server, OS::Keystone::Project</LocalizedDescription>
       </ParameterDefinition>
       
-      <ParameterDefinition id="TECHNICAL_SERVICE_INSTANCE_ID" valueType="STRING" mandatory="true" configurable="true" default="">
+      <ParameterDefinition id="TECHNICAL_SERVICE_ID" valueType="STRING" mandatory="true" configurable="true" default="">
          <LocalizedDescription locale="en">Technical Service Identifier</LocalizedDescription>
       </ParameterDefinition>
 
@@ -46,31 +46,31 @@
          <LocalizedDescription locale="en">Password of the projects' admin user</LocalizedDescription>
       </ParameterDefinition>
       
-      <ParameterDefinition id="PROJECT_QUOTA_CORES" valueType="STRING" mandatory="true" configurable="true">
+      <ParameterDefinition id="PROJECT_QUOTA_CORES" valueType="STRING" mandatory="false" configurable="true">
          <LocalizedDescription locale="en">Quota Cores</LocalizedDescription>
       </ParameterDefinition>
       
-      <ParameterDefinition id="PROJECT_QUOTA_IP" valueType="STRING" mandatory="true" configurable="true">
+      <ParameterDefinition id="PROJECT_QUOTA_IP" valueType="STRING" mandatory="false" configurable="true">
          <LocalizedDescription locale="en">Quota Floating IPs</LocalizedDescription>
       </ParameterDefinition>
             
-      <ParameterDefinition id="PROJECT_QUOTA_GB" valueType="STRING" mandatory="true" configurable="true">
+      <ParameterDefinition id="PROJECT_QUOTA_GB" valueType="STRING" mandatory="false" configurable="true">
          <LocalizedDescription locale="en">Quota GB</LocalizedDescription>
       </ParameterDefinition>
       
-      <ParameterDefinition id="PROJECT_QUOTA_INSTANCES" valueType="STRING" mandatory="true" configurable="true">
+      <ParameterDefinition id="PROJECT_QUOTA_INSTANCES" valueType="STRING" mandatory="false" configurable="true">
          <LocalizedDescription locale="en">Quota Instances</LocalizedDescription>
       </ParameterDefinition>
       
-      <ParameterDefinition id="PROJECT_QUOTA_KEYS" valueType="STRING" mandatory="true" configurable="true">
+      <ParameterDefinition id="PROJECT_QUOTA_KEYS" valueType="STRING" mandatory="false" configurable="true">
          <LocalizedDescription locale="en">Quota Key Pairs</LocalizedDescription>
       </ParameterDefinition>
       
-      <ParameterDefinition id="PROJECT_QUOTA_RAM" valueType="STRING" mandatory="true" configurable="true">
+      <ParameterDefinition id="PROJECT_QUOTA_RAM" valueType="STRING" mandatory="false" configurable="true">
          <LocalizedDescription locale="en">Quota RAM</LocalizedDescription>
       </ParameterDefinition>
       
-      <ParameterDefinition id="PROJECT_QUOTA_VOLUMES" valueType="STRING" mandatory="true" configurable="true">
+      <ParameterDefinition id="PROJECT_QUOTA_VOLUMES" valueType="STRING" mandatory="false" configurable="true">
          <LocalizedDescription locale="en">Quota Volumes</LocalizedDescription>
       </ParameterDefinition>
       
@@ -155,6 +155,22 @@
          <LocalizedDescription locale="en">The number of VMs of IaaS subscriptions</LocalizedDescription>
       </ParameterDefinition>
       
+      <Event id="EVENT_DISK_GIGABYTE_HOURS">
+	     <LocalizedDescription locale="en">EVENT_DISK_GIGABYTE_HOURS</LocalizedDescription>
+	  </Event>
+
+      <Event id="EVENT_CPU_HOURS">
+	     <LocalizedDescription locale="en">EVENT_CPU_HOURS</LocalizedDescription>
+	  </Event>
+	  
+      <Event id="EVENT_RAM_MEGABYTE_HOURS">
+	     <LocalizedDescription locale="en">EVENT_RAM_MEGABYTE_HOURS</LocalizedDescription>
+	  </Event>
+	  
+      <Event id="EVENT_TOTAL_HOURS">
+	     <LocalizedDescription locale="en">EVENT_TOTAL_HOURS</LocalizedDescription>
+	  </Event>
+	  	  	        
       <Operation id="START_VIRTUAL_SYSTEM" actionURL="https://HOST:PORT/OperationService/AsynchronousOperationProxy?wsdl">
          <LocalizedName locale="en">Start</LocalizedName>
          <LocalizedDescription locale="en">Start all servers</LocalizedDescription>

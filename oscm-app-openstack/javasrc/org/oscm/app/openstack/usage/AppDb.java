@@ -6,7 +6,9 @@
  *
  *******************************************************************************/
 
-package org.oscm.app.openstack.billing;
+package org.oscm.app.openstack.usage;
+
+import static org.oscm.app.openstack.controller.PropertyHandler.LAST_USAGE_FETCH;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,23 +25,19 @@ import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
 import org.oscm.app.openstack.controller.OpenStackController;
-import org.oscm.encrypter.AESEncrypter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Provides data access to the vmware controller database.
+ * Provides access to the APP database.
  */
-public class APPDataAccessService {
+public class AppDb {
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(APPDataAccessService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AppDb.class);
     private static final String DATASOURCE = "BSSAppDS";
     private static final String CRYTO_PREFIX = "_crypt:";
 
     private DataSource ds = null;
-
-
 
     public String getBSSWebServiceURL() throws Exception {
         String bssWebserviceURL = null;
@@ -54,7 +52,7 @@ public class APPDataAccessService {
                 bssWebserviceURL = rs.getString("settingvalue");
             }
         } catch (SQLException e) {
-            logger.error("Failed to retrieve BSS_WEBSERVICE_URL", e);
+            LOG.error("Failed to retrieve BSS_WEBSERVICE_URL", e);
             throw e;
         }
 
@@ -77,7 +75,7 @@ public class APPDataAccessService {
                 keys.add(rs.getString("settingkey"));
             }
         } catch (SQLException e) {
-            logger.error("Failed to retrieve orgIds", e);
+            LOG.error("Failed to retrieve orgIds", e);
             throw e;
         }
 
@@ -90,7 +88,7 @@ public class APPDataAccessService {
 
     public ScheduleExpression getTimerSchedule(String defaultDay,
             String defaultHour, String defaultMinute) {
-        logger.debug("");
+        LOG.debug("");
         String queryMinute = "SELECT settingvalue FROM configurationsetting WHERE settingkey = 'TIMER_SCHEDULE_MINUTE' AND controllerid = '"
                 + OpenStackController.ID + "'";
         String queryHour = "SELECT settingvalue FROM configurationsetting WHERE settingkey = 'TIMER_SCHEDULE_HOUR' AND controllerid = '"
@@ -124,7 +122,7 @@ public class APPDataAccessService {
                 }
             }
         } catch (Exception e) {
-            logger.error("Failed to retrieve schedule for timer", e);
+            LOG.error("Failed to retrieve schedule for timer", e);
         }
 
         if (minute == null) {
@@ -147,7 +145,7 @@ public class APPDataAccessService {
     public Credentials getCredentials(String orgId) throws Exception {
         String userId = getUserId(orgId);
         long userKey = getUserKey(orgId);
-        logger.debug("orgId: " + orgId + " userId: " + userId + " userKey: "
+        LOG.debug("orgId: " + orgId + " userId: " + userId + " userKey: "
                 + userKey);
         String password = getUserPwd(orgId);
         boolean isSSO = false;
@@ -170,13 +168,13 @@ public class APPDataAccessService {
                 userId = rs.getString("settingvalue");
             }
         } catch (SQLException e) {
-            logger.error("Failed to retrieve userId for orgId " + orgId, e);
+            LOG.error("Failed to retrieve userId for orgId " + orgId, e);
             throw e;
         }
 
         if (userId == null) {
-            throw new RuntimeException("Failed to retrieve userId for orgId "
-                    + orgId);
+            throw new RuntimeException(
+                    "Failed to retrieve userId for orgId " + orgId);
         }
 
         return userId;
@@ -194,13 +192,13 @@ public class APPDataAccessService {
                 userKey = Long.parseLong(rs.getString("settingvalue"));
             }
         } catch (SQLException e) {
-            logger.error("Failed to retrieve userKey for orgId " + orgId, e);
+            LOG.error("Failed to retrieve userKey for orgId " + orgId, e);
             throw e;
         }
 
         if (userKey == -1) {
-            throw new RuntimeException("Failed to retrieve userKey for orgId "
-                    + orgId);
+            throw new RuntimeException(
+                    "Failed to retrieve userKey for orgId " + orgId);
         }
 
         return userKey;
@@ -220,13 +218,13 @@ public class APPDataAccessService {
                 userPwd = rs.getString("settingvalue");
             }
         } catch (SQLException e) {
-            logger.error("Failed to retrieve password for orgId " + orgId, e);
+            LOG.error("Failed to retrieve password for orgId " + orgId, e);
             throw e;
         }
 
         if (userPwd == null) {
-            throw new RuntimeException("Failed to retrieve password for orgId "
-                    + orgId);
+            throw new RuntimeException(
+                    "Failed to retrieve password for orgId " + orgId);
         }
 
         userPwd = decryptPassword(userPwd, "USERPWD_" + orgId);
@@ -246,7 +244,7 @@ public class APPDataAccessService {
                     password.length());
             encryptPasswordInDatabase(decryptedPassword, settingValue);
         } else {
-            decryptedPassword = AESEncrypter.decrypt(password);
+            decryptedPassword = AesEncrypter.decrypt(password);
         }
 
         return decryptedPassword;
@@ -258,7 +256,7 @@ public class APPDataAccessService {
                 + OpenStackController.ID + "'";
         try (Connection con = getDatasource().getConnection();
                 PreparedStatement stmt = con.prepareStatement(query);) {
-            stmt.setString(1, AESEncrypter.encrypt(password));
+            stmt.setString(1, AesEncrypter.encrypt(password));
             stmt.setString(2, settingValue);
             stmt.executeUpdate();
         }
@@ -270,32 +268,35 @@ public class APPDataAccessService {
 
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT ");
-        sql.append("(SELECT settingvalue FROM bssappuser.configurationsetting WHERE settingkey='BSS_USER_KEY' AND controllerid='"
-                + OpenStackController.ID + "') as key,");
-        sql.append("(SELECT settingvalue FROM bssappuser.configurationsetting WHERE settingkey='BSS_USER_ID' AND controllerid='"
-                + OpenStackController.ID + "') as id,");
-        sql.append("(SELECT settingvalue FROM bssappuser.configurationsetting WHERE settingkey='BSS_USER_PWD' AND controllerid='"
-                + OpenStackController.ID + "') as password");
+        sql.append(
+                "(SELECT settingvalue FROM bssappuser.configurationsetting WHERE settingkey='BSS_USER_KEY' AND controllerid='"
+                        + OpenStackController.ID + "') as key,");
+        sql.append(
+                "(SELECT settingvalue FROM bssappuser.configurationsetting WHERE settingkey='BSS_USER_ID' AND controllerid='"
+                        + OpenStackController.ID + "') as id,");
+        sql.append(
+                "(SELECT settingvalue FROM bssappuser.configurationsetting WHERE settingkey='BSS_USER_PWD' AND controllerid='"
+                        + OpenStackController.ID + "') as password");
         sql.append(";");
 
         try (Connection connection = getDatasource().getConnection();
-                PreparedStatement stmt = connection.prepareStatement(sql
-                        .toString())) {
+                PreparedStatement stmt = connection
+                        .prepareStatement(sql.toString())) {
 
             ResultSet resultSet = stmt.executeQuery();
 
             while (resultSet.next()) {
-                credentials.setUserKey(Long.valueOf(resultSet.getString("key"))
-                        .longValue());
+                credentials.setUserKey(
+                        Long.valueOf(resultSet.getString("key")).longValue());
                 credentials.setUserId(resultSet.getString("id"));
                 credentials.setPassword(resultSet.getString("password"));
             }
         }
 
-        credentials.setPassword(decryptPassword(credentials.getPassword(),
-                "BSS_USER_PWD"));
+        credentials.setPassword(
+                decryptPassword(credentials.getPassword(), "BSS_USER_PWD"));
 
-        logger.debug("loaded technology provider credentials for user "
+        LOG.debug("loaded technology provider credentials for user "
                 + credentials.getUserId() + "(" + credentials.getUserKey()
                 + "), " + credentials.getPassword());
         return credentials;
@@ -315,9 +316,8 @@ public class APPDataAccessService {
                         rs.getString("settingvalue"));
             }
         } catch (SQLException e) {
-            logger.error(
-                    "Failed to retrieve controller settings for controller "
-                            + OpenStackController.ID, e);
+            LOG.error("Failed to retrieve controller settings for controller "
+                    + OpenStackController.ID, e);
             throw e;
         }
 
@@ -326,12 +326,12 @@ public class APPDataAccessService {
                     "Failed to retrieve controller settings for controller "
                             + OpenStackController.ID);
         }
-        logger.debug("number of settings: " + settings.size());
+        LOG.debug("number of settings: " + settings.size());
         return settings;
     }
 
     public String getOrgId(String instanceId) throws Exception {
-        logger.debug("instanceId: " + instanceId);
+        LOG.debug("instanceId: " + instanceId);
         String organizationid = null;
         String query = "SELECT organizationid FROM serviceinstance WHERE instanceid = ?";
         try (Connection con = getDatasource().getConnection();
@@ -344,7 +344,7 @@ public class APPDataAccessService {
                 organizationid = rs.getString("organizationid");
             }
         } catch (SQLException e) {
-            logger.error("Failed to retrieve organizationId for instanceId "
+            LOG.error("Failed to retrieve organizationId for instanceId "
                     + instanceId, e);
             throw e;
         }
@@ -355,7 +355,7 @@ public class APPDataAccessService {
                             + instanceId);
         }
 
-        logger.debug("organizationid: " + organizationid);
+        LOG.debug("organizationid: " + organizationid);
         return organizationid;
     }
 
@@ -378,4 +378,27 @@ public class APPDataAccessService {
             throws Exception {
         return new InitialContext(ctxProperties);
     }
+
+    public long loadRequestTime(String instanceId) throws Exception {
+        String query = "SELECT requesttime FROM bssappuser.serviceinstance WHERE instanceid = '"
+                + instanceId + "'";
+        try (Connection con = getDatasource().getConnection();
+                PreparedStatement stmt = con.prepareStatement(query);) {
+            ResultSet rs = stmt.executeQuery();
+            rs.next();
+            return rs.getLong("requesttime");
+        }
+    }
+
+    public void updateLastUsageFetch(String instanceId, String endTime)
+            throws SQLException, Exception {
+
+        String sql = "UPDATE bssappuser.instanceparameter SET parametervalue='%s' WHERE parameterkey='%s' AND serviceinstance_tkey=(SELECT tkey FROM serviceinstance WHERE instanceid='%s')";
+        sql = String.format(sql, endTime, LAST_USAGE_FETCH, instanceId);
+        try (Connection con = getDatasource().getConnection();
+                PreparedStatement stmt = con.prepareStatement(sql);) {
+            stmt.executeUpdate();
+        }
+    }
+
 }
