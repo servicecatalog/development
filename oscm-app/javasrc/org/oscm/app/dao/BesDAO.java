@@ -10,9 +10,7 @@ package org.oscm.app.dao;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
 import javax.ejb.Stateless;
@@ -65,6 +63,8 @@ import org.oscm.vo.VOUserDetails;
 import org.oscm.ws.BasicAuthWSDLLocator;
 import org.oscm.ws.WSVersionExtensionRegistry;
 
+import static org.oscm.app.v2_0.data.ControllerConfigurationKey.*;
+
 
 @Stateless
 public class BesDAO {
@@ -84,10 +84,11 @@ public class BesDAO {
      *            the class of the requested service interface
      * @param serviceInstance
      *            the service instance to retrieve the client for (optional)
+     * @param controllerId
      * @return a service interface to the requested OSCM service
      */
     public <T> T getBESWebService(Class<T> serviceClass,
-            ServiceInstance serviceInstance) throws APPlatformException {
+                                  ServiceInstance serviceInstance, Optional<String> controllerId) throws APPlatformException {
 
         try {
             // the BES WSDL files are not protected with BasicAuth, but only by
@@ -97,7 +98,7 @@ public class BesDAO {
             T client = getServicePort(serviceClass, proxySettings);
 
             PasswordAuthentication pwAuth = configService
-                    .getWebServiceAuthentication(serviceInstance, proxySettings);
+                    .getWebServiceAuthentication(serviceInstance, proxySettings, controllerId);
 
             final String userName = pwAuth.getUserName();
             final String password = pwAuth.getPassword();
@@ -168,7 +169,7 @@ public class BesDAO {
         List<VOUserDetails> mailUsers = new ArrayList<>();
         try {
             // Get all technology managers of TP organization
-            IdentityService is = getBESWebService(IdentityService.class, si);
+            IdentityService is = getBESWebService(IdentityService.class, si, Optional.empty());
             List<VOUserDetails> orgUsers = is.getUsersForOrganization();
             for (VOUserDetails user : orgUsers) {
                 if (user.getUserRoles().contains(
@@ -297,7 +298,7 @@ public class BesDAO {
         VOSubscription vo = null;
         try {
             SubscriptionService subServ = getBESWebService(
-                    SubscriptionService.class, currentSI);
+                    SubscriptionService.class, currentSI, Optional.empty());
 
             vo = subServ.getSubscriptionForCustomer(
                     currentSI.getOrganizationId(),
@@ -322,7 +323,7 @@ public class BesDAO {
 
         try {
             SubscriptionService subServ = getBESWebService(
-                    SubscriptionService.class, currentSI);
+                    SubscriptionService.class, currentSI, Optional.empty());
 
             if (isCompleted) {
 
@@ -360,7 +361,7 @@ public class BesDAO {
 
         try {
             SubscriptionService subServ = getBESWebService(
-                    SubscriptionService.class, currentSI);
+                    SubscriptionService.class, currentSI, Optional.empty());
             if (isCompleted) {
                 subServ.completeAsyncModifySubscription(
                         currentSI.getSubscriptionId(),
@@ -395,7 +396,7 @@ public class BesDAO {
         voInstanceInfo.setVmsNumber(currentSI.getVmsNumber());
         try {
             SubscriptionService subServ = getBESWebService(
-                SubscriptionService.class, currentSI);
+                SubscriptionService.class, currentSI, Optional.empty());
             subServ.notifySubscriptionAboutVmsNumber(currentSI.getSubscriptionId(), currentSI.getOrganizationId(),
                 voInstanceInfo);
         } catch (Exception e) {
@@ -413,7 +414,7 @@ public class BesDAO {
 
         SubscriptionService subServ;
         try {
-            subServ = getBESWebService(SubscriptionService.class, currentSI);
+            subServ = getBESWebService(SubscriptionService.class, currentSI, Optional.empty());
             subServ.updateAsyncOperationProgress(transactionId, status,
                     toBES(list));
             if (currentSI.getServiceAccessInfo() != null) {
@@ -438,7 +439,7 @@ public class BesDAO {
 
         SubscriptionService subServ;
         try {
-            subServ = getBESWebService(SubscriptionService.class, currentSI);
+            subServ = getBESWebService(SubscriptionService.class, currentSI, Optional.empty());
             VOInstanceInfo vo = new VOInstanceInfo();
             vo.setInstanceId(currentSI.getInstanceId());
             vo.setAccessInfo(currentSI.getServiceAccessInfo());
@@ -516,7 +517,7 @@ public class BesDAO {
 
         try {
             SubscriptionService subServ = getBESWebService(
-                    SubscriptionService.class, currentSI);
+                    SubscriptionService.class, currentSI, Optional.empty());
             if (isCompleted) {
                 subServ.completeAsyncUpgradeSubscription(
                         currentSI.getSubscriptionId(),
@@ -562,7 +563,7 @@ public class BesDAO {
 
         try {
             SubscriptionService subServ = getBESWebService(
-                    SubscriptionService.class, currentSI);
+                    SubscriptionService.class, currentSI, Optional.empty());
             subServ.updateAsyncSubscriptionProgress(
                     currentSI.getSubscriptionId(),
                     currentSI.getOrganizationId(), toBES(list));
@@ -611,14 +612,15 @@ public class BesDAO {
      * @param si
      * @param user
      * @param password
+     * @param controllerId
      * @return
      * @throws APPlatformException
      * @throws BESNotificationException
      */
     public VOUserDetails getUserDetails(ServiceInstance si, VOUser user,
-            String password) throws APPlatformException {
+                                        String password, Optional<String> controllerId) throws APPlatformException {
         VOUserDetails userDetails = null;
-        IdentityService idServ = getBESWebService(IdentityService.class, si);
+        IdentityService idServ = getBESWebService(IdentityService.class, si, controllerId);
         if (user != null) {
             Map<String, Setting> proxySettings = configService
                     .getAllProxyConfigurationSettings();
@@ -637,10 +639,10 @@ public class BesDAO {
         return userDetails;
     }
 
-    public VOUser getUser(ServiceInstance si, VOUser user)
+    public VOUser getUser(ServiceInstance si, VOUser user, Optional<String> controllerId)
             throws APPlatformException {
         VOUser retrunUser = null;
-        IdentityService idServ = getBESWebService(IdentityService.class, si);
+        IdentityService idServ = getBESWebService(IdentityService.class, si, controllerId);
         try {
             retrunUser = idServ.getUser(user);
         } catch (SaaSApplicationException e) {
@@ -670,7 +672,7 @@ public class BesDAO {
 
     public boolean isBESAvalible() {
         try {
-            IdentityService is = getBESWebService(IdentityService.class, null);
+            IdentityService is = getBESWebService(IdentityService.class, null, Optional.empty());
             is.getCurrentUserDetails();
         } catch (APPlatformException e) {
             return !isCausedByConnectionException(e);

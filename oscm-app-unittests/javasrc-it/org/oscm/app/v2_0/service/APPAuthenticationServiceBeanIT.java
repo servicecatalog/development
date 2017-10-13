@@ -11,11 +11,7 @@ package org.oscm.app.v2_0.service;
 import static org.junit.Assert.assertEquals;
 
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 import javax.naming.InitialContext;
@@ -104,7 +100,7 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
 
         Mockito.doReturn(identityService).when(besDAO).getBESWebService(
                 Matchers.eq(IdentityService.class),
-                Matchers.any(ServiceInstance.class));
+                Matchers.any(ServiceInstance.class), Optional.empty());
 
         Mockito.doNothing().when(besDAO).setUserCredentialsInContext(
                 Matchers.any(BindingProvider.class), Matchers.anyString(),
@@ -112,7 +108,7 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
 
         Mockito.doReturn(subcriptionService).when(besDAO).getBESWebService(
                 Matchers.eq(SubscriptionService.class),
-                Matchers.any(ServiceInstance.class));
+                Matchers.any(ServiceInstance.class), Optional.empty());
 
         Mockito.doNothing().when(subcriptionService).completeAsyncSubscription(
                 Matchers.anyString(), Matchers.anyString(),
@@ -198,14 +194,14 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
                 .authenticateUser(Matchers.any(ServiceInstance.class),
                         Matchers.anyString(),
                         Matchers.any(PasswordAuthentication.class),
-                        Matchers.any(UserRoleType.class));
+                        Matchers.any(UserRoleType.class), Optional.empty());
 
         // when
         authService.authenticateAdministrator(defaultAuth);
 
         // then
         Mockito.verify(authService).authenticateUser(null, null, defaultAuth,
-                UserRoleType.ORGANIZATION_ADMIN);
+                UserRoleType.ORGANIZATION_ADMIN, Optional.empty());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -216,13 +212,13 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
 
     @Test(expected = IllegalArgumentException.class)
     public void testAuthenticateTMForController_NullAuth() throws Throwable {
-        authService.authenticateTMForController("controllerId", null);
+        authService.authenticateTMForController("Optional.empty()", null);
     }
 
     @Test(expected = ConfigurationException.class)
     public void testAuthenticateTMForController_NullOrganization()
             throws Throwable {
-        authService.authenticateTMForController("controllerId", defaultAuth);
+        authService.authenticateTMForController("Optional.empty()", defaultAuth);
 
     }
 
@@ -248,10 +244,10 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
 
         Mockito.doReturn(null).doReturn(userToGet).when(besDAO).getUserDetails(
                 Matchers.any(ServiceInstance.class), Matchers.any(VOUser.class),
-                Matchers.anyString());
+                Matchers.anyString(), Optional.empty());
         Mockito.doReturn(userToGet).when(besDAO).getUser(
                 Matchers.any(ServiceInstance.class),
-                Matchers.any(VOUser.class));
+                Matchers.any(VOUser.class), Optional.empty());
 
         authenticateTMForInstance(CTRL_ID, "appInstanceId", defaultAuth);
     }
@@ -289,10 +285,10 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
 
         Mockito.doReturn(new VOUserDetails()).when(besDAO).getUserDetails(
                 Matchers.any(ServiceInstance.class), Matchers.any(VOUser.class),
-                Matchers.anyString());
+                Matchers.anyString(), Optional.empty());
         Mockito.doReturn(userToGet).when(besDAO).getUser(
                 Matchers.any(ServiceInstance.class),
-                Matchers.any(VOUser.class));
+                Matchers.any(VOUser.class), Optional.empty());
 
         authenticateTMForInstance(CTRL_ID, "appInstanceId", defaultAuth);
     }
@@ -306,7 +302,7 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
         VOUserDetails wrongOrg = createVOUserDetails(20001, "user", "customer");
         Mockito.doReturn(org).doReturn(wrongOrg).when(besDAO).getUserDetails(
                 Matchers.any(ServiceInstance.class), Matchers.any(VOUser.class),
-                Matchers.anyString());
+                Matchers.anyString(), Optional.empty());
 
         // when
         authenticateTMForInstance(CTRL_ID, "appInstanceId",
@@ -324,14 +320,14 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
                 "orgid");
         Mockito.doReturn(currentUserDetails).when(besDAO).getUserDetails(
                 Matchers.any(ServiceInstance.class), Matchers.any(VOUser.class),
-                Matchers.anyString());
+                Matchers.anyString(), Optional.empty());
         Mockito.doReturn(new PasswordAuthentication(
                 currentUserDetails.getUserId(), "pass")).when(configService)
                 .getWebServiceAuthentication(
-                        Matchers.any(ServiceInstance.class), Matchers.anyMap());
+                        Matchers.any(ServiceInstance.class), Matchers.anyMap(), Optional.empty());
         Mockito.doThrow(new AuthenticationException("not found")).when(besDAO)
                 .getUser(Matchers.any(ServiceInstance.class),
-                        Matchers.any(VOUser.class));
+                        Matchers.any(VOUser.class), Optional.empty());
 
         // when
         authenticateTMForInstance(CTRL_ID, "appInstanceId",
@@ -349,14 +345,14 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
                 defaultAuth.getUserName(), "orgid");
         Mockito.doReturn(currentUserDetails).when(besDAO).getUserDetails(
                 Matchers.any(ServiceInstance.class), Matchers.any(VOUser.class),
-                Matchers.anyString());
+                Matchers.anyString(), Optional.empty());
         Mockito.doReturn(new PasswordAuthentication(
                 currentUserDetails.getUserId(), "pass")).when(configService)
                 .getWebServiceAuthentication(
-                        Matchers.any(ServiceInstance.class), Matchers.anyMap());
+                        Matchers.any(ServiceInstance.class), Matchers.anyMap(), Optional.empty());
         Mockito.doThrow(new APPlatformException("any")).when(besDAO).getUser(
                 Matchers.any(ServiceInstance.class),
-                Matchers.any(VOUser.class));
+                Matchers.any(VOUser.class), Optional.empty());
 
         // when
         authenticateTMForInstance(CTRL_ID, "appInstanceId", defaultAuth);
@@ -371,10 +367,10 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
         VOUserDetails user = createVOUserDetails(10000, "supplier", "tp123");
         Mockito.doReturn(user).when(besDAO).getUserDetails(
                 Matchers.any(ServiceInstance.class), Matchers.any(VOUser.class),
-                Matchers.anyString());
+                Matchers.anyString(), Optional.empty());
         Mockito.doReturn(new PasswordAuthentication("nobody", ""))
                 .when(configService).getWebServiceAuthentication(
-                        Matchers.any(ServiceInstance.class), Matchers.anyMap());
+                        Matchers.any(ServiceInstance.class), Matchers.anyMap(), Optional.empty());
 
         // when
         authenticateTMForInstance(CTRL_ID, "appInstanceId",
@@ -391,10 +387,10 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
         user.addUserRole(UserRoleType.MARKETPLACE_OWNER);
         Mockito.doReturn(user).when(besDAO).getUserDetails(
                 Matchers.any(ServiceInstance.class), Matchers.any(VOUser.class),
-                Matchers.anyString());
+                Matchers.anyString(), Optional.empty());
         Mockito.doReturn(new PasswordAuthentication("nobody", ""))
                 .when(configService).getWebServiceAuthentication(
-                        Matchers.any(ServiceInstance.class), Matchers.anyMap());
+                        Matchers.any(ServiceInstance.class), Matchers.anyMap(), Optional.empty());
 
         // when
         authenticateTMForInstance(CTRL_ID, "appInstanceId",
@@ -445,7 +441,7 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
         proxyConfigSettings.put(PlatformConfigurationKey.BSS_AUTH_MODE.name(),
                 "INTERNAL");
         try {
-            besDAO.getBESWebService(IdentityService.class, null);
+            besDAO.getBESWebService(IdentityService.class, null, Optional.empty());
         } catch (ConfigurationException e) {
             assertEquals(PlatformConfigurationKey.BSS_WEBSERVICE_URL.name(),
                     e.getAffectedKey());
@@ -471,10 +467,10 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
                 Collections.singleton(UserRoleType.TECHNOLOGY_MANAGER));
         Mockito.doReturn(manager).when(besDAO).getUserDetails(
                 Matchers.any(ServiceInstance.class), Matchers.any(VOUser.class),
-                Matchers.anyString());
+                Matchers.anyString(), Optional.empty());
         Mockito.doReturn(new PasswordAuthentication("nobody", ""))
                 .when(configService).getWebServiceAuthentication(
-                        Matchers.any(ServiceInstance.class), Matchers.anyMap());
+                        Matchers.any(ServiceInstance.class), Matchers.anyMap(), Optional.empty());
         Mockito.doReturn(settings).when(configService)
                 .getAllProxyConfigurationSettings();
 
@@ -485,10 +481,10 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
         // then
         Mockito.verify(besDAO, Mockito.times(0)).getUser(
                 Matchers.any(ServiceInstance.class),
-                Matchers.any(VOUser.class));
+                Matchers.any(VOUser.class), Optional.empty());
         Mockito.verify(besDAO, Mockito.times(2)).getUserDetails(
                 Matchers.any(ServiceInstance.class), Matchers.any(VOUser.class),
-                Matchers.anyString());
+                Matchers.anyString(), Optional.empty());
     }
 
     @SuppressWarnings("unchecked")
@@ -504,10 +500,10 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
                 Collections.singleton(UserRoleType.TECHNOLOGY_MANAGER));
         Mockito.doReturn(manager).when(besDAO).getUserDetails(
                 Matchers.any(ServiceInstance.class), Matchers.any(VOUser.class),
-                Matchers.anyString());
+                Matchers.anyString(), Optional.empty());
         Mockito.doReturn(new PasswordAuthentication("nobody", ""))
                 .when(configService).getWebServiceAuthentication(
-                        Matchers.any(ServiceInstance.class), Matchers.anyMap());
+                        Matchers.any(ServiceInstance.class), Matchers.anyMap(), Optional.empty());
         Mockito.doReturn(settings).when(configService)
                 .getAllProxyConfigurationSettings();
 
@@ -517,10 +513,10 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
         // then
         Mockito.verify(besDAO, Mockito.times(1)).getUser(
                 Matchers.any(ServiceInstance.class),
-                Matchers.any(VOUser.class));
+                Matchers.any(VOUser.class), Optional.empty());
         Mockito.verify(besDAO, Mockito.times(2)).getUserDetails(
                 Matchers.any(ServiceInstance.class), Matchers.any(VOUser.class),
-                Matchers.anyString());
+                Matchers.anyString(), Optional.empty());
     }
 
     @SuppressWarnings("unchecked")
@@ -535,10 +531,10 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
                 Collections.singleton(UserRoleType.TECHNOLOGY_MANAGER));
         Mockito.doReturn(manager).when(besDAO).getUserDetails(
                 Matchers.any(ServiceInstance.class), Matchers.any(VOUser.class),
-                Matchers.anyString());
+                Matchers.anyString(), Optional.empty());
         Mockito.doReturn(new PasswordAuthentication("nobody", ""))
                 .when(configService).getWebServiceAuthentication(
-                        Matchers.any(ServiceInstance.class), Matchers.anyMap());
+                        Matchers.any(ServiceInstance.class), Matchers.anyMap(), Optional.empty());
         Mockito.doReturn(settings).when(configService)
                 .getAllProxyConfigurationSettings();
 
@@ -549,10 +545,10 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
         // then
         Mockito.verify(besDAO, Mockito.times(0)).getUser(
                 Matchers.any(ServiceInstance.class),
-                Matchers.any(VOUser.class));
+                Matchers.any(VOUser.class), Optional.empty());
         Mockito.verify(besDAO, Mockito.times(2)).getUserDetails(
                 Matchers.any(ServiceInstance.class), Matchers.any(VOUser.class),
-                Matchers.anyString());
+                Matchers.anyString(), Optional.empty());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -602,7 +598,7 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
                 .getControllerConfigurationSettings(Matchers.anyString());
         Mockito.doReturn(manager).when(besDAO).getUserDetails(
                 Matchers.any(ServiceInstance.class), Matchers.any(VOUser.class),
-                Matchers.anyString());
+                Matchers.anyString(), Optional.empty());
 
         // when
         authenticateTMForController(CTRL_ID, manager.getKey(), "pass");
@@ -610,10 +606,10 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
         // then
         Mockito.verify(besDAO, Mockito.times(0)).getUser(
                 Matchers.any(ServiceInstance.class),
-                Matchers.any(VOUser.class));
+                Matchers.any(VOUser.class), Optional.empty());
         Mockito.verify(besDAO, Mockito.times(1)).getUserDetails(
                 Matchers.any(ServiceInstance.class), Matchers.any(VOUser.class),
-                Matchers.anyString());
+                Matchers.anyString(), Optional.empty());
     }
 
     @Test
@@ -634,7 +630,7 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
                 .getControllerConfigurationSettings(Matchers.anyString());
         Mockito.doReturn(manager).when(besDAO).getUserDetails(
                 Matchers.any(ServiceInstance.class), Matchers.any(VOUser.class),
-                Matchers.anyString());
+                Matchers.anyString(), Optional.empty());
 
         // when
         authenticateTMForController(CTRL_ID, manager.getKey(), "pass");
@@ -642,10 +638,10 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
         // then
         Mockito.verify(besDAO, Mockito.times(1)).getUser(
                 Matchers.any(ServiceInstance.class),
-                Matchers.any(VOUser.class));
+                Matchers.any(VOUser.class), Optional.empty());
         Mockito.verify(besDAO, Mockito.times(1)).getUserDetails(
                 Matchers.any(ServiceInstance.class), Matchers.any(VOUser.class),
-                Matchers.anyString());
+                Matchers.anyString(), Optional.empty());
     }
 
     @Test
@@ -666,7 +662,7 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
                 .getControllerConfigurationSettings(Matchers.anyString());
         Mockito.doReturn(manager).when(besDAO).getUserDetails(
                 Matchers.any(ServiceInstance.class), Matchers.any(VOUser.class),
-                Matchers.anyString());
+                Matchers.anyString(), Optional.empty());
 
         // when
         authenticateTMForController(CTRL_ID, manager.getUserId(), "pass");
@@ -674,10 +670,10 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
         // then
         Mockito.verify(besDAO, Mockito.times(0)).getUser(
                 Matchers.any(ServiceInstance.class),
-                Matchers.any(VOUser.class));
+                Matchers.any(VOUser.class), Optional.empty());
         Mockito.verify(besDAO, Mockito.times(1)).getUserDetails(
                 Matchers.any(ServiceInstance.class), Matchers.any(VOUser.class),
-                Matchers.anyString());
+                Matchers.anyString(), Optional.empty());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -775,10 +771,10 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
 
         Mockito.doReturn(admin).when(besDAO).getUserDetails(
                 Matchers.any(ServiceInstance.class), Matchers.any(VOUser.class),
-                Matchers.anyString());
+                Matchers.anyString(), Optional.empty());
         Mockito.doReturn(new PasswordAuthentication("nobody", ""))
                 .when(configService).getWebServiceAuthentication(
-                        Matchers.any(ServiceInstance.class), Matchers.anyMap());
+                        Matchers.any(ServiceInstance.class), Matchers.anyMap(), Optional.empty());
         Mockito.doReturn(settings).when(configService)
                 .getAllProxyConfigurationSettings();
 
@@ -789,7 +785,7 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
         // then
         Mockito.verify(besDAO, Mockito.times(0)).getUser(
                 Matchers.any(ServiceInstance.class),
-                Matchers.any(VOUser.class));
+                Matchers.any(VOUser.class), Optional.empty());
     }
 
     @SuppressWarnings("unchecked")
@@ -804,10 +800,10 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
 
         Mockito.doReturn(admin).when(besDAO).getUserDetails(
                 Matchers.any(ServiceInstance.class), Matchers.any(VOUser.class),
-                Matchers.anyString());
+                Matchers.anyString(), Optional.empty());
         Mockito.doReturn(new PasswordAuthentication("nobody", ""))
                 .when(configService).getWebServiceAuthentication(
-                        Matchers.any(ServiceInstance.class), Matchers.anyMap());
+                        Matchers.any(ServiceInstance.class), Matchers.anyMap(), Optional.empty());
         Mockito.doReturn(settings).when(configService)
                 .getAllProxyConfigurationSettings();
 
@@ -818,7 +814,7 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
         // then
         Mockito.verify(besDAO, Mockito.times(1)).getUser(
                 Matchers.any(ServiceInstance.class),
-                Matchers.any(VOUser.class));
+                Matchers.any(VOUser.class), Optional.empty());
     }
 
     @SuppressWarnings("unchecked")
@@ -832,10 +828,10 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
 
         Mockito.doReturn(admin).when(besDAO).getUserDetails(
                 Matchers.any(ServiceInstance.class), Matchers.any(VOUser.class),
-                Matchers.anyString());
+                Matchers.anyString(), Optional.empty());
         Mockito.doReturn(new PasswordAuthentication("nobody", ""))
                 .when(configService).getWebServiceAuthentication(
-                        Matchers.any(ServiceInstance.class), Matchers.anyMap());
+                        Matchers.any(ServiceInstance.class), Matchers.anyMap(), Optional.empty());
         Mockito.doReturn(settings).when(configService)
                 .getAllProxyConfigurationSettings();
 
@@ -846,7 +842,7 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
         // then
         Mockito.verify(besDAO, Mockito.times(0)).getUser(
                 Matchers.any(ServiceInstance.class),
-                Matchers.any(VOUser.class));
+                Matchers.any(VOUser.class), Optional.empty());
     }
 
     @Test(expected = IllegalArgumentException.class)
