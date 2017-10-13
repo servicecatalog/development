@@ -26,7 +26,7 @@
          <LocalizedDescription locale="en">OS::Nova::Server, OS::Keystone::Project</LocalizedDescription>
       </ParameterDefinition>
       
-      <ParameterDefinition id="TECHNICAL_SERVICE_ID" valueType="STRING" mandatory="true" configurable="true" default="">
+      <ParameterDefinition id="TECHNICAL_SERVICE_ID" valueType="STRING" mandatory="true" configurable="true" default="OPENSTACK">
          <LocalizedDescription locale="en">Technical Service Identifier</LocalizedDescription>
       </ParameterDefinition>
 
