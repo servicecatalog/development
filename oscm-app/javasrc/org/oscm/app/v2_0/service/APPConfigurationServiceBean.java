@@ -494,7 +494,7 @@ public class APPConfigurationServiceBean {
             ServiceInstance serviceInstance, Map<String, Setting> proxySettings, Optional<String> controllerId)
             throws ConfigurationException {
         if (serviceInstance != null || controllerId.isPresent()) {
-            return getAuthenticationForBESTechnologyManager(controllerId.map(String::toString).orElse(null),
+            return getAuthenticationForBESTechnologyManager(controllerId.orElseGet(() -> serviceInstance.getControllerId()),
                     serviceInstance, proxySettings);
         }
         return getAuthenticationForAPPAdmin(proxySettings);
