@@ -8,7 +8,6 @@
 
 package org.oscm.vo;
 
-import java.io.Serializable;
 
 /**
  * Represents a category for one or more services.

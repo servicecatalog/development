@@ -8,7 +8,6 @@
 
 package org.oscm.vo;
 
-import java.io.Serializable;
 
 /**
  * Represents a marketplace with a catalog of services provided by one or more
