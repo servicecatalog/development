@@ -37,9 +37,13 @@ public class UsageConverter {
 
     private static final String ZONEID_UTC = "UTC";
 
-    private PropertyHandler ph;
-    private OpenstackClient osClient;
-    private AppDb appDb;
+    PropertyHandler ph;
+    OpenstackClient osClient;
+    AppDb appDb;
+
+    public UsageConverter() {
+
+    }
 
     public UsageConverter(PropertyHandler ph) throws MalformedURLException {
         this.ph = ph;
@@ -75,18 +79,18 @@ public class UsageConverter {
         appDb.updateLastUsageFetch(ph.getInstanceId(), endTime);
     }
 
-    private String getStartTime() throws Exception {
+    String getStartTime() throws Exception {
         String lastUsageFetch = ph.getLastUsageFetch();
-        if (isNullOrEmpty(lastUsageFetch)) {
-            long requestTime = appDb.loadRequestTime(ph.getInstanceId());
-            return ofInstant(ofEpochMilli(requestTime), of(ZONEID_UTC))
-                    .format(ISO_LOCAL_DATE_TIME);
+        if (!isNullOrEmpty(lastUsageFetch)) {
+            return lastUsageFetch;
         }
 
-        return lastUsageFetch;
+        long requestTime = appDb.loadRequestTime(ph.getInstanceId());
+        return ofInstant(ofEpochMilli(requestTime), of(ZONEID_UTC))
+                .format(ISO_LOCAL_DATE_TIME);
     }
 
-    private void submit(String eventId, long multiplier, String occurence)
+    void submit(String eventId, long multiplier, String occurence)
             throws ConfigurationException, MalformedURLException,
             ObjectNotFoundException, OrganizationAuthoritiesException,
             ValidationException {
