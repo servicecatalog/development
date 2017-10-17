@@ -8,7 +8,7 @@
   <tns:TechnicalService accessType="DIRECT" allowingOnBehalfActing="false" baseUrl=""
     build="2014-02-20" id="LSERVER" loginPath="/Dynamically provided by the IaaS-system"
     onlyOneSubscriptionPerUser="false" provisioningType="ASYNCHRONOUS"
-    provisioningUrl="https://<host>:<port>/oscm-app/webservices/oscm-app/oscm-app/org.oscm.app.v2_0.service.AsynchronousProvisioningProxy?wsdl" provisioningVersion="1.0">
+    provisioningUrl="http://oscm-app:8880/oscm-app/webservices/oscm-app/oscm-app/org.oscm.app.v2_0.service.AsynchronousProvisioningProxy?wsdl" provisioningVersion="1.0">
 
     <AccessInfo locale="en" >Description of how to access the application.</AccessInfo>
     <AccessInfo locale="ja" />
