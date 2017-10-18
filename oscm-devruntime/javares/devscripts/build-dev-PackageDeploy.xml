@@ -28,7 +28,6 @@
   <available file="${build.result.package.dir}/oscm-devruntime" type="dir" property="DatabaseUpgradeHandler.present" />
   <available file="${build.result.package.dir}/oscm-extsvc-internal" type="dir" property="WebtestEnvironment.present" />
   <import file="${basedir}/../macrodefs.xml" />
-  <import file="${integration.resources.dir}/macrodefs_integration.xml" />
   <besDomainProperties />
   <clusterProperties />
   <property name="db.url.testdb" value="jdbc:postgresql://${db.host}:${db.port}/bssunittests" />
