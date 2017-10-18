@@ -64,14 +64,13 @@ public class RoleBasedFilter extends BaseBesFilter {
             ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
-        Set<String> principalRoles = getPrincipalRoles();
         for (RoleBasedFilterConfigEntry entry : config.getEntries()) {
             if (httpRequest.getRequestURI().endsWith(entry.getPage())
-                    && !isPrincipalRoleAllowed(principalRoles,
-                            entry.getRolesAllowed())) {
+                    && !isPrincipalRoleAllowed(entry.getRolesAllowed(),
+                            httpRequest)) {
                 logger.logInfo(Log4jLogger.ACCESS_LOG,
                         LogMessageIdentifier.INFO_INSUFFICIENT_ROLE,
-                        principalRoles.toString(), entry.getPage(),
+                        entry.getRolesAllowed().toString(), entry.getPage(),
                         entry.getRolesAllowed().toString());
                 JSFUtils.sendRedirect((HttpServletResponse) servletResponse,
                         httpRequest.getContextPath()
@@ -83,20 +82,13 @@ public class RoleBasedFilter extends BaseBesFilter {
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
-    private boolean isPrincipalRoleAllowed(Set<String> principalRoles,
-            Set<String> rolesAllowed) {
-        return !Sets.intersection(principalRoles, rolesAllowed).isEmpty();
-    }
-
-    private Set<String> getPrincipalRoles() {
-        Set<String> principalRoles = new HashSet<>();
-
-        Subject subject = Subject.getSubject(AccessController.getContext());
-        if (subject != null) {
-            principalRoles.addAll(subject.getPrincipals().stream()
-                    .map(Principal::getName).collect(Collectors.toList()));
+    private boolean isPrincipalRoleAllowed(Set<String> rolesAllowed, HttpServletRequest httpRequest) {
+        for (String role : rolesAllowed) {
+            if (httpRequest.isUserInRole(role)) {
+                return true;
+            }
         }
-        return principalRoles;
+        return false;
     }
 
 }
