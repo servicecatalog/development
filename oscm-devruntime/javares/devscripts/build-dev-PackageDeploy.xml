@@ -86,7 +86,7 @@
     </ant>
   </target>
 
-  <target name="All.BUILD" description="Full delivery build. Everything with unit tests, java doc, deliverables zips and so on">
+  <target name="All.BUILD" description="Full delivery build. Everything with unit tests, java doc, deliverables zips and so on" depends="bootstrap">
     <antcall target="setProxy" />
     <ant antfile="../../../oscm-build/cruisecontrol.xml" target="bootstrap" />
     <ant antfile="ivy-build.xml" />
@@ -103,7 +103,13 @@
     <setproxy proxyhost="${http.proxyHost}" proxyport="${http.proxyPort}" />
   </target>
 
-  <target name="AllComponents.BUILD" description="Build everything needed for development">
+
+
+  <target name="bootstrap" description="Used to install the ivy task jar">
+    <get dest="../../../oscm-build/javalib/oscm-build-antextensions.jar" src="https://github.com/DawidCh/oscm-antextensions/releases/download/v0.0.3/oscm-build-antextensions-0.0.3.jar"/>
+  </target>
+
+  <target name="AllComponents.BUILD" description="Build everything needed for development" depends="bootstrap">
     <antcall target="setProxy" />
     <ant antfile="../../../oscm-build/cruisecontrol.xml" target="bootstrap" />
     <ant antfile="ivy-build.xml" />
