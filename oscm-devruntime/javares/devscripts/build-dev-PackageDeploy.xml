@@ -86,9 +86,9 @@
     </ant>
   </target>
 
-  <target name="All.BUILD" description="Full delivery build. Everything with unit tests, java doc, deliverables zips and so on" depends="bootstrap">
+  <target name="All.BUILD" description="Full delivery build. Everything with unit tests, java doc, deliverables zips and so on">
     <antcall target="setProxy" />
-    <ant antfile="../../../oscm-build/cruisecontrol.xml" target="bootstrap" />
+    <antcall target="bootstrap"/>
     <ant antfile="ivy-build.xml" />
     <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package" />
   </target>
@@ -109,9 +109,9 @@
     <get dest="../../../oscm-build/javalib/oscm-build-antextensions.jar" src="https://github.com/DawidCh/oscm-antextensions/releases/download/v0.0.3/oscm-build-antextensions-0.0.3.jar"/>
   </target>
 
-  <target name="AllComponents.BUILD" description="Build everything needed for development" depends="bootstrap">
+  <target name="AllComponents.BUILD" description="Build everything needed for development">
     <antcall target="setProxy" />
-    <ant antfile="../../../oscm-build/cruisecontrol.xml" target="bootstrap" />
+    <antcall target="bootstrap"/>
     <ant antfile="ivy-build.xml" />
     <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
       <property name="projects"
