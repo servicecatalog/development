@@ -88,6 +88,7 @@
 
   <target name="All.BUILD" description="Full delivery build. Everything with unit tests, java doc, deliverables zips and so on">
     <antcall target="setProxy" />
+    <ant antfile="../../../oscm-build/cruisecontrol.xml" target="bootstrap" />
     <ant antfile="ivy-build.xml" />
     <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package" />
   </target>
@@ -104,6 +105,7 @@
 
   <target name="AllComponents.BUILD" description="Build everything needed for development">
     <antcall target="setProxy" />
+    <ant antfile="../../../oscm-build/cruisecontrol.xml" target="bootstrap" />
     <ant antfile="ivy-build.xml" />
     <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
       <property name="projects"
