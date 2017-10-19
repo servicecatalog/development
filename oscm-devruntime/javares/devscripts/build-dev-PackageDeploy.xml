@@ -80,7 +80,7 @@
       <property name="projects" value="oscm-ear,oscm-security" />
     </ant>
   </target>
-
+  
   <target name="BesEarWithoutWebServices.BUILD"
     description="Builds the BES server ear without web services, the result can be found in oscm-build/result/package/oscm-ear">
     <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
@@ -169,7 +169,13 @@
     <ant antfile="ivy-build.xml" />
     <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package" />
   </target>
-
+  
+  <target name="All.BUILD.Q" description="Full delivery build. Everything with unit tests, java doc, deliverables zips and so on">
+    <antcall target="setProxy" />
+    <ant antfile="ivy-build.xml" />
+    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="qpackage" />
+  </target>  
+  
   <target name="checkIfProxyHostSet">
     <condition property="proxyHost.set">
       <isset property="http.proxyHost" />

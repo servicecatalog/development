@@ -110,7 +110,7 @@
         <include name="jacocoagent.jar"/>
       </patternset>
     </unjar>
-    <copy file="${ivy.lib.dir}/org.jacoco.ant-0.7.8.jar" tofile="${root.dir}/libraries/jacoco/javalib/org.jacoco.ant-0.7.8.jar" overwrite="true"></copy>
+  	<copy file="${ivy.lib.dir}/org.jacoco.ant-0.7.8.jar" tofile="${root.dir}/libraries/jacoco/javalib/org.jacoco.ant-0.7.8.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/org.jacoco.core-0.7.8.jar" todir="${root.dir}/libraries/jacoco/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/asm-debug-all-5.1.jar" todir="${root.dir}/libraries/jacoco/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/org.jacoco.report-0.7.8.jar" todir="${root.dir}/libraries/jacoco/javalib/" overwrite="true"></copy>
@@ -151,8 +151,8 @@
     <copy file="${ivy.lib.dir}/velocity-1.7.jar" todir="${root.dir}/libraries/opensaml/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/xmlsec-1.5.4.jar" todir="${root.dir}/libraries/opensaml/javalib/" overwrite="true"/>
     <copy file="${ivy.lib.dir}/xmltooling-1.4.0.jar" todir="${root.dir}/libraries/opensaml/javalib/" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/postgresql-9.4-1206-jdbc42.jar" todir="${root.dir}/libraries/postgresql-jdbc/javalib" overwrite="true"></copy>
-  	<copy file="${ivy.lib.dir}/postgresql-9.4-1206-jdbc42.jar" todir="${root.dir}/oscm-app/resources/lib" overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/postgresql-42.1.4.jar" todir="${root.dir}/libraries/postgresql-jdbc/javalib" overwrite="true"></copy>
+  	<copy file="${ivy.lib.dir}/postgresql-42.1.4.jar" todir="${root.dir}/oscm-app/resources/lib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/antlr-2.7.7.jar" todir="${root.dir}/libraries/redhat-hibernate/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/dom4j-1.6.1.jar" todir="${root.dir}/libraries/redhat-hibernate/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/hibernate-commons-annotations-5.0.1.Final.jar" todir="${root.dir}/libraries/redhat-hibernate/javalib/" overwrite="true"></copy>
