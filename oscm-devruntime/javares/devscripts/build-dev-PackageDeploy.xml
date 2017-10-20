@@ -40,7 +40,7 @@
   <target name="SecurityJar.BUILD"
     description="Builds oscm-security.jar">
     <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
-      <property name="projects" value="oscm-build-antextension" />
+      <property name="projects" value="oscm-security" />
     </ant>
   </target>
   <target name="EclipseBirt.BUILD"
@@ -105,7 +105,7 @@
 
 
 
-  <target name="bootstrap" description="Used to install the ivy task jar">
+  <target name="bootstrap" description="Used to install the ivy task jar" depends="setProxy">
     <get dest="../../../oscm-build/javalib/oscm-build-antextensions.jar" src="https://github.com/DawidCh/oscm-antextensions/releases/download/v0.0.3/oscm-build-antextensions-0.0.3.jar"/>
   </target>
 
