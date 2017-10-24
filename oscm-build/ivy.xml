@@ -294,7 +294,6 @@
     <dependency org="org.codehaus.sonar" name="sonar-ws-client" rev="4.5" transitive="false"/>
 
     <dependency org="org.slf4j" name="jcl-over-slf4j" rev="1.7.7" transitive="false"/>
-    <dependency org="org.jsoup" name="jsoup" rev="1.8.1" transitive="false"/>
     <dependency org="org.slf4j" name="jul-to-slf4j" rev="1.7.7" transitive="false"/>
     <dependency org="org.slf4j" name="log4j-over-slf4j" rev="1.7.7" transitive="false"/>
     <dependency org="org.eclipse.jgit" name="org.eclipse.jgit" rev="3.5.0.201409260305-r" transitive="false"/>

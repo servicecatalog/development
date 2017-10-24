@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright FUJITSU LIMITED 2017-->
 
-<project name="ADM Developer tasks - PACKAGE, DEPLOY" default="" basedir=".">
+<project name="OSCM Developer tasks" default="" basedir=".">
 
   <description>This buildfile is used to BUILD all necessary resource for OSCMaaS</description>
 

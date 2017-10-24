@@ -55,9 +55,6 @@ public class ADMRealmImpl {
     private static final String LOCK_USER_ACCOUNT = "UPDATE platformuser SET status = ? WHERE failedlogincounter >= COALESCE(CAST((SELECT env_value FROM configurationsetting WHERE information_id = 'MAX_NUMBER_LOGIN_ATTEMPTS' AND context_id = 'global') AS int), 3) AND tkey = ?";
     private static final String INCREASE_LOGIN_COUNTER = "UPDATE platformuser SET failedlogincounter = failedlogincounter + 1 WHERE tkey = ?";
     private static final String LOCKED_STATUS = "LOCKED_FAILED_LOGIN_ATTEMPTS";
-    private static final String DB_DATASOURCE_NAME = "java:openejb/Resource/BSSDS";
-    private static final String DB_DATASOURCE_NAME_WS = "java:comp/Resource/jdbc/BSSDS";
-    private static final String DB_DATASOURCE_NAME_WS1 = "jdbcBSSDS";
 
     private static final String ERR_DB_LOOKUP = "Database lookup error occured: ";
     private static final String ERR_DB_ACCESS = "Database access error occured: ";
@@ -66,13 +63,10 @@ public class ADMRealmImpl {
     private static final List<String> activeStatusList = Arrays.asList("ACTIVE",
             "PASSWORD_MUST_BE_CHANGED");
 
-    public static final String SUBST_SUBJECT_NAME = "%s";
-
     protected static final String GROUP_USER = "PlatformUsers";
     protected static final String GROUP_ADMIN = UserRoleType.ORGANIZATION_ADMIN
             .name();
     protected static final List<String> GROUPLIST_USER = new ArrayList<String>(Arrays.asList(GROUP_USER));
-    protected static final List<String> GROUPLIST_ADMIN = new ArrayList<String>(Arrays.asList(GROUP_USER, GROUP_ADMIN));
 
     private static final int SAML_REQUEST_ID_LEN = 43;
     private static final int SAML_TENANT_ID_LEN = 8;

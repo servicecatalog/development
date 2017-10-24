@@ -8,7 +8,6 @@
 
 package org.oscm.vo;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
