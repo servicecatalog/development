@@ -90,7 +90,7 @@
           <!-- TAB: USER -->
           <rich:tab id="tabUser" header="#{msg['subscription.users']}" onheaderclick="setSelectedTab('tabUser');"
             onleave="setDirty(false);">
-
+						
             <!-- include popup -->
             <a4j:outputPanel>
               <c:set var="dialogId" value="assignUsersPanel" />
@@ -115,6 +115,16 @@
             </a4j:outputPanel>
 
             <h:form id="usersForm">
+            
+              <a4j:outputPanel layout="block" styleClass="box error"
+                rendered="#{manageSubscriptionModel.showProvisioningError}">
+           		<dl>
+                  <dt>
+                    <h:outputText value="#{manageSubscriptionModel.subscription.provisioningError}" />
+                  </dt>
+                </dl>
+		      </a4j:outputPanel>
+		      
               <a4j:outputPanel layout="block" styleClass="box suspendedNotMessage suspended"
                 rendered="#{manageSubscriptionModel.showStateWarning}">
                 <dl>
@@ -202,7 +212,15 @@
 
             <h:form id="configurationForm">
               <a4j:jsFunction name="jsLeaveTabFunction" action="#{manageSubscriptionCtrl.reload}"
-                render="basicInfo, udaInfo, parameterConfigTable" />
+                render="basicInfo, udaInfo, parameterConfigTable" />      
+               <a4j:outputPanel layout="block" styleClass="box error"
+                rendered="#{manageSubscriptionModel.showProvisioningError}">
+           		<dl>
+                  <dt>
+                    <h:outputText value="#{manageSubscriptionModel.subscription.provisioningError}" />
+                  </dt>
+                </dl>
+		      </a4j:outputPanel>
               <a4j:outputPanel layout="block" styleClass="box suspendedNotMessage suspended"
                 rendered="#{manageSubscriptionModel.showStateWarning}">
                 <dl>
@@ -366,6 +384,14 @@
               <a4j:jsFunction name="restorePaymentTab" action="#{manageSubscriptionCtrl.leavePaymentTab}"
                 render="payment" />
             </h:form>
+            <a4j:outputPanel layout="block" styleClass="box error"
+               rendered="#{manageSubscriptionModel.showProvisioningError}">
+          		<dl>
+                 <dt>
+                   <h:outputText value="#{manageSubscriptionModel.subscription.provisioningError}" />
+                 </dt>
+               </dl>
+	        </a4j:outputPanel>
             <a4j:outputPanel layout="block" styleClass="box suspendedNotMessage suspended"
               rendered="#{manageSubscriptionModel.showStateWarning}">
               <dl>
@@ -387,7 +413,14 @@
           <!-- TAB: UPGRADE -->
           <rich:tab id="tabUpgrade" header="#{msg['subscription.upgrade']}"
             onheaderclick="setSelectedTab('tabUpgrade');">
-
+			<a4j:outputPanel layout="block" styleClass="box error"
+               rendered="#{manageSubscriptionModel.showProvisioningError}">
+          		<dl>
+                 <dt>
+                   <h:outputText value="#{manageSubscriptionModel.subscription.provisioningError}" />
+                 </dt>
+               </dl>
+	        </a4j:outputPanel>
             <a4j:outputPanel layout="block" styleClass="box suspendedNotMessage suspended"
               rendered="#{manageSubscriptionModel.showStateWarning}">
               <dl>
@@ -439,6 +472,14 @@
           <!-- TAB: PRICE MODEL -->
           <rich:tab id="tabPriceModel" header="#{msg['service.priceModel']}"
             onheaderclick="setSelectedTab('tabPriceModel');" rendered="#{manageSubscriptionModel.priceModel.chargeable}">
+            <a4j:outputPanel layout="block" styleClass="box error"
+               rendered="#{manageSubscriptionModel.showProvisioningError}">
+          		<dl>
+                 <dt>
+                   <h:outputText value="#{manageSubscriptionModel.subscription.provisioningError}" />
+                 </dt>
+               </dl>
+	        </a4j:outputPanel>
             <a4j:outputPanel layout="block" styleClass="box suspendedNotMessage suspended"
               rendered="#{manageSubscriptionModel.showStateWarning}">
               <dl>
@@ -466,6 +507,14 @@
 
           <!-- TAB: SUPPLIER -->
           <rich:tab id="tabSupplier" header="#{msg['service.supplier']}" onheaderclick="setSelectedTab('tabSupplier');">
+          	<a4j:outputPanel layout="block" styleClass="box error"
+               rendered="#{manageSubscriptionModel.showProvisioningError}">
+          		<dl>
+                 <dt>
+                   <h:outputText value="#{manageSubscriptionModel.subscription.provisioningError}" />
+                 </dt>
+               </dl>
+	        </a4j:outputPanel>
             <a4j:outputPanel layout="block" styleClass="box suspendedNotMessage suspended"
               rendered="#{manageSubscriptionModel.showStateWarning}">
               <dl>
