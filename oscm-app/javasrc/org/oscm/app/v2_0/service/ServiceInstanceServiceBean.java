@@ -344,7 +344,9 @@ public class ServiceInstanceServiceBean {
             switch (dbInstance.getProvisioningStatus()) {
             case WAITING_FOR_SYSTEM_CREATION:
                 besDao.notifyAsyncSubscription(dbInstance,
-                        createInstanceResult(dbInstance), false, null);
+                        createInstanceResult(dbInstance), false,
+                        new APPlatformException(
+                                "Instance creation has been aborted manually"));
                 break;
             case WAITING_FOR_SYSTEM_MODIFICATION:
                 if (dbInstance.getRollbackParameters() != null) {

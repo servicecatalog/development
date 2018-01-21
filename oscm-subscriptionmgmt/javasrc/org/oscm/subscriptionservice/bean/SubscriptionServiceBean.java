@@ -4345,7 +4345,8 @@ public class SubscriptionServiceBean
 
         abortSubscription(subscriptionId, subscription);
         removeLocalizedResources(reason, subscription);
-        deleteProduct(subscription);
+        storeSubscriptionAbortionReason(reason, subscription);       
+        //deleteProduct(subscription);
         List<PlatformUser> receivers = loadReceiversForAbortAsyncSubscription(
                 subscription);
         sendSubscriptionAbortEmail(subscriptionId, organizationId, subscription,
@@ -4359,7 +4360,7 @@ public class SubscriptionServiceBean
 
     private void abortSubscription(String subscriptionId,
             Subscription subscription) {
-        subscription.setStatus(SubscriptionStatus.INVALID);
+        //subscription.setStatus(SubscriptionStatus.INVALID);
         subscription.setSubscriptionId(subscriptionId + "#"
                 + String.valueOf(System.currentTimeMillis()));
     }
@@ -4371,7 +4372,17 @@ public class SubscriptionServiceBean
                 LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_PROGRESS);
         localizer.storeLocalizedResources(key,
                 LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_PROGRESS,
-                reason);
+                reason);      
+    }
+    
+    void storeSubscriptionAbortionReason(List<VOLocalizedText> reason,
+            Subscription subscription) {
+        long key = subscription.getKey();
+        localizer.removeLocalizedValues(key,
+                LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_ERROR);
+        localizer.storeLocalizedResources(key,
+                LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_ERROR,
+                reason);      
     }
 
     void sendSubscriptionAbortEmail(String subscriptionId,
