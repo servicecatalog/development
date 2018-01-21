@@ -97,6 +97,7 @@ public class ManageSubscriptionModel
     private String ownerWarningText;
     private long currentSubscriptionKey;
     private boolean paymentTabAvailable;
+    private boolean showProvisioningError;
 
     /**
      * @return the showExternalConfigurator
@@ -718,4 +719,13 @@ public class ManageSubscriptionModel
         this.paymentTabAvailable = paymentTabAvailable;
     }
 
+    public boolean isShowProvisioningError() {
+        return showProvisioningError;
+    }
+
+    public void setShowProvisioningError(boolean showProvisioningError) {
+        this.showProvisioningError = showProvisioningError;
+    }
+    
+    
 }
