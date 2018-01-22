@@ -4384,6 +4384,12 @@ public class SubscriptionServiceBean
                 LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_ERROR,
                 reason);      
     }
+    
+    void removeSubscriptionAbortionReason(Subscription subscription) {
+        long key = subscription.getKey();
+        localizer.removeLocalizedValues(key,
+                LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_ERROR);     
+    }
 
     void sendSubscriptionAbortEmail(String subscriptionId,
             String organizationId, Subscription subscription,
@@ -5197,11 +5203,13 @@ public class SubscriptionServiceBean
         stateValidator.checkCompleteModifyAllowed(subscription);
 
         updateInstanceInfoForCompletion(subscription, instance);
-
+        
         if (validateOrganization) {
             manageBean.validateTechnoloyProvider(subscription);
         }
-
+        
+        removeSubscriptionAbortionReason(subscription);
+        
         modUpgBean.setStatusForModifyComplete(subscription);
 
         Map<String, Parameter> paramMap = new HashMap<>();
@@ -5261,7 +5269,8 @@ public class SubscriptionServiceBean
                 subscriptionId, organizationId);
 
         stateValidator.checkAbortAllowedForModifying(subscription);
-
+        
+        storeSubscriptionAbortionReason(reason, subscription);
         abortAsyncUpgradeOrModifySubscription(subscription, organizationId,
                 reason, true);
     }
