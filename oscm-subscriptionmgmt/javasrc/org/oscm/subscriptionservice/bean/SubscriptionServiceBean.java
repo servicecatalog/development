@@ -4320,6 +4320,12 @@ public class SubscriptionServiceBean
                 LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_ERROR,
                 reason);      
     }
+    
+    void removeSubscriptionAbortionReason(Subscription subscription) {
+        long key = subscription.getKey();
+        localizer.removeLocalizedValues(key,
+                LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_ERROR);     
+    }
 
     void sendSubscriptionAbortEmail(String subscriptionId,
             String organizationId, Subscription subscription,
@@ -5010,6 +5016,8 @@ public class SubscriptionServiceBean
         updateInstanceInfoForCompletion(subscription, instance);
 
         manageBean.validateTechnoloyProvider(subscription);
+        
+        removeSubscriptionAbortionReason(subscription);
 
         modUpgBean.setStatusForModifyComplete(subscription);
 
@@ -5070,7 +5078,8 @@ public class SubscriptionServiceBean
                 subscriptionId, organizationId);
 
         stateValidator.checkAbortAllowedForModifying(subscription);
-
+        
+        storeSubscriptionAbortionReason(reason, subscription);
         abortAsyncUpgradeOrModifySubscription(subscription, organizationId,
                 reason);
     }
