@@ -56,25 +56,21 @@ public class SubscriptionDao {
     private final static String SUBSCRIPTIONS_FOR_ORG_WITH_KEYS = SUBSCRIPTIONS_FOR_ORG
             + "AND s.tkey IN (:keys) ";
 
-    private final static String SUBSCRIPTIONS_FOR_ORG_FROM_VENDOR_UDA_WITHOUT_VALUE = "SELECT sub.tkey FROM Uda c  LEFT JOIN udaDefinition udaDef " +
-            "ON c.udaDefinitionKey=udaDef.tKey " +
-            "LEFT JOIN subscription sub ON sub.tkey = c.targetObjectKey " +
-            "LEFT JOIN product p on sub.product_tkey=p.tkey " +
-            "WHERE c.udaValue in ('') " +
-            "AND udaDef.tKey IN (:udaDefinitions) " +
-            "AND udaDef.organizationKey=p.vendorkey " +
-            "AND sub.organizationkey = :organization " +
-            "AND sub.status IN (:states)" +
-            "UNION " +
-            "SELECT sub.tkey " +
-            "FROM subscription sub, " +
-            "product p " +
-            "WHERE NOT EXISTS (SELECT 1 FROM Uda cd, udaDefinition udaDef WHERE cd.udaDefinitionKey=udaDef.tKey and " +
-            "cd.targetObjectKey = sub.tkey and udaDef.organizationKey=p.vendorkey and udaDef.tKey IN (:udaDefinitions)) " +
-            "AND sub.product_tkey=p.tkey " +
-            "AND sub.organizationkey = :organization " +
-            "AND sub.status IN (:states)"
-        ;
+    private final static String SUBSCRIPTIONS_FOR_ORG_FROM_VENDOR_UDA_WITHOUT_VALUE = "SELECT sub.tkey FROM Uda c  LEFT JOIN udaDefinition udaDef "
+            + "ON c.udaDefinitionKey=udaDef.tKey "
+            + "LEFT JOIN subscription sub ON sub.tkey = c.targetObjectKey "
+            + "LEFT JOIN product p on sub.product_tkey=p.tkey "
+            + "WHERE c.udaValue in ('') "
+            + "AND udaDef.tKey IN (:udaDefinitions) "
+            + "AND udaDef.organizationKey=p.vendorkey "
+            + "AND sub.organizationkey = :organization "
+            + "AND sub.status IN (:states)" + "UNION " + "SELECT sub.tkey "
+            + "FROM subscription sub, " + "product p "
+            + "WHERE NOT EXISTS (SELECT 1 FROM Uda cd, udaDefinition udaDef WHERE cd.udaDefinitionKey=udaDef.tKey and "
+            + "cd.targetObjectKey = sub.tkey and udaDef.organizationKey=p.vendorkey and udaDef.tKey IN (:udaDefinitions)) "
+            + "AND sub.product_tkey=p.tkey "
+            + "AND sub.organizationkey = :organization "
+            + "AND sub.status IN (:states)";
 
     private final static String SUBSCRIPTIONS_FOR_UNIT_ADMIN = "SELECT s.*, oCustomer.organizationid as customer_org, oCustomer.name as customer_name, p.productid, p.template_tkey, ug.name as unit_name "
             + "FROM Subscription s "
@@ -131,8 +127,8 @@ public class SubscriptionDao {
 
     public Long findSubscriptionForAsyncCallBack(String subscriptionId,
             String organizationId) {
-        Query query = dataManager
-                .createNamedQuery("ModifiedEntity.findSubscriptionKeyByOrgIdAndSubId");
+        Query query = dataManager.createNamedQuery(
+                "ModifiedEntity.findSubscriptionKeyByOrgIdAndSubId");
         query.setParameter("organizationId", organizationId);
         query.setParameter("subOrgIdType",
                 ModifiedEntityType.SUBSCRIPTION_ORGANIZATIONID);
@@ -163,19 +159,17 @@ public class SubscriptionDao {
 
     public Long hasSubscriptionsBasedOnOnBehalfServicesForTp(
             Subscription subscription) {
-        Query query = dataManager
-                .createNamedQuery("Subscription.hasSubscriptionsBasedOnOnBehalfServicesForTp");
-        query.setParameter(
-                "tpOrgKey",
-                Long.valueOf(subscription.getProduct().getTechnicalProduct()
-                        .getOrganization().getKey()));
+        Query query = dataManager.createNamedQuery(
+                "Subscription.hasSubscriptionsBasedOnOnBehalfServicesForTp");
+        query.setParameter("tpOrgKey", Long.valueOf(subscription.getProduct()
+                .getTechnicalProduct().getOrganization().getKey()));
         return (Long) query.getSingleResult();
     }
 
     public List<String> getSubscriptionIdsForMyCustomers(Organization org,
             Set<SubscriptionStatus> states) {
-        Query query = dataManager
-                .createNamedQuery("Subscription.getSubscriptionIdsForMyCustomers");
+        Query query = dataManager.createNamedQuery(
+                "Subscription.getSubscriptionIdsForMyCustomers");
         query.setParameter("offerer", org);
         query.setParameter("states", states);
         return ParameterizedTypes.list(query.getResultList(), String.class);
@@ -183,8 +177,8 @@ public class SubscriptionDao {
 
     public List<Subscription> getSubscriptionsForMyCustomers(Organization org,
             Set<SubscriptionStatus> states) {
-        Query query = dataManager
-                .createNamedQuery("Subscription.getSubscriptionsForMyCustomers");
+        Query query = dataManager.createNamedQuery(
+                "Subscription.getSubscriptionsForMyCustomers");
         query.setParameter("offerer", org);
         query.setParameter("states", states);
 
@@ -212,7 +206,8 @@ public class SubscriptionDao {
             query.setParameter("objecttype",
                     LocalizedObjectTypes.PRODUCT_MARKETING_NAME.name());
         } catch (IllegalArgumentException exc) {
-            logger.logDebug("Parameters are not found in the query. Not an error, just sorting is not applied.");
+            logger.logDebug(
+                    "Parameters are not found in the query. Not an error, just sorting is not applied.");
         }
         query.setParameter("organization",
                 Long.valueOf(user.getOrganization().getKey()));
@@ -226,12 +221,13 @@ public class SubscriptionDao {
 
     @SuppressWarnings("unchecked")
     List<BigInteger> getSubscriptionIdsForVendorsForUdaDefs(PlatformUser user,
-                                                          Set<SubscriptionStatus> states, String queryString,
-                                                          Set<Long> udaDefsFound) {
+            Set<SubscriptionStatus> states, String queryString,
+            Set<Long> udaDefsFound) {
 
         Set<String> statesAsString = getSubscriptionStatesAsString(states);
         Query query = dataManager.createNativeQuery(queryString);
-        query.setParameter("organization", Long.valueOf(user.getOrganization().getKey()));
+        query.setParameter("organization",
+                Long.valueOf(user.getOrganization().getKey()));
         query.setParameter("states", statesAsString);
         query.setParameter("udaDefinitions", getLongsAsBigInts(udaDefsFound));
 
@@ -251,7 +247,8 @@ public class SubscriptionDao {
             query.setParameter("objecttype",
                     LocalizedObjectTypes.PRODUCT_MARKETING_NAME.name());
         } catch (IllegalArgumentException exc) {
-            logger.logDebug("Parameters are not found in the query. Not an error, just sorting is not applied.");
+            logger.logDebug(
+                    "Parameters are not found in the query. Not an error, just sorting is not applied.");
         }
         query.setParameter("ownerKey", Long.valueOf(owner.getKey()));
         query.setParameter("states", statesAsString);
@@ -284,8 +281,8 @@ public class SubscriptionDao {
 
     private void setSortingParameter(Query query, Pagination pagination) {
         if (pagination.getSorting() != null) {
-            query.setParameter("sortColumn", pagination.getSorting()
-                    .getColumn().name());
+            query.setParameter("sortColumn",
+                    pagination.getSorting().getColumn().name());
         }
     }
 
@@ -328,12 +325,12 @@ public class SubscriptionDao {
                     filter.getExpression() + "%");
             break;
         case STATUS:
-            query.setParameter("filterExpressionStatus", filter.getExpression()
-                    + "%");
+            query.setParameter("filterExpressionStatus",
+                    filter.getExpression() + "%");
             break;
         case UNIT:
-            query.setParameter("filterExpressionUnit", filter.getExpression()
-                    + "%");
+            query.setParameter("filterExpressionUnit",
+                    filter.getExpression() + "%");
             break;
         default:
             break;
@@ -366,7 +363,8 @@ public class SubscriptionDao {
         return selectWhereQuery + queryFilter + queryOrderBy;
     }
 
-    private String paginatedQuery(String selectWhereQuery, Pagination pagination) {
+    private String paginatedQuery(String selectWhereQuery,
+            Pagination pagination) {
         String queryOrderBy = "ORDER BY to_char(s.activationdate, '999999999999999') DESC ";
         if (pagination.getSorting() != null) {
             queryOrderBy = createQueryOrderByString(pagination);
@@ -374,7 +372,8 @@ public class SubscriptionDao {
 
         String queryFilter = "";
         if (pagination.getFilterSet() != null) {
-            queryFilter = createQueryFilterString(pagination, queryFilter, true);
+            queryFilter = createQueryFilterString(pagination, queryFilter,
+                    true);
         }
         return selectWhereQuery + queryFilter + queryOrderBy;
     }
@@ -407,7 +406,8 @@ public class SubscriptionDao {
         return queryOrderBy;
     }
 
-    private String createQueryOrderByStringForMyCustomers(Pagination pagination) {
+    private String createQueryOrderByStringForMyCustomers(
+            Pagination pagination) {
         String queryOrderBy;
         String whenSubscriptionId = "WHEN '"
                 + TableColumns.SUBSCRIPTION_ID.name()
@@ -457,20 +457,20 @@ public class SubscriptionDao {
             StringBuilder queryFilterBuilder, Filter filter) {
         switch (filter.getColumn()) {
         case SUBSCRIPTION_ID:
-            queryFilterBuilder
-                    .append("s.subscriptionid ILIKE :filterExpressionSubscriptionId ");
+            queryFilterBuilder.append(
+                    "s.subscriptionid ILIKE :filterExpressionSubscriptionId ");
             break;
         case CUSTOMER_NAME:
             queryFilterBuilder
                     .append("s.name ILIKE :filterExpressionCustomerName ");
             break;
         case CUSTOMER_ID:
-            queryFilterBuilder
-                    .append("s.organizationid ILIKE :filterExpressionCustomerId ");
+            queryFilterBuilder.append(
+                    "s.organizationid ILIKE :filterExpressionCustomerId ");
             break;
         case ACTIVATION_TIME:
-            queryFilterBuilder
-                    .append("trim(to_char(to_timestamp(s.activationdate / 1000), '")
+            queryFilterBuilder.append(
+                    "trim(to_char(to_timestamp(s.activationdate / 1000), '")
                     .append(pagination.getDateFormat())
                     .append("')) ILIKE :filterExpressionActivation ");
             break;
@@ -484,8 +484,8 @@ public class SubscriptionDao {
                     .append(") ILIKE :filterExpressionServiceName ");
             break;
         case PURCHASE_ORDER_NUMBER:
-            queryFilterBuilder
-                    .append("s.purchaseordernumber ILIKE :filterExpressionReferenceNumber ");
+            queryFilterBuilder.append(
+                    "s.purchaseordernumber ILIKE :filterExpressionReferenceNumber ");
             break;
         case STATUS:
             queryFilterBuilder
@@ -558,8 +558,8 @@ public class SubscriptionDao {
             Pagination pagination) {
         String queryOrderBy = "ORDER BY to_char(s.activationdate, '999999999999999') DESC ";
         if (pagination.getSorting() != null) {
-            queryOrderBy = createMarketplaceQueryOrderByString(pagination
-                    .getSorting().getOrder().name(),
+            queryOrderBy = createMarketplaceQueryOrderByString(
+                    pagination.getSorting().getOrder().name(),
                     pagination.getLocalizedStatusesMap());
         }
 
@@ -576,7 +576,8 @@ public class SubscriptionDao {
             Pagination pagination) {
         String queryOrderBy = "ORDER BY to_char(s.activationdate, '999999999999999') DESC ";
         if (pagination.getSorting() != null) {
-            queryOrderBy = createMarketplaceQueryWithUnitsOrderByString(pagination);
+            queryOrderBy = createMarketplaceQueryWithUnitsOrderByString(
+                    pagination);
         }
 
         String queryFilter = "";
@@ -591,7 +592,8 @@ public class SubscriptionDao {
             String selectWhereQuery, org.oscm.paginator.Pagination pagination) {
         String queryOrderBy = "ORDER BY to_char(s.activationdate, '999999999999999') DESC ";
         if (pagination.getSorting() != null) {
-            queryOrderBy = createMarketplaceQueryWithUnitsOrderByStringWithFiltering(pagination);
+            queryOrderBy = createMarketplaceQueryWithUnitsOrderByStringWithFiltering(
+                    pagination);
         }
 
         String queryFilter = "";
@@ -655,8 +657,7 @@ public class SubscriptionDao {
         return queryOrderBy;
     }
 
-    private String createMarketplaceQueryOrderByString(
-            String orderByColumnName,
+    private String createMarketplaceQueryOrderByString(String orderByColumnName,
             Map<SubscriptionStatus, String> localizedStatusesMap) {
         String queryOrderBy;
         String whenSubscriptionId = "WHEN '"
@@ -719,8 +720,7 @@ public class SubscriptionDao {
                 queryFilter += "AND p.productid ILIKE :filterExpressionServiceId ";
                 break;
             case SERVICE_NAME:
-                queryFilter += "AND ("
-                        + createLocalizedServiceNameSubQuery("p")
+                queryFilter += "AND (" + createLocalizedServiceNameSubQuery("p")
                         + ") ILIKE :filterExpressionServiceName ";
                 break;
             case PURCHASE_ORDER_NUMBER:
@@ -776,8 +776,7 @@ public class SubscriptionDao {
                 queryFilter += "AND p.productid ILIKE :filterExpressionServiceId ";
                 break;
             case SERVICE_NAME:
-                queryFilter += "AND ("
-                        + createLocalizedServiceNameSubQuery("p")
+                queryFilter += "AND (" + createLocalizedServiceNameSubQuery("p")
                         + ") ILIKE :filterExpressionServiceName ";
                 break;
             case PURCHASE_ORDER_NUMBER:
@@ -799,10 +798,8 @@ public class SubscriptionDao {
         return " SELECT localize.value FROM localizedresource localize WHERE localize.objectkey="
                 + tableAlias
                 + ".template_tkey AND (localize.locale=:locale OR localize.locale='en') AND localize.objecttype=:objecttype"
-                + " order by case"
-                + " when localize.locale = 'en' then 1"
-                + " else 0"
-                + " end limit 1";
+                + " order by case" + " when localize.locale = 'en' then 1"
+                + " else 0" + " end limit 1";
     }
 
     private String createStatusesAndQueryPart(
@@ -836,8 +833,8 @@ public class SubscriptionDao {
 
     public List<Subscription> getSubscriptionsForMyBrokerCustomers(
             Organization org) {
-        Query query = dataManager
-                .createNamedQuery("Subscription.getSubscriptionsForMyBrokerCustomers");
+        Query query = dataManager.createNamedQuery(
+                "Subscription.getSubscriptionsForMyBrokerCustomers");
         query.setParameter("offerer", org);
         return ParameterizedTypes.list(query.getResultList(),
                 Subscription.class);
@@ -846,7 +843,8 @@ public class SubscriptionDao {
     public List<Subscription> getSubscriptionsForMyBrokerCustomers(
             PlatformUser user, Set<SubscriptionStatus> states,
             Pagination pagination) {
-        String queryString = getQuerySubscriptionsForMyBrokerCustomers(pagination);
+        String queryString = getQuerySubscriptionsForMyBrokerCustomers(
+                pagination);
         return getSubscriptionsForOrg(user, states, pagination, queryString);
     }
 
@@ -872,7 +870,8 @@ public class SubscriptionDao {
 
     }
 
-    public List<Subscription> getSubscriptionsByStatus(SubscriptionStatus status) {
+    public List<Subscription> getSubscriptionsByStatus(
+            SubscriptionStatus status) {
         Query query = dataManager.createNamedQuery("Subscription.getByStatus");
         query.setParameter("status", status);
         return ParameterizedTypes.list(query.getResultList(),
@@ -900,8 +899,8 @@ public class SubscriptionDao {
 
     public boolean isUsableSubscriptionsExistForTemplate(PlatformUser user,
             Set<SubscriptionStatus> states, Product template) {
-        Query q = dataManager
-                .createNamedQuery("Subscription.numberOfUsableSubscriptionsForUser");
+        Query q = dataManager.createNamedQuery(
+                "Subscription.numberOfUsableSubscriptionsForUser");
         q.setParameter("userKey", Long.valueOf(user.getKey()));
         q.setParameter("status", states);
         q.setParameter("prodTemplate", template);
@@ -916,10 +915,12 @@ public class SubscriptionDao {
         return getSubscriptionsForOrg(user, states, pagination, queryString);
     }
 
-    public List<BigInteger> getSubscriptionsWithDefaultUdaValuesAndVendor(PlatformUser user,
-                                                                        Set<SubscriptionStatus> states, Set<Long> udaDefsFound) {
+    public List<BigInteger> getSubscriptionsWithDefaultUdaValuesAndVendor(
+            PlatformUser user, Set<SubscriptionStatus> states,
+            Set<Long> udaDefsFound) {
         return getSubscriptionIdsForVendorsForUdaDefs(user, states,
-                SUBSCRIPTIONS_FOR_ORG_FROM_VENDOR_UDA_WITHOUT_VALUE, udaDefsFound);
+                SUBSCRIPTIONS_FOR_ORG_FROM_VENDOR_UDA_WITHOUT_VALUE,
+                udaDefsFound);
     }
 
     public List<Subscription> getSubscriptionsForOrgWithFiltering(
@@ -938,10 +939,10 @@ public class SubscriptionDao {
         if (userRoleTypes.isEmpty()) {
             return Collections.emptyList();
         }
-        Query query = dataManager
-                .createNativeQuery(
-                        getSubscriptionsForUserWithRolesQuery(userRoleTypes,
-                                pagination), Subscription.class);
+        Query query = dataManager.createNativeQuery(
+                getSubscriptionsForUserWithRolesQuery(userRoleTypes,
+                        pagination),
+                Subscription.class);
         setSubscriptionsForUserWithRolesQueryParams(user, states, query);
         setPaginationParameters(pagination, query);
         return query.getResultList();
@@ -970,7 +971,8 @@ public class SubscriptionDao {
         }
         Query query = dataManager.createNativeQuery(
                 getSubscriptionsForUserWithRolesQueryWithFiltering(
-                        userRoleTypes, pagination), Subscription.class);
+                        userRoleTypes, pagination),
+                Subscription.class);
         setSubscriptionsForUserWithRolesQueryParams(user, states, query);
         setPaginationParameters(pagination, query);
         setSubscriptionKeysParameter(query,
@@ -984,28 +986,26 @@ public class SubscriptionDao {
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append("SELECT * FROM ((");
         boolean isAdded;
-        for (Iterator<UserRoleType> i = userRoleTypes.iterator(); i.hasNext();) {
+        for (Iterator<UserRoleType> i = userRoleTypes.iterator(); i
+                .hasNext();) {
             UserRoleType userRoleType = i.next();
             isAdded = false;
             if (UserRoleType.UNIT_ADMINISTRATOR.equals(userRoleType)) {
                 queryBuilder.append(SUBSCRIPTIONS_FOR_UNIT_ADMIN);
-                queryBuilder
-                        .append(createMarketplaceQueryWithUnitsFilterString(
-                                pagination, " "));
+                queryBuilder.append(createMarketplaceQueryWithUnitsFilterString(
+                        pagination, " "));
 
                 // Bug 11958 allow subscr owner to manage his subscription
                 queryBuilder.append(" ) UNION ( ");
                 queryBuilder.append(SUBSCRIPTIONS_FOR_OWNER_FULLINFO);
-                queryBuilder
-                        .append(createMarketplaceQueryWithUnitsFilterString(
-                                pagination, " "));
+                queryBuilder.append(createMarketplaceQueryWithUnitsFilterString(
+                        pagination, " "));
                 isAdded = true;
             }
             if (UserRoleType.SUBSCRIPTION_MANAGER.equals(userRoleType)) {
                 queryBuilder.append(SUBSCRIPTIONS_FOR_OWNER_FULLINFO);
-                queryBuilder
-                        .append(createMarketplaceQueryWithUnitsFilterString(
-                                pagination, " "));
+                queryBuilder.append(createMarketplaceQueryWithUnitsFilterString(
+                        pagination, " "));
                 isAdded = true;
             }
             if (isAdded && i.hasNext()) {
@@ -1024,27 +1024,28 @@ public class SubscriptionDao {
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append("SELECT * FROM ((");
         boolean isAdded;
-        for (Iterator<UserRoleType> i = userRoleTypes.iterator(); i.hasNext();) {
+        for (Iterator<UserRoleType> i = userRoleTypes.iterator(); i
+                .hasNext();) {
             UserRoleType userRoleType = i.next();
             isAdded = false;
             if (UserRoleType.UNIT_ADMINISTRATOR.equals(userRoleType)) {
                 queryBuilder.append(SUBSCRIPTIONS_FOR_UNIT_ADMIN_WITH_KEYS);
-                queryBuilder
-                        .append(createMarketplaceQueryWithUnitsFilterStringWithFiltering(
+                queryBuilder.append(
+                        createMarketplaceQueryWithUnitsFilterStringWithFiltering(
                                 pagination, " "));
 
                 // Bug 11958 allow subscr owner to manage his subscription
                 queryBuilder.append(" ) UNION ( ");
                 queryBuilder.append(SUBSCRIPTIONS_FOR_OWNER_FULLINFO_WITH_KEYS);
-                queryBuilder
-                        .append(createMarketplaceQueryWithUnitsFilterStringWithFiltering(
+                queryBuilder.append(
+                        createMarketplaceQueryWithUnitsFilterStringWithFiltering(
                                 pagination, " "));
                 isAdded = true;
             }
             if (UserRoleType.SUBSCRIPTION_MANAGER.equals(userRoleType)) {
                 queryBuilder.append(SUBSCRIPTIONS_FOR_OWNER_FULLINFO_WITH_KEYS);
-                queryBuilder
-                        .append(createMarketplaceQueryWithUnitsFilterStringWithFiltering(
+                queryBuilder.append(
+                        createMarketplaceQueryWithUnitsFilterStringWithFiltering(
                                 pagination, " "));
                 isAdded = true;
             }
@@ -1075,8 +1076,7 @@ public class SubscriptionDao {
             orderByBuilder.append("WHEN '")
                     .append(TableColumns.SUBSCRIPTION_ID.name())
                     .append("' THEN s.subscriptionid ");
-            orderByBuilder
-                    .append("WHEN '")
+            orderByBuilder.append("WHEN '")
                     .append(TableColumns.ACTIVATION_TIME.name())
                     .append("' THEN to_char(s.activationdate, '999999999999999') ");
             orderByBuilder.append("WHEN '")
@@ -1106,12 +1106,13 @@ public class SubscriptionDao {
         }
     }
 
-    private void setQueryParameter(Query query, String parameter, Object value) {
+    private void setQueryParameter(Query query, String parameter,
+            Object value) {
         try {
             query.setParameter(parameter, value);
         } catch (IllegalArgumentException exc) {
-            logger.logDebug("Parameter " + parameter
-                    + "is not found in the query");
+            logger.logDebug(
+                    "Parameter " + parameter + "is not found in the query");
         }
     }
 
@@ -1140,12 +1141,12 @@ public class SubscriptionDao {
             query.setParameter("objecttype",
                     LocalizedObjectTypes.PRODUCT_MARKETING_NAME.name());
         } catch (IllegalArgumentException exc) {
-            logger.logDebug("Parameters are not found in the query. Not an error, just sorting is not applied.");
+            logger.logDebug(
+                    "Parameters are not found in the query. Not an error, just sorting is not applied.");
         }
         query.setParameter("userKey", Long.valueOf(user.getKey()));
-        query.setParameter("status",
-                getSubscriptionStatesAsString(new HashSet<>(
-                        Subscription.VISIBLE_SUBSCRIPTION_STATUS)));
+        query.setParameter("status", getSubscriptionStatesAsString(
+                new HashSet<>(Subscription.VISIBLE_SUBSCRIPTION_STATUS)));
         return query;
     }
 
@@ -1178,8 +1179,8 @@ public class SubscriptionDao {
         query.setParameter("userId", user.getUserId());
         query.setParameter("subscriptionKey", Long.valueOf(subKey));
 
-        List<UsageLicense> result = ParameterizedTypes.list(
-                query.getResultList(), UsageLicense.class);
+        List<UsageLicense> result = ParameterizedTypes
+                .list(query.getResultList(), UsageLicense.class);
         return result.isEmpty() ? null : result.get(0);
     }
 
@@ -1193,32 +1194,45 @@ public class SubscriptionDao {
 
     public Subscription getMySubscriptionDetails(long key) {
         PlatformUser user = dataManager.getCurrentUser();
-        Query query = dataManager
-                .createNativeQuery(
-                        "SELECT s.*"
-                                + " FROM Subscription s "
-                                + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
-                                + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
-                                + "WHERE s.tkey=:subKey and s.status IN (:status) AND EXISTS "
-                                + "(SELECT 1 FROM UsageLicense lic WHERE lic.user_tkey=:userKey AND lic.subscription_tkey=:subKey)",
-                        Subscription.class);
+        Query query = dataManager.createNativeQuery("SELECT s.*"
+                + " FROM Subscription s "
+                + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
+                + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
+                + "WHERE s.tkey=:subKey and s.status IN (:status) AND EXISTS "
+                + "(SELECT 1 FROM UsageLicense lic WHERE lic.user_tkey=:userKey AND lic.subscription_tkey=:subKey)",
+                Subscription.class);
         query.setParameter("userKey", Long.valueOf(user.getKey()));
         query.setParameter("subKey", Long.valueOf(key));
-        query.setParameter("status",
-                getSubscriptionStatesAsString(new HashSet<>(
-                        Subscription.VISIBLE_SUBSCRIPTION_STATUS)));
+        query.setParameter("status", getSubscriptionStatesAsString(
+                new HashSet<>(Subscription.VISIBLE_SUBSCRIPTION_STATUS)));
         return (Subscription) query.getSingleResult();
     }
 
-    public Parameter getParameterForSubscription(ParameterDefinition parameterDefinition, ParameterSet parameterSet) {
+    public Parameter getParameterForSubscription(
+            ParameterDefinition parameterDefinition,
+            ParameterSet parameterSet) {
 
-        Query query = dataManager
-            .createNamedQuery("Parameter.getParamByName");
+        Query query = dataManager.createNamedQuery("Parameter.getParamByName");
 
         query.setParameter("parameterSet", parameterSet);
         query.setParameter("parameterDefinition", parameterDefinition);
         try {
             return (Parameter) query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public TechnicalProductOperation getTechnicalProductionOperation(
+            Subscription sub, String operationId) {
+        Query query = dataManager.createNamedQuery(
+                "TechnicalProductOperation.findByBusinessKey");
+        query.setParameter("technicalProduct_tkey",
+                Long.valueOf(sub.getProduct().getTechnicalProduct().getKey()));
+        query.setParameter("operationId", operationId);
+
+        try {
+            return (TechnicalProductOperation) query.getSingleResult();
         } catch (NoResultException e) {
             return null;
         }

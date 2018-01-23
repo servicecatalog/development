@@ -105,6 +105,7 @@ import org.oscm.internal.types.enumtypes.TriggerType;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.DomainObjectException;
+import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
 import org.oscm.internal.types.exception.IllegalArgumentException;
 import org.oscm.internal.types.exception.InvalidPhraseException;
 import org.oscm.internal.types.exception.MailOperationException;
@@ -306,8 +307,8 @@ public class SubscriptionServiceBean
         Subscription sub;
         PlatformUser currentUser = dataManager.getCurrentUser();
 
-        Product prod = dataManager
-                .getReference(Product.class, service.getKey());
+        Product prod = dataManager.getReference(Product.class,
+                service.getKey());
         checkIfServiceAvailable(service.getKey(), service.getServiceId(),
                 currentUser);
         checkIfSubscriptionAlreadyExists(prod);
@@ -396,7 +397,8 @@ public class SubscriptionServiceBean
             orgBillingContact.setOrgAddressUsed(true);
             orgBillingContact.setEmail(email);
             String organizationId = organization.getName() == null
-                    ? user.getUserId() : organization.getName();
+                    ? user.getUserId()
+                    : organization.getName();
             orgBillingContact.setBillingContactId(organizationId
                     + DateFactory.getInstance().getTransactionTime());
             orgBillingContact.setOrganization(organization);
@@ -473,8 +475,9 @@ public class SubscriptionServiceBean
         List<VOUsageLicense> usersToBeAdded = new ArrayList<>();
         VOUsageLicense lic = new VOUsageLicense();
         lic.setUser(UserDataAssembler.toVOUserDetails(userToAssign));
-        lic.setRoleDefinition((serviceRoles == null || serviceRoles.isEmpty())
-                ? null : serviceRoles.get(0));
+        lic.setRoleDefinition(
+                (serviceRoles == null || serviceRoles.isEmpty()) ? null
+                        : serviceRoles.get(0));
         usersToBeAdded.add(lic);
 
         TriggerProcess proc = new TriggerProcess();
@@ -658,7 +661,8 @@ public class SubscriptionServiceBean
         Marketplace mp = null;
         Product publishedService = productTemplate
                 .getType() == ServiceType.CUSTOMER_TEMPLATE
-                        ? productTemplate.getTemplate() : productTemplate;
+                        ? productTemplate.getTemplate()
+                        : productTemplate;
         List<Marketplace> mps = getMarketplaceDao()
                 .getMarketplaceByService(publishedService);
         for (Marketplace m : mps) {
@@ -770,8 +774,8 @@ public class SubscriptionServiceBean
 
         triggerQS.sendAllNonSuspendingMessages(
                 TriggerMessage.create(TriggerType.SUBSCRIBE_TO_SERVICE,
-                        tp.getTriggerProcessParameters(), dataManager
-                                .getCurrentUser().getOrganization()));
+                        tp.getTriggerProcessParameters(),
+                        dataManager.getCurrentUser().getOrganization()));
 
         sendSubscriptionCreatedMailToAdministrators(newSub, newSub.getProduct()
                 .getTechnicalProduct().isAllowingOnBehalfActing());
@@ -824,8 +828,8 @@ public class SubscriptionServiceBean
 
         if (ProvisioningType.SYNCHRONOUS.equals(techProd.getProvisioningType())
                 && tp.getTriggerDefinition() != null
-                && (prod.isAutoAssignUserEnabled() != null && prod
-                        .isAutoAssignUserEnabled().booleanValue())
+                && (prod.isAutoAssignUserEnabled() != null
+                        && prod.isAutoAssignUserEnabled().booleanValue())
                 && newSub.getUsageLicenseForUser(owner) == null) {
             // TODO 1. assign users only for SYNCHRONOUS case.
             // 2. extract code to another method (more readability).
@@ -1957,8 +1961,8 @@ public class SubscriptionServiceBean
             String accessInfo = targetLicense == null ? ""
                     : getAccessInfo(subscription, targetLicense.getUser());
 
-            commService.sendMail(usr,
-                    EmailType.SUBSCRIPTION_ACCESS_GRANTED, new Object[] {
+            commService.sendMail(
+                    usr, EmailType.SUBSCRIPTION_ACCESS_GRANTED, new Object[] {
                             subscription.getSubscriptionId(), accessInfo },
                     subscription.getMarketplace());
 
@@ -2360,8 +2364,8 @@ public class SubscriptionServiceBean
 
         triggerQS.sendAllNonSuspendingMessages(
                 TriggerMessage.create(TriggerType.UNSUBSCRIBE_FROM_SERVICE,
-                        tp.getTriggerProcessParameters(), dataManager
-                                .getCurrentUser().getOrganization()));
+                        tp.getTriggerProcessParameters(),
+                        dataManager.getCurrentUser().getOrganization()));
 
         tp.addTriggerProcessParameter(TriggerProcessParameterName.SUBSCRIPTION,
                 buildNotification(oldSubscriptionId));
@@ -2957,8 +2961,8 @@ public class SubscriptionServiceBean
 
         triggerQS.sendAllNonSuspendingMessages(
                 TriggerMessage.create(TriggerType.UPGRADE_SUBSCRIPTION,
-                        tp.getTriggerProcessParameters(), dataManager
-                                .getCurrentUser().getOrganization()));
+                        tp.getTriggerProcessParameters(),
+                        dataManager.getCurrentUser().getOrganization()));
 
         // log upDowngrade subscription
         audit.upDowngradeSubscription(dataManager, subscription, initialProduct,
@@ -3674,8 +3678,8 @@ public class SubscriptionServiceBean
 
         triggerQS.sendAllNonSuspendingMessages(
                 TriggerMessage.create(TriggerType.MODIFY_SUBSCRIPTION,
-                        tp.getTriggerProcessParameters(), dataManager
-                                .getCurrentUser().getOrganization()));
+                        tp.getTriggerProcessParameters(),
+                        dataManager.getCurrentUser().getOrganization()));
 
         triggerQS.sendAllNonSuspendingMessages(
                 TriggerMessage.create(TriggerType.SUBSCRIPTION_MODIFICATION,
@@ -3735,11 +3739,13 @@ public class SubscriptionServiceBean
             dataManager.validateBusinessKeyUniqueness(sub);
 
             List<VOTriggerProcess> triggers = triggerService
-                .getAllActionsForOrganizationRelatedSubscription();
+                    .getAllActionsForOrganizationRelatedSubscription();
             for (VOTriggerProcess voTriggerProcess : triggers) {
-                if (voTriggerProcess.getSubscription().getSubscriptionId().equals(subscriptionId)) {
+                if (voTriggerProcess.getSubscription().getSubscriptionId()
+                        .equals(subscriptionId)) {
                     NonUniqueBusinessKeyException e = new NonUniqueBusinessKeyException(
-                        DomainObjectException.ClassEnum.SUBSCRIPTION, subscriptionId);
+                            DomainObjectException.ClassEnum.SUBSCRIPTION,
+                            subscriptionId);
                     throw e;
                 }
             }
@@ -5553,6 +5559,79 @@ public class SubscriptionServiceBean
         return getSubscriptionDao().getMySubscriptionDetails(key);
     }
 
+    /**
+     * Sets the last used service operation for a given subscription.
+     * <p/>
+     * Required role: administrator of the organization that owns the
+     * subscription
+     * 
+     * @param subscriptionId
+     *            the name of the subscription
+     * @param operationId
+     *            specifying the operation which is to be set as last used. If
+     *            such operation does not exist an
+     *            <code>ObjectNotFoundException</code> is thrown.
+     * 
+     * @throws ObjectNotFoundException
+     *             if either the organization or subscription is not found or
+     *             the underlying technical service of that subscription does
+     *             not define an operation with the given operationId or given
+     *             operation is not found.
+     * 
+     * @throws OperationNotPermittedException
+     *             if the calling user is not administrator of organization
+     *             owning the subscription.
+     * 
+     */
+    public void setLastUsedServiceOperation(String subscriptionId,
+            String operationId)
+
+            throws ObjectNotFoundException, OperationNotPermittedException {
+        ArgumentValidator.notNull("subscriptionId", subscriptionId);
+
+        Subscription subscription = manageBean
+                .checkSubscriptionOwner(subscriptionId, 0);
+
+        if (null == getSubscriptionDao()
+                .getTechnicalProductionOperation(subscription, operationId)) {
+            throw new ObjectNotFoundException(
+                    ClassEnum.TECHNICAL_SERVICE_OPERATION, operationId);
+        }
+        subscription.setLastUsedOperation(operationId);
+
+    }
+
+    /**
+     * Retrieves the last used service operation from the given subscription.
+     * <p/>
+     * Required role: administrator of the organization that owns the
+     * subscription
+     * 
+     * @param subscriptionId
+     *            the name of the subscription.
+     * 
+     * @throws ObjectNotFoundException
+     *             if the organization or subscription is not found.
+     * 
+     * @throws OperationNotPermittedException
+     *             if the calling user is not administrator of organization
+     *             owning the subscription.
+     * @return the operationId of the last used operation for the given
+     *         subscription, if such is defined. Otherwise <code>null</code> is
+     *         returned.
+     */
+    public String getLastUsedServiceOperation(String subscriptionId)
+
+            throws ObjectNotFoundException, OperationNotPermittedException {
+        ArgumentValidator.notNull("subscriptionId", subscriptionId);
+
+        Subscription subscription = manageBean
+                .checkSubscriptionOwner(subscriptionId, 0);
+
+        return subscription.getLastUsedOperation();
+
+    }
+
     @Override
     @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
             "UNIT_ADMINISTRATOR" })
@@ -5561,16 +5640,17 @@ public class SubscriptionServiceBean
             SubscriptionStateException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException, OperationPendingException,
             OperationNotPermittedException {
-        Subscription mySubscriptionDetails = getMySubscriptionDetails(key
-                .longValue());
-        return unsubscribeFromService(mySubscriptionDetails.getSubscriptionId());
+        Subscription mySubscriptionDetails = getMySubscriptionDetails(
+                key.longValue());
+        return unsubscribeFromService(
+                mySubscriptionDetails.getSubscriptionId());
     }
 
     @Override
     @RolesAllowed({ "TECHNOLOGY_MANAGER" })
     public void notifySubscriptionAboutVmsNumber(String subscriptionId,
-        String organizationId, VOInstanceInfo instanceInfo)
-        throws ObjectNotFoundException, OperationNotPermittedException {
+            String organizationId, VOInstanceInfo instanceInfo)
+            throws ObjectNotFoundException, OperationNotPermittedException {
         ArgumentValidator.notNull("subscriptionId", subscriptionId);
         ArgumentValidator.notNull("organizationId", organizationId);
         ArgumentValidator.notNull("instance", instanceInfo);
@@ -5578,18 +5658,21 @@ public class SubscriptionServiceBean
         PlatformUser user = dataManager.getCurrentUser();
 
         Subscription subscription = manageBean.findSubscription(subscriptionId,
-            organizationId);
-        PermissionCheck.owns(subscription.getProduct().getTechnicalProduct(), user.getOrganization(), LOG, null);
+                organizationId);
+        PermissionCheck.owns(subscription.getProduct().getTechnicalProduct(),
+                user.getOrganization(), LOG, null);
 
-        List<ParameterDefinition> parameterDefinitions = subscription.getProduct().getTechnicalProduct()
-            .getParameterDefinitions();
+        List<ParameterDefinition> parameterDefinitions = subscription
+                .getProduct().getTechnicalProduct().getParameterDefinitions();
 
         for (ParameterDefinition parameterDefinition : parameterDefinitions) {
-            if (!parameterDefinition.getParameterId().equals(VMS_NUMBER_PARAM)) {
+            if (!parameterDefinition.getParameterId()
+                    .equals(VMS_NUMBER_PARAM)) {
                 continue;
             }
-            Parameter parameter = getSubscriptionDao().getParameterForSubscription(parameterDefinition, subscription
-                    .getParameterSet());
+            Parameter parameter = getSubscriptionDao()
+                    .getParameterForSubscription(parameterDefinition,
+                            subscription.getParameterSet());
             if (parameter == null) {
                 parameter = new Parameter();
                 parameter.setParameterDefinition(parameterDefinition);
