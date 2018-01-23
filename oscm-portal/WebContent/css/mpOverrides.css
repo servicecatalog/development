@@ -72,7 +72,8 @@ div#subscriptionTablePanel div.suspended dt:before{
     background-position: -8px -205px;
 }
 
-div#subscriptionTablePanel div.error dt:before{
+div#subscriptionTablePanel div.error dt:before,
+div#subscriptionDetailsPanel div.error dt:before{
     content: "";
     float: left;
     width: 29px;
