@@ -192,9 +192,11 @@ public class InstanceStatus implements Serializable {
      *            a value each
      */
     public void setChangedParameters(HashMap<String, Setting> parameters) {
-        for (Setting setting : parameters.values()) {
-            if (setting.getValue() == null) {
-                setting.setValue("");
+        if (parameters != null) {
+            for (Setting setting : parameters.values()) {
+                if (setting.getValue() == null) {
+                    setting.setValue("");
+                }
             }
         }
         this.parameters = parameters;
