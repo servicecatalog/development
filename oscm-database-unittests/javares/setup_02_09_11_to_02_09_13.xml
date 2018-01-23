@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2018-->
+
+<dataset>
+
+  <Organization tkey="111" version="0" organizationid="SUPPLIER" name="TP1" registrationdate="0" locale="en"
+                cutoffday="1" />
+
+  <Technicalproduct tkey="1" version="0" technicalproductid="tpid_1" organizationkey="111"
+                    provisioningurl="url" billingidentifier="File Billing"/>
+
+  <!-- template product -->
+  <Product tkey="1" template_tkey="[NULL]" targetcustomer_tkey="[NULL]" version="0" productid="pid_1" vendorkey="111"
+           provisioningdate="0" status="ACTIVE" technicalproduct_tkey="1" type="TEMPLATE" />
+
+  <!-- subscription copy -->
+  <Subscription tkey="1001" version="0" subscriptionid="sid_1" product_tkey="1" creationdate="30" status="status"
+                timeoutmailsent="1" organizationkey="111" cutoffday="1"  />
+               
+</dataset>

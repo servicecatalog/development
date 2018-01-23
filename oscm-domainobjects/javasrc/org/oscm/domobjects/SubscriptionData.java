@@ -42,6 +42,12 @@ public class SubscriptionData extends DomainDataContainer implements
      */
     @Column(nullable = false)
     private String subscriptionId;
+    
+    
+    /**
+     * Unique identifier of last used service operation
+     */
+    private String lastUsedOperationId;
 
     /**
      * Current status of the subscription (ACTIVE/PENDING/INVALID/DEACTIVATED)
@@ -227,6 +233,14 @@ public class SubscriptionData extends DomainDataContainer implements
 
     public boolean isExternal() {
         return external;
+    }
+    
+    public String getLastUsedOperation() {
+        return lastUsedOperationId;
+    }
+    
+    public void setLastUsedOperation(String operationId) {
+        lastUsedOperationId = operationId;
     }
 
 }
