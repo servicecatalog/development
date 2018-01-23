@@ -286,6 +286,7 @@ public class DataServiceBean implements DataService {
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public PlatformUser find(PlatformUser pu) {
+        logger.logDebug("Find user ("+ pu.getKey()+":"+pu.getUserId()+") in tenant "+pu.getTenantId());
         Query qry;
         if (isNotDefaultTenant(pu.getTenantId())) {
             qry = em.createNamedQuery("PlatformUser.findByBusinessKey",
