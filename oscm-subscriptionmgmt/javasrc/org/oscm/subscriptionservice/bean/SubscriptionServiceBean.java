@@ -5583,6 +5583,9 @@ public class SubscriptionServiceBean
      *             owning the subscription.
      * 
      */
+    @Override
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
+            "UNIT_ADMINISTRATOR" })
     public void setLastUsedServiceOperation(String subscriptionId,
             String operationId)
 
@@ -5620,8 +5623,10 @@ public class SubscriptionServiceBean
      *         subscription, if such is defined. Otherwise <code>null</code> is
      *         returned.
      */
+    @Override
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
+            "UNIT_ADMINISTRATOR" })
     public String getLastUsedServiceOperation(String subscriptionId)
-
             throws ObjectNotFoundException, OperationNotPermittedException {
         ArgumentValidator.notNull("subscriptionId", subscriptionId);
 

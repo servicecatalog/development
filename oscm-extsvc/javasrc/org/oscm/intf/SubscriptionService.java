@@ -1039,8 +1039,8 @@ public interface SubscriptionService {
             @WebParam(name = "reason") String reason)
             throws ObjectNotFoundException, OrganizationAuthoritiesException,
             TechnicalServiceNotAliveException,
-            TechnicalServiceOperationException,
-            ConcurrentModificationException, SubscriptionStateException;
+            TechnicalServiceOperationException, ConcurrentModificationException,
+            SubscriptionStateException;
 
     /**
      * Checks if the calling user has any subscriptions, regardless of their
@@ -1287,8 +1287,61 @@ public interface SubscriptionService {
      */
     @WebMethod
     void notifySubscriptionAboutVmsNumber(
-        @WebParam(name = "subscriptionId") String subscriptionId,
-        @WebParam(name = "organizationId") String organizationId,
-        @WebParam(name = "instanceInfo") VOInstanceInfo instanceInfo)
-        throws ObjectNotFoundException, OperationNotPermittedException;
+            @WebParam(name = "subscriptionId") String subscriptionId,
+            @WebParam(name = "organizationId") String organizationId,
+            @WebParam(name = "instanceInfo") VOInstanceInfo instanceInfo)
+            throws ObjectNotFoundException, OperationNotPermittedException;
+
+    /**
+     * Sets the last used service operation for a given subscription.
+     * <p/>
+     * Required role: administrator of the organization that owns the
+     * subscription
+     * 
+     * @param subscriptionId
+     *            the name of the subscription
+     * @param operationId
+     *            specifying the operation which is to be set as last used. If
+     *            such operation does not exist an
+     *            <code>ObjectNotFoundException</code> is thrown.
+     * 
+     * @throws ObjectNotFoundException
+     *             if either the organization or subscription is not found or
+     *             the underlying technical service of that subscription does
+     *             not define an operation with the given operationId or given
+     *             operation is not found.
+     * 
+     * @throws OperationNotPermittedException
+     *             if the calling user is not administrator of organization
+     *             owning the subscription.
+     * 
+     */
+     void setLastUsedServiceOperation(
+            @WebParam(name = "subscriptionId") String subscriptionId,
+            @WebParam(name = "operationId") String operationId)
+            throws ObjectNotFoundException, OperationNotPermittedException;
+
+    /**
+     * Retrieves the last used service operation from the given subscription.
+     * <p/>
+     * Required role: administrator of the organization that owns the
+     * subscription
+     * 
+     * @param subscriptionId
+     *            the name of the subscription.
+     * 
+     * @throws ObjectNotFoundException
+     *             if the organization or subscription is not found.
+     * 
+     * @throws OperationNotPermittedException
+     *             if the calling user is not administrator of organization
+     *             owning the subscription.
+     * @return the operationId of the last used operation for the given
+     *         subscription, if such is defined. Otherwise <code>null</code> is
+     *         returned.
+     */
+     String getLastUsedServiceOperation(
+            @WebParam(name = "subscriptionId") String subscriptionId)
+            throws ObjectNotFoundException, OperationNotPermittedException;
+
 }

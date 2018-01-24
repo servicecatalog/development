@@ -1306,15 +1306,17 @@ public interface SubscriptionService {
      * @throws OperationPendingException
      * @throws OperationNotPermittedException
      */
-    boolean unsubscribeFromService(Long key) throws ObjectNotFoundException,
-            SubscriptionStillActiveException, SubscriptionStateException,
-            TechnicalServiceNotAliveException,
+    boolean unsubscribeFromService(Long key)
+            throws ObjectNotFoundException, SubscriptionStillActiveException,
+            SubscriptionStateException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException, OperationPendingException,
             OperationNotPermittedException;
 
     /**
-     * Update number of provisioned VMs for given subscription. This operation can be performed only by the Technical
-     * Manager who belongs to the technology provider organization which is the owner of the subscribed service.
+     * Update number of provisioned VMs for given subscription. This operation
+     * can be performed only by the Technical Manager who belongs to the
+     * technology provider organization which is the owner of the subscribed
+     * service.
      *
      * @param subscriptionId
      *            the identifier of the subscription for which details are to be
@@ -1327,6 +1329,56 @@ public interface SubscriptionService {
      *             if the organization or subscription is not found
      */
     void notifySubscriptionAboutVmsNumber(String subscriptionId,
-        String organizationId, VOInstanceInfo instanceInfo)
-        throws ObjectNotFoundException, OperationNotPermittedException;
+            String organizationId, VOInstanceInfo instanceInfo)
+            throws ObjectNotFoundException, OperationNotPermittedException;
+
+    /**
+     * Sets the last used service operation for a given subscription.
+     * <p/>
+     * Required role: administrator of the organization that owns the
+     * subscription
+     * 
+     * @param subscriptionId
+     *            the name of the subscription
+     * @param operationId
+     *            specifying the operation which is to be set as last used. If
+     *            such operation does not exist an
+     *            <code>ObjectNotFoundException</code> is thrown.
+     * 
+     * @throws ObjectNotFoundException
+     *             if either the organization or subscription is not found or
+     *             the underlying technical service of that subscription does
+     *             not define an operation with the given operationId or given
+     *             operation is not found.
+     * 
+     * @throws OperationNotPermittedException
+     *             if the calling user is not administrator of organization
+     *             owning the subscription.
+     * 
+     */
+    void setLastUsedServiceOperation(String subscriptionId, String operationId)
+            throws ObjectNotFoundException, OperationNotPermittedException;
+
+    /**
+     * Retrieves the last used service operation from the given subscription.
+     * <p/>
+     * Required role: administrator of the organization that owns the
+     * subscription
+     * 
+     * @param subscriptionId
+     *            the name of the subscription.
+     * 
+     * @throws ObjectNotFoundException
+     *             if the organization or subscription is not found.
+     * 
+     * @throws OperationNotPermittedException
+     *             if the calling user is not administrator of organization
+     *             owning the subscription.
+     * @return the operationId of the last used operation for the given
+     *         subscription, if such is defined. Otherwise <code>null</code> is
+     *         returned.
+     */
+    String getLastUsedServiceOperation(String subscriptionId)
+            throws ObjectNotFoundException, OperationNotPermittedException;
+
 }

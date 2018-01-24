@@ -826,17 +826,45 @@ public class SubscriptionServiceWS implements SubscriptionService {
 
     @Override
     public void notifySubscriptionAboutVmsNumber(String subscriptionId,
-        String organizationId, VOInstanceInfo instance)
-        throws ObjectNotFoundException, OperationNotPermittedException {
+            String organizationId, VOInstanceInfo instance)
+            throws ObjectNotFoundException, OperationNotPermittedException {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
             delegate.notifySubscriptionAboutVmsNumber(subscriptionId,
-                organizationId, VOConverter.convertToUp(instance));
+                    organizationId, VOConverter.convertToUp(instance));
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.OperationNotPermittedException e) {
             throw ExceptionConverter.convertToApi(e);
         }
 
+    }
+
+    @Override
+    public void setLastUsedServiceOperation(String subscriptionId,
+            String operationId)
+            throws ObjectNotFoundException, OperationNotPermittedException {
+        WS_LOGGER.logAccess(wsContext, ds);
+        try {
+            delegate.setLastUsedServiceOperation(subscriptionId, operationId);
+        } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
+            throw ExceptionConverter.convertToApi(e);
+        } catch (org.oscm.internal.types.exception.OperationNotPermittedException e) {
+            throw ExceptionConverter.convertToApi(e);
+        }
+
+    }
+    
+    @Override
+    public String getLastUsedServiceOperation(String subscriptionId)
+            throws ObjectNotFoundException, OperationNotPermittedException {
+        WS_LOGGER.logAccess(wsContext, ds);
+        try {
+            return delegate.getLastUsedServiceOperation(subscriptionId);
+        } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
+            throw ExceptionConverter.convertToApi(e);
+        } catch (org.oscm.internal.types.exception.OperationNotPermittedException e) {
+            throw ExceptionConverter.convertToApi(e);
+        }
     }
 }

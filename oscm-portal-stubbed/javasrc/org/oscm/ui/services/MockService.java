@@ -335,8 +335,7 @@ public class MockService implements IdentityService, SubscriptionService,
         List<VOParameterDefinition> parameterDefs = new ArrayList<>();
         VOParameterDefinition paramDef;
         paramDef = new MockVOParameterDefinition(
-                ParameterType.SERVICE_PARAMETER,
-                "LONG_PARAM",
+                ParameterType.SERVICE_PARAMETER, "LONG_PARAM",
                 "This is a longer parameter description which shold cause a line wrap."
                         + " Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam"
                         + " nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,"
@@ -352,15 +351,12 @@ public class MockService implements IdentityService, SubscriptionService,
                 ParameterType.SERVICE_PARAMETER, "SIZE", "System size",
                 ParameterValueType.ENUMERATION, "", ZERO, ZERO, false, true,
                 new ArrayList<VOParameterOption>());
-        paramDef.getParameterOptions().add(
-                new MockVOParameterOption("SMALL", "small", paramDef
-                        .getParameterId()));
-        paramDef.getParameterOptions().add(
-                new MockVOParameterOption("MEDIUM", "medium", paramDef
-                        .getParameterId()));
-        paramDef.getParameterOptions().add(
-                new MockVOParameterOption("LARGE", "large", paramDef
-                        .getParameterId()));
+        paramDef.getParameterOptions().add(new MockVOParameterOption("SMALL",
+                "small", paramDef.getParameterId()));
+        paramDef.getParameterOptions().add(new MockVOParameterOption("MEDIUM",
+                "medium", paramDef.getParameterId()));
+        paramDef.getParameterOptions().add(new MockVOParameterOption("LARGE",
+                "large", paramDef.getParameterId()));
         parameterDefs.add(paramDef);
 
         techProd.setParameterDefinitions(parameterDefs);
@@ -424,12 +420,13 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     private VOService createProduct(List<VOService> list, String name,
-            String description, String paymentInfo, VOTechnicalService techProd) {
+            String description, String paymentInfo,
+            VOTechnicalService techProd) {
         MockVOProductDetails voProduct = new MockVOProductDetails();
         voProduct.setTechnicalService(techProd);
         voProduct.setMockKey(list.size() + 1);
-        voProduct.setServiceId(techProd.getTechnicalServiceId()
-                + voProduct.getKey());
+        voProduct.setServiceId(
+                techProd.getTechnicalServiceId() + voProduct.getKey());
         voProduct.setName(name);
         voProduct.setTechnicalId(techProd.getTechnicalServiceId());
         voProduct.setFeatureURL("http://www.google.com");
@@ -462,7 +459,8 @@ public class MockService implements IdentityService, SubscriptionService,
         for (VOParameter param : parameters) {
             VOPricedParameter pricedParam = new VOPricedParameter(
                     param.getParameterDefinition());
-            if (param.getParameterDefinition().getValueType() == ParameterValueType.ENUMERATION) {
+            if (param.getParameterDefinition()
+                    .getValueType() == ParameterValueType.ENUMERATION) {
                 List<VOPricedOption> pricedOptions = new ArrayList<>();
                 for (VOParameterOption option : param.getParameterDefinition()
                         .getParameterOptions()) {
@@ -518,8 +516,8 @@ public class MockService implements IdentityService, SubscriptionService,
         voUserDetails.setStatus(UserAccountStatus.ACTIVE);
         voUserDetails.getOrganizationRoles().add(OrganizationRoleType.CUSTOMER);
         voUserDetails.getOrganizationRoles().add(OrganizationRoleType.SUPPLIER);
-        voUserDetails.getOrganizationRoles().add(
-                OrganizationRoleType.TECHNOLOGY_PROVIDER);
+        voUserDetails.getOrganizationRoles()
+                .add(OrganizationRoleType.TECHNOLOGY_PROVIDER);
         list.add(voUserDetails);
         return voUserDetails;
     }
@@ -531,8 +529,8 @@ public class MockService implements IdentityService, SubscriptionService,
         voSubscription.setSubscriptionId(subscriptionId);
         voSubscription.setServiceId(voProduct.getServiceId());
         voSubscription.setServiceKey(voProduct.getKey());
-        voSubscription
-                .setServiceBaseURL("http://localhost:8080/example-service/simple");
+        voSubscription.setServiceBaseURL(
+                "http://localhost:8080/example-service/simple");
         voSubscription.setServiceInstanceId(subscriptionId);
         voSubscription.setStatus(SubscriptionStatus.ACTIVE);
         voSubscription.setServiceAccessType(ServiceAccessType.LOGIN);
@@ -547,8 +545,8 @@ public class MockService implements IdentityService, SubscriptionService,
 
         VOPaymentType paymentType;
         paymentType = new VOPaymentType();
-        paymentType
-                .setCollectionType(PaymentCollectionType.PAYMENT_SERVICE_PROVIDER);
+        paymentType.setCollectionType(
+                PaymentCollectionType.PAYMENT_SERVICE_PROVIDER);
         paymentType.setPaymentTypeId("CREDIT_CARD");
         availablePaymentTypes.add(paymentType);
         paymentType = new VOPaymentType();
@@ -557,55 +555,42 @@ public class MockService implements IdentityService, SubscriptionService,
         availablePaymentTypes.add(paymentType);
 
         VOTechnicalService techProd;
-        techProd = createTechProduct(
-                techProductList,
-                "LCM",
+        techProd = createTechProduct(techProductList, "LCM",
                 "Interstage Application and Service Management (Interstage ASM)"
                         + " is a suite of products, components and tools that"
                         + " support you in managing the services, software products"
-                        + " and applications of your company", LICENSE);
-        createProduct(
-                productList,
-                "Trial",
-                "Durch "
-                        + "die Koordination einzelner Teilprozesse und die Unterstützung"
-                        + " bei der Einhaltung des Entwicklungsprozesses gewinnen die"
-                        + " Mitglieder des Entwicklungs- und Testteams mehr Zeit, um"
-                        + " sich auf ihre eigentlichen Aufgaben zu konzentrieren. Zudem"
-                        + " wird die Feedbackschleife von Änderungen oder Neuerungen"
-                        + " stark verkürzt. So können auch Entwicklungs- und Wartungs-"
-                        + "kosten signifikant gesenkt werden.", PAYMENT_FREE,
+                        + " and applications of your company",
+                LICENSE);
+        createProduct(productList, "Trial", "Durch "
+                + "die Koordination einzelner Teilprozesse und die Unterstützung"
+                + " bei der Einhaltung des Entwicklungsprozesses gewinnen die"
+                + " Mitglieder des Entwicklungs- und Testteams mehr Zeit, um"
+                + " sich auf ihre eigentlichen Aufgaben zu konzentrieren. Zudem"
+                + " wird die Feedbackschleife von Änderungen oder Neuerungen"
+                + " stark verkürzt. So können auch Entwicklungs- und Wartungs-"
+                + "kosten signifikant gesenkt werden.", PAYMENT_FREE, techProd);
+        createProduct(productList, "Professional", "Durch "
+                + "die Koordination einzelner Teilprozesse und die Unterstützung"
+                + " bei der Einhaltung des Entwicklungsprozesses gewinnen die"
+                + " Mitglieder des Entwicklungs- und Testteams mehr Zeit, um"
+                + " sich auf ihre eigentlichen Aufgaben zu konzentrieren. Zudem"
+                + " wird die Feedbackschleife von Änderungen oder Neuerungen"
+                + " stark verkürzt. So können auch Entwicklungs- und Wartungs-"
+                + "kosten signifikant gesenkt werden.", PAYMENT_MONTHLY,
                 techProd);
-        createProduct(
-                productList,
-                "Professional",
-                "Durch "
-                        + "die Koordination einzelner Teilprozesse und die Unterstützung"
-                        + " bei der Einhaltung des Entwicklungsprozesses gewinnen die"
-                        + " Mitglieder des Entwicklungs- und Testteams mehr Zeit, um"
-                        + " sich auf ihre eigentlichen Aufgaben zu konzentrieren. Zudem"
-                        + " wird die Feedbackschleife von Änderungen oder Neuerungen"
-                        + " stark verkürzt. So können auch Entwicklungs- und Wartungs-"
-                        + "kosten signifikant gesenkt werden.",
-                PAYMENT_MONTHLY, techProd);
-        createProduct(
-                productList,
-                "Enterprise",
-                "Durch "
-                        + "die Koordination einzelner Teilprozesse und die Unterstützung"
-                        + " bei der Einhaltung des Entwicklungsprozesses gewinnen die"
-                        + " Mitglieder des Entwicklungs- und Testteams mehr Zeit, um"
-                        + " sich auf ihre eigentlichen Aufgaben zu konzentrieren. Zudem"
-                        + " wird die Feedbackschleife von Änderungen oder Neuerungen"
-                        + " stark verkürzt. So können auch Entwicklungs- und Wartungs-"
-                        + "kosten signifikant gesenkt werden.",
-                PAYMENT_MONTHLY, techProd);
+        createProduct(productList, "Enterprise", "Durch "
+                + "die Koordination einzelner Teilprozesse und die Unterstützung"
+                + " bei der Einhaltung des Entwicklungsprozesses gewinnen die"
+                + " Mitglieder des Entwicklungs- und Testteams mehr Zeit, um"
+                + " sich auf ihre eigentlichen Aufgaben zu konzentrieren. Zudem"
+                + " wird die Feedbackschleife von Änderungen oder Neuerungen"
+                + " stark verkürzt. So können auch Entwicklungs- und Wartungs-"
+                + "kosten signifikant gesenkt werden.", PAYMENT_MONTHLY,
+                techProd);
 
         techProd = createTechProduct(techProductList, "CRM",
                 "The free encyclopedia that anyone can edit.", LICENSE);
-        createProduct(
-                productList,
-                "",
+        createProduct(productList, "",
                 "SugarCRM, the largest open-source CRM platform with more than 800 organizations and 80,000+ downloads per month",
                 PAYMENT_MONTHLY, techProd);
 
@@ -647,8 +632,8 @@ public class MockService implements IdentityService, SubscriptionService,
         customers.add(organization);
 
         List<VOUserDetails> userList = new ArrayList<>();
-        createUser(userList, organization.getOrganizationId(), "user",
-                "Martin", "Meier", "martin.meier@gmail.com", false);
+        createUser(userList, organization.getOrganizationId(), "user", "Martin",
+                "Meier", "martin.meier@gmail.com", false);
         createUser(userList, organization.getOrganizationId(), "holger",
                 "Holger", "Müller", "holger.mueller.meier@hotmail.com", false);
         createUser(userList, organization.getOrganizationId(), "sepp", "Sepp",
@@ -661,11 +646,11 @@ public class MockService implements IdentityService, SubscriptionService,
             createUser(userList, organization.getOrganizationId(), "user" + i,
                     "Test", "User" + i, "test.user" + i + "@gmail.com", false);
         }
-        createUser(userList, organization.getOrganizationId(), "admin",
-                "Fritz", "Huber", "fritz.huber@gmail.com", true);
+        createUser(userList, organization.getOrganizationId(), "admin", "Fritz",
+                "Huber", "fritz.huber@gmail.com", true);
         voUserDetails = userList.get(userList.size() - 1);
-        createUser(userList, organization.getOrganizationId(), "petra",
-                "Petra", "Admin", "petra.admin@gmail.com", true);
+        createUser(userList, organization.getOrganizationId(), "petra", "Petra",
+                "Admin", "petra.admin@gmail.com", true);
         organizationUsersMap.put(organization, userList);
 
         List<VOSubscription> subscriptionList = new ArrayList<>();
@@ -688,13 +673,13 @@ public class MockService implements IdentityService, SubscriptionService,
         }
         subscriptionUsersMap.put(subscription, users);
 
-        subscription = createSubscription(subscriptionList,
-                "LCM (Development)", productList.get(0));
+        subscription = createSubscription(subscriptionList, "LCM (Development)",
+                productList.get(0));
         VOTechnicalServiceOperation operation = new VOTechnicalServiceOperation();
         operation.setOperationId("BACKUP");
         operation.setOperationName("Backup");
-        operation
-                .setOperationDescription("Backup the application data to a FTP server.");
+        operation.setOperationDescription(
+                "Backup the application data to a FTP server.");
         List<VOTechnicalServiceOperation> operationList = new ArrayList<>();
         operationList.add(operation);
         subscription.setTechnicalServiceOperations(operationList);
@@ -726,7 +711,8 @@ public class MockService implements IdentityService, SubscriptionService,
         return organizationFinder.findById(organizationList, organizationId);
     }
 
-    private VOUserDetails getUserById(VOOrganization organization, String userId) {
+    private VOUserDetails getUserById(VOOrganization organization,
+            String userId) {
         if (organization == null) {
             return null;
         }
@@ -806,9 +792,9 @@ public class MockService implements IdentityService, SubscriptionService,
 
     @Override
     public void revokeUserRoles(VOUser user, List<UserRoleType> roles)
-            throws ObjectNotFoundException,
-            UserModificationConstraintException, UserActiveException,
-            OperationNotPermittedException, UserRoleAssignmentException {
+            throws ObjectNotFoundException, UserModificationConstraintException,
+            UserActiveException, OperationNotPermittedException,
+            UserRoleAssignmentException {
         VOUserDetails voUserDetails = getUserById(getOrganizationDataInt(),
                 user.getUserId());
         voUserDetails.getUserRoles().removeAll(new HashSet<>(roles));
@@ -957,8 +943,8 @@ public class MockService implements IdentityService, SubscriptionService,
         // add
         VOOrganization organization = getOrganizationDataInt();
         for (VOUsageLicense lic : usersToBeAdded) {
-            VOUserDetails user = getUserById(organization, lic.getUser()
-                    .getUserId());
+            VOUserDetails user = getUserById(organization,
+                    lic.getUser().getUserId());
             if (user != null) {
                 if (!users.contains(user)) {
                     // If we only changed the role we must not add the user
@@ -1028,9 +1014,9 @@ public class MockService implements IdentityService, SubscriptionService,
     public VOSubscription subscribeToService(VOSubscription subscription,
             VOService service, List<VOUsageLicense> users,
             VOPaymentInfo paymentInfo, VOBillingContact billingContact,
-            List<VOUda> udas) throws NonUniqueBusinessKeyException,
-            PaymentInformationException, ServiceParameterException,
-            TechnicalServiceNotAliveException,
+            List<VOUda> udas)
+            throws NonUniqueBusinessKeyException, PaymentInformationException,
+            ServiceParameterException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException, MandatoryUdaMissingException {
         String subscriptionId = subscription.getSubscriptionId();
         if (getSubscriptionById(subscriptionId) != null) {
@@ -1057,8 +1043,8 @@ public class MockService implements IdentityService, SubscriptionService,
             VOService newProduct, VOPaymentInfo paymentInfo,
             VOBillingContact billingContact, List<VOUda> udas)
             throws PaymentInformationException, MandatoryUdaMissingException {
-        VOSubscription subscription = getSubscriptionById(current
-                .getSubscriptionId());
+        VOSubscription subscription = getSubscriptionById(
+                current.getSubscriptionId());
         subscriptionProductMap.put(subscription, newProduct);
         return null;
     }
@@ -1210,8 +1196,8 @@ public class MockService implements IdentityService, SubscriptionService,
         VOUserDetails voUserDetails = getCurrentUserDetails();
 
         for (VOOrganization organization : organizationList) {
-            if (organization.getOrganizationId().equals(
-                    voUserDetails.getOrganizationId())) {
+            if (organization.getOrganizationId()
+                    .equals(voUserDetails.getOrganizationId())) {
                 return organization;
             }
         }
@@ -1231,8 +1217,8 @@ public class MockService implements IdentityService, SubscriptionService,
         int i = 0;
         String organizationId = null;
         while (organizationId == null) {
-            organizationId = Integer.toHexString(Short.MAX_VALUE
-                    + rand.nextInt(Short.MAX_VALUE));
+            organizationId = Integer.toHexString(
+                    Short.MAX_VALUE + rand.nextInt(Short.MAX_VALUE));
             if (getOrganizationById(organizationId) != null) {
                 i++;
                 if (i > 100) {
@@ -1306,11 +1292,10 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
-    public VOSubscriptionDetails modifySubscription(
-            VOSubscription subscription, List<VOParameter> modifiedParameters,
-            List<VOUda> udas) throws NonUniqueBusinessKeyException,
-            ObjectNotFoundException, OperationNotPermittedException,
-            MandatoryUdaMissingException {
+    public VOSubscriptionDetails modifySubscription(VOSubscription subscription,
+            List<VOParameter> modifiedParameters, List<VOUda> udas)
+            throws NonUniqueBusinessKeyException, ObjectNotFoundException,
+            OperationNotPermittedException, MandatoryUdaMissingException {
         List<VOSubscription> list = getSubscriptionsForOrganization();
         if (list == null) {
             return null;
@@ -1332,7 +1317,8 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
-    public String deleteServiceSession(long subscriptionTKey, String sessionId) {
+    public String deleteServiceSession(long subscriptionTKey,
+            String sessionId) {
 
         return null;
     }
@@ -1380,8 +1366,8 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
-    public void abortAsyncSubscription(String subscriptionId,
-            String customerId, List<VOLocalizedText> reason)
+    public void abortAsyncSubscription(String subscriptionId, String customerId,
+            List<VOLocalizedText> reason)
             throws OrganizationAuthoritiesException,
             OperationNotPermittedException {
 
@@ -1433,7 +1419,8 @@ public class MockService implements IdentityService, SubscriptionService,
         List<String> result = new ArrayList<>();
         for (VOOrganization org : customers) {
             if (organizationSubscriptionsMap.get(org) != null) {
-                for (VOSubscription sub : organizationSubscriptionsMap.get(org)) {
+                for (VOSubscription sub : organizationSubscriptionsMap
+                        .get(org)) {
                     result.add(sub.getSubscriptionId());
                 }
             }
@@ -1447,8 +1434,10 @@ public class MockService implements IdentityService, SubscriptionService,
         List<VOOrganization> result = new ArrayList<>();
         for (VOOrganization org : customers) {
             if (organizationSubscriptionsMap.get(org) != null) {
-                for (VOSubscription sub : organizationSubscriptionsMap.get(org)) {
-                    if (subscriptionIdentifier.equals(sub.getSubscriptionId())) {
+                for (VOSubscription sub : organizationSubscriptionsMap
+                        .get(org)) {
+                    if (subscriptionIdentifier
+                            .equals(sub.getSubscriptionId())) {
                         result.add(org);
                     }
                 }
@@ -1466,8 +1455,8 @@ public class MockService implements IdentityService, SubscriptionService,
     @Override
     public VOServiceDetails getServiceForSubscription(VOOrganization customer,
             String subscriptionId) throws ObjectNotFoundException {
-        return getServiceDetails(getSubscriptionDetails(subscriptionId)
-                .getSubscribedService());
+        return getServiceDetails(
+                getSubscriptionDetails(subscriptionId).getSubscribedService());
     }
 
     @Override
@@ -1480,17 +1469,17 @@ public class MockService implements IdentityService, SubscriptionService,
 
     @Override
     public VOServiceDetails savePriceModel(VOServiceDetails productDetails,
-            VOPriceModel pricemodel) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+            VOPriceModel pricemodel)
+            throws ObjectNotFoundException, OperationNotPermittedException {
         return productDetails;
     }
 
     @Override
     public VOServiceDetails savePriceModelForCustomer(
             VOServiceDetails productDetails, VOPriceModel priceModel,
-            VOOrganization customer) throws OrganizationAuthoritiesException,
-            ObjectNotFoundException, OperationNotPermittedException,
-            CurrencyException {
+            VOOrganization customer)
+            throws OrganizationAuthoritiesException, ObjectNotFoundException,
+            OperationNotPermittedException, CurrencyException {
 
         return null;
     }
@@ -1568,7 +1557,8 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
-    public VOImageResource loadImage(String organizationId, ImageType imageType) {
+    public VOImageResource loadImage(String organizationId,
+            ImageType imageType) {
         for (VOImageResource vo : imageResources) {
             if (vo.getImageType() == imageType) {
                 return vo;
@@ -1588,11 +1578,12 @@ public class MockService implements IdentityService, SubscriptionService,
 
     @Override
     public void saveImages(List<VOImageResource> voImageResources,
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+            String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException {
         for (VOImageResource newVo : voImageResources) {
-            VOImageResource vo = loadImage(getCurrentUserDetails()
-                    .getOrganizationId(), newVo.getImageType());
+            VOImageResource vo = loadImage(
+                    getCurrentUserDetails().getOrganizationId(),
+                    newVo.getImageType());
             if (vo == null) {
                 imageResources.remove(null);
             }
@@ -1602,17 +1593,17 @@ public class MockService implements IdentityService, SubscriptionService,
 
     @Override
     public void saveMessageProperties(Map<String, Properties> propertiesMap,
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+            String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException {
         messagePropertiesMap = propertiesMap;
     }
 
     @Override
     public VOOrganization registerKnownCustomer(VOOrganization organization,
             VOUserDetails user, LdapProperties ldapProperties,
-            String marketplaceId) throws OrganizationAuthoritiesException,
-            ValidationException, NonUniqueBusinessKeyException,
-            MailOperationException {
+            String marketplaceId)
+            throws OrganizationAuthoritiesException, ValidationException,
+            NonUniqueBusinessKeyException, MailOperationException {
 
         return null;
     }
@@ -1632,8 +1623,8 @@ public class MockService implements IdentityService, SubscriptionService,
     public byte[] exportTechnicalServices(List<VOTechnicalService> service)
             throws OrganizationAuthoritiesException, ObjectNotFoundException,
             OperationNotPermittedException {
-        return XMLConverter
-                .toUTF8("<?xml version='1.0' encoding='UTF-8'?><export></export>\n");
+        return XMLConverter.toUTF8(
+                "<?xml version='1.0' encoding='UTF-8'?><export></export>\n");
     }
 
     @Override
@@ -1642,7 +1633,8 @@ public class MockService implements IdentityService, SubscriptionService,
         List<VOSubscriptionIdAndOrganizations> result = new ArrayList<>();
         List<String> subscriptionIdentifiers = getSubscriptionIdentifiers();
         for (String subscriptionIdentifier : subscriptionIdentifiers) {
-            List<VOOrganization> customers = getCustomersForSubscriptionId(subscriptionIdentifier);
+            List<VOOrganization> customers = getCustomersForSubscriptionId(
+                    subscriptionIdentifier);
             VOSubscriptionIdAndOrganizations subAndOrgs = new VOSubscriptionIdAndOrganizations();
             subAndOrgs.setSubscriptionId(subscriptionIdentifier);
             subAndOrgs.setOrganizations(customers);
@@ -1825,16 +1817,16 @@ public class MockService implements IdentityService, SubscriptionService,
 
     @Override
     public List<VORoleDefinition> getServiceRolesForSubscription(
-            String subscription) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+            String subscription)
+            throws ObjectNotFoundException, OperationNotPermittedException {
 
         return null;
     }
 
     @Override
     public List<VORoleDefinition> getServiceRolesForSubscription(
-            long subscriptionKey) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+            long subscriptionKey)
+            throws ObjectNotFoundException, OperationNotPermittedException {
         return null;
     }
 
@@ -1847,12 +1839,12 @@ public class MockService implements IdentityService, SubscriptionService,
 
     @Override
     public VOPriceModelLocalization getPriceModelLocalization(
-            VOPriceModel pricemodel) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+            VOPriceModel pricemodel)
+            throws ObjectNotFoundException, OperationNotPermittedException {
         final String locale = voUserDetails.getLocale();
         final VOPriceModelLocalization pl = new VOPriceModelLocalization();
-        pl.setDescriptions(Collections.singletonList(new VOLocalizedText(
-                locale, pricemodel.getDescription())));
+        pl.setDescriptions(Collections.singletonList(
+                new VOLocalizedText(locale, pricemodel.getDescription())));
         return pl;
     }
 
@@ -1861,10 +1853,10 @@ public class MockService implements IdentityService, SubscriptionService,
             throws ObjectNotFoundException, OperationNotPermittedException {
         final String locale = voUserDetails.getLocale();
         final VOServiceLocalization pl = new VOServiceLocalization();
-        pl.setNames(Collections.singletonList(new VOLocalizedText(locale,
-                service.getName())));
-        pl.setDescriptions(Collections.singletonList(new VOLocalizedText(
-                locale, service.getDescription())));
+        pl.setNames(Collections
+                .singletonList(new VOLocalizedText(locale, service.getName())));
+        pl.setDescriptions(Collections.singletonList(
+                new VOLocalizedText(locale, service.getDescription())));
         return pl;
     }
 
@@ -1877,8 +1869,8 @@ public class MockService implements IdentityService, SubscriptionService,
 
     @Override
     public void saveServiceLocalization(VOService service,
-            VOServiceLocalization localization) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+            VOServiceLocalization localization)
+            throws ObjectNotFoundException, OperationNotPermittedException {
 
     }
 
@@ -1912,9 +1904,9 @@ public class MockService implements IdentityService, SubscriptionService,
 
     @Override
     public List<VOUda> getUdas(String targetType, long targetObjectKey,
-            boolean checkSeller) throws ValidationException,
-            OrganizationAuthoritiesException, ObjectNotFoundException,
-            OperationNotPermittedException {
+            boolean checkSeller)
+            throws ValidationException, OrganizationAuthoritiesException,
+            ObjectNotFoundException, OperationNotPermittedException {
         return null;
     }
 
@@ -1949,7 +1941,8 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
-    public void terminateSubscription(VOSubscription subscription, String reason)
+    public void terminateSubscription(VOSubscription subscription,
+            String reason)
             throws ObjectNotFoundException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException,
             OrganizationAuthoritiesException, ConcurrentModificationException {
@@ -2022,8 +2015,8 @@ public class MockService implements IdentityService, SubscriptionService,
 
     @Override
     public List<VOLocalizedText> getPriceModelLicenseTemplateLocalization(
-            VOServiceDetails service) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+            VOServiceDetails service)
+            throws ObjectNotFoundException, OperationNotPermittedException {
 
         return null;
     }
@@ -2035,7 +2028,8 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
-    public String getMarketplaceStage(String marketplaceId, String localeString) {
+    public String getMarketplaceStage(String marketplaceId,
+            String localeString) {
 
         return null;
     }
@@ -2059,7 +2053,8 @@ public class MockService implements IdentityService, SubscriptionService,
 
     @Override
     public List<VOService> getRelatedServicesForMarketplace(VOService service,
-            String marketplaceId, String locale) throws ObjectNotFoundException {
+            String marketplaceId, String locale)
+            throws ObjectNotFoundException {
         return null;
     }
 
@@ -2081,14 +2076,14 @@ public class MockService implements IdentityService, SubscriptionService,
 
     @Override
     public void setMarketplaceStage(String stageContent, String marketplaceId,
-            String localeString) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+            String localeString)
+            throws ObjectNotFoundException, OperationNotPermittedException {
     }
 
     @Override
-    public VOUserDetails createOnBehalfUser(String organizationId, String string)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            NonUniqueBusinessKeyException {
+    public VOUserDetails createOnBehalfUser(String organizationId,
+            String string) throws ObjectNotFoundException,
+            OperationNotPermittedException, NonUniqueBusinessKeyException {
         return null;
     }
 
@@ -2098,8 +2093,8 @@ public class MockService implements IdentityService, SubscriptionService,
 
     @Override
     public List<VOLocalizedText> getMarketplaceStageLocalization(
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+            String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException {
         return null;
     }
 
@@ -2212,8 +2207,8 @@ public class MockService implements IdentityService, SubscriptionService,
 
     @Override
     public List<VOCompatibleService> getPotentialCompatibleServices(
-            VOService service) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+            VOService service)
+            throws ObjectNotFoundException, OperationNotPermittedException {
         return Collections.emptyList();
     }
 
@@ -2281,9 +2276,9 @@ public class MockService implements IdentityService, SubscriptionService,
 
     @Override
     public VOServiceDetails publishService(VOService service,
-            List<VOCatalogEntry> entries) throws ObjectNotFoundException,
-            ValidationException, NonUniqueBusinessKeyException,
-            OperationNotPermittedException {
+            List<VOCatalogEntry> entries)
+            throws ObjectNotFoundException, ValidationException,
+            NonUniqueBusinessKeyException, OperationNotPermittedException {
         return null;
     }
 
@@ -2330,23 +2325,23 @@ public class MockService implements IdentityService, SubscriptionService,
 
     @Override
     public void addOrganizationsToMarketplace(List<String> organizationIds,
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException, OrganizationAuthorityException,
-            OrganizationAlreadyExistsException,
+            String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            OrganizationAuthorityException, OrganizationAlreadyExistsException,
             MarketplaceAccessTypeUneligibleForOperationException {
     }
 
     @Override
     public void banOrganizationsFromMarketplace(List<String> organizationIds,
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException, OrganizationAuthorityException,
-            OrganizationAlreadyBannedException,
+            String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            OrganizationAuthorityException, OrganizationAlreadyBannedException,
             MarketplaceAccessTypeUneligibleForOperationException {
     }
 
     @Override
-    public void removeOrganizationsFromMarketplace(
-            List<String> organizationIds, String marketplaceId)
+    public void removeOrganizationsFromMarketplace(List<String> organizationIds,
+            String marketplaceId)
             throws ObjectNotFoundException, OperationNotPermittedException,
             MarketplaceAccessTypeUneligibleForOperationException,
             OrganizationAuthorityException {
@@ -2362,16 +2357,16 @@ public class MockService implements IdentityService, SubscriptionService,
 
     @Override
     public List<VOOrganization> getBannedOrganizationsForMarketplace(
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException,
+            String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException,
             MarketplaceAccessTypeUneligibleForOperationException {
         return null;
     }
 
     @Override
     public List<VOOrganization> getOrganizationsForMarketplace(
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException,
+            String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException,
             MarketplaceAccessTypeUneligibleForOperationException {
         return null;
     }
@@ -2431,9 +2426,9 @@ public class MockService implements IdentityService, SubscriptionService,
 
     @Override
     public void reportIssue(String subscriptionId, String subject,
-            String issueText) throws ValidationException,
-            ObjectNotFoundException, OperationNotPermittedException,
-            MailOperationException {
+            String issueText)
+            throws ValidationException, ObjectNotFoundException,
+            OperationNotPermittedException, MailOperationException {
 
     }
 
@@ -2472,7 +2467,8 @@ public class MockService implements IdentityService, SubscriptionService,
      * getSuppliedServices (org.oscm.internal.types.enumtypes.PerformanceHint)
      */
     @Override
-    public List<VOService> getSuppliedServices(PerformanceHint performanceHint) {
+    public List<VOService> getSuppliedServices(
+            PerformanceHint performanceHint) {
 
         return null;
     }
@@ -2523,7 +2519,8 @@ public class MockService implements IdentityService, SubscriptionService,
         List<VOSubscriptionIdAndOrganizations> result = new ArrayList<>();
         List<String> subscriptionIdentifiers = getSubscriptionIdentifiers();
         for (String subscriptionIdentifier : subscriptionIdentifiers) {
-            List<VOOrganization> customers = getCustomersForSubscriptionId(subscriptionIdentifier);
+            List<VOOrganization> customers = getCustomersForSubscriptionId(
+                    subscriptionIdentifier);
             VOSubscriptionIdAndOrganizations subAndOrgs = new VOSubscriptionIdAndOrganizations();
             subAndOrgs.setSubscriptionId(subscriptionIdentifier);
             subAndOrgs.setOrganizations(customers);
@@ -2584,8 +2581,8 @@ public class MockService implements IdentityService, SubscriptionService,
 
     @Override
     public void deleteReviewByMarketplaceOwner(POServiceReview review,
-            String reason) throws OperationNotPermittedException,
-            ObjectNotFoundException {
+            String reason)
+            throws OperationNotPermittedException, ObjectNotFoundException {
     }
 
     @Override
@@ -2611,14 +2608,14 @@ public class MockService implements IdentityService, SubscriptionService,
 
     @Override
     public void importUsersInOwnOrganization(byte[] csvData,
-            String marketplaceId) throws BulkUserImportException,
-            ObjectNotFoundException {
+            String marketplaceId)
+            throws BulkUserImportException, ObjectNotFoundException {
     }
 
     @Override
     public void importUsers(byte[] csvData, String organizationId,
-            String marketplaceId) throws BulkUserImportException,
-            ObjectNotFoundException {
+            String marketplaceId)
+            throws BulkUserImportException, ObjectNotFoundException {
     }
 
     @Override
@@ -2748,7 +2745,8 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
-    public List<VOCustomerService> getServiceCustomerTemplates(VOService service)
+    public List<VOCustomerService> getServiceCustomerTemplates(
+            VOService service)
             throws ObjectNotFoundException, OperationNotPermittedException {
         return null;
     }
@@ -2818,14 +2816,29 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
-    public void notifySubscriptionAboutVmsNumber(String subscriptionId, String organizationId,
-        VOInstanceInfo instanceInfo) throws ObjectNotFoundException {
+    public void notifySubscriptionAboutVmsNumber(String subscriptionId,
+            String organizationId, VOInstanceInfo instanceInfo)
+            throws ObjectNotFoundException {
 
     }
 
     @Override
     public String getMarketplaceIdForKey(Long key)
             throws ObjectNotFoundException {
+        return null;
+    }
+
+    @Override
+    public void setLastUsedServiceOperation(String subscriptionId,
+            String operationId)
+            throws ObjectNotFoundException, OperationNotPermittedException {
+
+    }
+
+    @Override
+    public String getLastUsedServiceOperation(String subscriptionId)
+            throws ObjectNotFoundException, OperationNotPermittedException {
+
         return null;
     }
 

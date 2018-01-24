@@ -14,7 +14,6 @@ package internal;
 import java.util.List;
 import java.util.Set;
 
-import javax.jws.WebParam;
 import javax.jws.WebService;
 
 import org.oscm.intf.SubscriptionService;
@@ -71,7 +70,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     public boolean addRevokeUser(String subscriptionId,
-            List<VOUsageLicense> usersToBeAdded, List<VOUser> usersToBeRevoked) {
+            List<VOUsageLicense> usersToBeAdded,
+            List<VOUser> usersToBeRevoked) {
         throw new UnsupportedOperationException();
     }
 
@@ -129,9 +129,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
-    public VOSubscriptionDetails modifySubscription(
-            VOSubscription subscription, List<VOParameter> modifiedParameters,
-            List<VOUda> udas) {
+    public VOSubscriptionDetails modifySubscription(VOSubscription subscription,
+            List<VOParameter> modifiedParameters, List<VOUda> udas) {
         throw new UnsupportedOperationException();
     }
 
@@ -179,7 +178,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
-    public void terminateSubscription(VOSubscription subscription, String reason)
+    public void terminateSubscription(VOSubscription subscription,
+            String reason)
             throws ObjectNotFoundException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException,
             OrganizationAuthoritiesException, ConcurrentModificationException {
@@ -242,7 +242,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     public List<VOServiceOperationParameterValues> getServiceOperationParameterValues(
-            VOSubscription subscription, VOTechnicalServiceOperation operation) {
+            VOSubscription subscription,
+            VOTechnicalServiceOperation operation) {
         throw new UnsupportedOperationException();
     }
 
@@ -269,7 +270,21 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     public void notifySubscriptionAboutVmsNumber(String subscriptionId,
-        String organizationId, VOInstanceInfo instanceInfo) throws ObjectNotFoundException {
+            String organizationId, VOInstanceInfo instanceInfo)
+            throws ObjectNotFoundException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setLastUsedServiceOperation(String subscriptionId,
+            String operationId)
+            throws ObjectNotFoundException, OperationNotPermittedException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getLastUsedServiceOperation(String subscriptionId)
+            throws ObjectNotFoundException, OperationNotPermittedException {
         throw new UnsupportedOperationException();
     }
 

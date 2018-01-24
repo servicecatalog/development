@@ -77,6 +77,10 @@
   <message name="updateAsyncSubscriptionStatusResponse" />
   <message name="notifySubscriptionAboutVmsNumber" />
   <message name="notifySubscriptionAboutVmsNumberResponse" />
+  <message name="setLastUsedServiceOperation" />
+  <message name="setLastUsedServiceOperationResponse" />
+  <message name="getLastUsedServiceOperation" />
+  <message name="getLastUsedServiceOperationResponse" />
   <portType name="SubscriptionService">
     <operation name="abortAsyncSubscription">
       <input message="tns:abortAsyncSubscription" />
@@ -214,6 +218,14 @@
     <operation name="notifySubscriptionAboutVmsNumber">
       <input message="tns:notifySubscriptionAboutVmsNumber" />
       <output message="tns:notifySubscriptionAboutVmsNumberResponse" />
+    </operation>
+    <operation name="setLastUsedServiceOperation">
+      <input message="tns:setLastUsedServiceOperation" />
+      <output message="tns:setLastUsedServiceOperationResponse" />
+    </operation>
+    <operation name="getLastUsedServiceOperation">
+      <input message="tns:getLastUsedServiceOperation" />
+      <output message="tns:getLastUsedServiceOperationResponse" />
     </operation>
   </portType>
   <binding name="SubscriptionServicePortSTSBinding" type="tns:SubscriptionService">
@@ -483,6 +495,22 @@
       </output>
     </operation>
     <operation name="notifySubscriptionAboutVmsNumber">
+      <input>
+        <wsp:PolicyReference URI="#SubscriptionServicePortSTSBinding_Input_Policy" />
+      </input>
+      <output>
+        <wsp:PolicyReference URI="#SubscriptionServicePortSTSBinding_Output_Policy" />
+      </output>
+    </operation>
+    <operation name="setLastUsedServiceOperation">
+      <input>
+        <wsp:PolicyReference URI="#SubscriptionServicePortSTSBinding_Input_Policy" />
+      </input>
+      <output>
+        <wsp:PolicyReference URI="#SubscriptionServicePortSTSBinding_Output_Policy" />
+      </output>
+    </operation>
+    <operation name="getLastUsedServiceOperation">
       <input>
         <wsp:PolicyReference URI="#SubscriptionServicePortSTSBinding_Input_Policy" />
       </input>
