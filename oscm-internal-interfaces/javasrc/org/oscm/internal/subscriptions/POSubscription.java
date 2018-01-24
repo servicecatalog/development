@@ -461,4 +461,12 @@ public class POSubscription implements Serializable {
     public String getSubscriptionName() {
         return subscriptionName;
     }
+ 
+    public String getProvisioningError() {
+        return voSubscription.getProvisioningError();
+    }
+
+    public void setProvisioningError(String provisioningError) {
+        voSubscription.setProvisioningError(provisioningError);
+    }
 }

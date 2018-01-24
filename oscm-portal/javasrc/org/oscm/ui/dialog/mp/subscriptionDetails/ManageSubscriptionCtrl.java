@@ -53,6 +53,7 @@ import javax.inject.Inject;
 
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.comparators.ComparatorChain;
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.internal.intf.OperatorService;
 import org.oscm.internal.intf.SessionService;
 import org.oscm.internal.intf.SubscriptionService;
@@ -388,8 +389,14 @@ public class ManageSubscriptionCtrl implements Serializable {
             model.setWaitingforApproval(checkTriggerProcessForSubscription(
                     subscriptionDetails.getSubscription()));
         }
-        model.setShowStateWarning(
-                status.isPending() || status.isPendingUpdOrSuspendedUpd());
+        
+        String provisioningError = subscriptionDetails.getSubscription()
+                .getProvisioningError();
+        
+        boolean showProvisioningError = StringUtils
+                .isNotEmpty(provisioningError);
+        model.setShowProvisioningError(showProvisioningError);
+        model.setShowStateWarning( !showProvisioningError && (status.isPending() || status.isPendingUpdOrSuspendedUpd()));
         Object[] params = new Object[] {
                 JSFUtils.getText(STATUS_PREFIX + status.name(), null) };
         model.setStateWarning(

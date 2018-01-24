@@ -4281,7 +4281,8 @@ public class SubscriptionServiceBean
 
         abortSubscription(subscriptionId, subscription);
         removeLocalizedResources(reason, subscription);
-        deleteProduct(subscription);
+        storeSubscriptionAbortionReason(reason, subscription);       
+        //deleteProduct(subscription);
         List<PlatformUser> receivers = loadReceiversForAbortAsyncSubscription(
                 subscription);
         sendSubscriptionAbortEmail(subscriptionId, organizationId, subscription,
@@ -4295,7 +4296,7 @@ public class SubscriptionServiceBean
 
     private void abortSubscription(String subscriptionId,
             Subscription subscription) {
-        subscription.setStatus(SubscriptionStatus.INVALID);
+        //subscription.setStatus(SubscriptionStatus.INVALID);
         subscription.setSubscriptionId(subscriptionId + "#"
                 + String.valueOf(System.currentTimeMillis()));
     }
@@ -4307,7 +4308,23 @@ public class SubscriptionServiceBean
                 LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_PROGRESS);
         localizer.storeLocalizedResources(key,
                 LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_PROGRESS,
-                reason);
+                reason);      
+    }
+    
+    void storeSubscriptionAbortionReason(List<VOLocalizedText> reason,
+            Subscription subscription) {
+        long key = subscription.getKey();
+        localizer.removeLocalizedValues(key,
+                LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_ERROR);
+        localizer.storeLocalizedResources(key,
+                LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_ERROR,
+                reason);      
+    }
+    
+    void removeSubscriptionAbortionReason(Subscription subscription) {
+        long key = subscription.getKey();
+        localizer.removeLocalizedValues(key,
+                LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_ERROR);     
     }
 
     void sendSubscriptionAbortEmail(String subscriptionId,
@@ -4999,6 +5016,8 @@ public class SubscriptionServiceBean
         updateInstanceInfoForCompletion(subscription, instance);
 
         manageBean.validateTechnoloyProvider(subscription);
+        
+        removeSubscriptionAbortionReason(subscription);
 
         modUpgBean.setStatusForModifyComplete(subscription);
 
@@ -5059,7 +5078,8 @@ public class SubscriptionServiceBean
                 subscriptionId, organizationId);
 
         stateValidator.checkAbortAllowedForModifying(subscription);
-
+        
+        storeSubscriptionAbortionReason(reason, subscription);
         abortAsyncUpgradeOrModifySubscription(subscription, organizationId,
                 reason);
     }
