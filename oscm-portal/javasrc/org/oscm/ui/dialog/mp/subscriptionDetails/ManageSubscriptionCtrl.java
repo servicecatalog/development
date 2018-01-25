@@ -393,10 +393,12 @@ public class ManageSubscriptionCtrl implements Serializable {
         String provisioningError = subscriptionDetails.getSubscription()
                 .getProvisioningError();
         
-        boolean showProvisioningError = StringUtils
-                .isNotEmpty(provisioningError);
-        model.setShowProvisioningError(showProvisioningError);
-        model.setShowStateWarning( !showProvisioningError && (status.isPending() || status.isPendingUpdOrSuspendedUpd()));
+        boolean errorExists = StringUtils.isNotEmpty(provisioningError);
+        model.setShowProvisioningError(errorExists && status.isPending());
+        model.setShowProvisioningWarning(errorExists && status.isActive());
+        model.setShowStateWarning(!errorExists
+                && (status.isPending() || status.isPendingUpdOrSuspendedUpd()));
+        
         Object[] params = new Object[] {
                 JSFUtils.getText(STATUS_PREFIX + status.name(), null) };
         model.setStateWarning(
