@@ -217,4 +217,12 @@ public class SubscriptionHistory extends DomainHistoryObject<SubscriptionData> {
     public Long getUserGroupObjKey() {
         return userGroupObjKey;
     }
+    
+    public String getLastUsedOperation() {
+        return dataContainer.getLastUsedOperation();
+    }
+
+    public void setLastUsedOperation(String operationId) {
+        dataContainer.setLastUsedOperation(operationId);
+    }
 }
