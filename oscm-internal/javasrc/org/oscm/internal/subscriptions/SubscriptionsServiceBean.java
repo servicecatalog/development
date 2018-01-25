@@ -357,6 +357,14 @@ public class SubscriptionsServiceBean implements SubscriptionsService {
                 facade);
     }
 
+    void initializeSelectedSubscription(POSubscription po) {
+        try {
+            String operationId = subscriptionServiceLocal.getLastUsedServiceOperation(po.getSubscriptionId());
+            po.setSelectedOperationId(operationId);
+        } catch (Exception exc) {
+            logger.logDebug("Object not found, but it's ok.");
+        }
+    }
     @Override
     public POSubscription getMySubscriptionDetails(long key) {
         POSubscription poSubscription = null;
@@ -365,6 +373,7 @@ public class SubscriptionsServiceBean implements SubscriptionsService {
                     .getMySubscriptionDetails(key);
             poSubscription = toPOSubscription(SubscriptionAssembler
                     .toVOSubscriptionDetails(subscription, getLocalizerFacade()));
+            initializeSelectedSubscription(poSubscription);
         } catch (Exception exc) {
             logger.logDebug("Object not found, but it's ok.");
         }

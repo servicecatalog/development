@@ -569,4 +569,16 @@ public interface SubscriptionServiceLocal {
      *         in user. Null otherwise.
      */
     public Subscription getMySubscriptionDetails(long key);
+    
+    
+    /**
+     * 
+     * @param subscriptionId
+     * @param operationId
+     * @throws ObjectNotFoundException
+     * @throws OperationNotPermittedException
+     */
+    public String getLastUsedServiceOperation(String subscriptionId)
+
+            throws ObjectNotFoundException, OperationNotPermittedException;
 }

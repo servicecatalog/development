@@ -349,6 +349,13 @@ public class POSubscription implements Serializable {
         return selectedOperation;
     }
 
+    public OperationModel getPreSelectedOperation() {
+        return selectedOperation;
+    }
+    
+    public void setPreSelectedOperation(String opId) {
+        
+    }
     public List<OperationParameterModel> getOperationParameters() {
         if (selectedOperation == null) {
             return new LinkedList<>();
