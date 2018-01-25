@@ -99,6 +99,9 @@ public class ManageSubscriptionModel
     private boolean paymentTabAvailable;
     private boolean showProvisioningError;
     private boolean showProvisioningWarning;
+    private String provisioningError;
+    private String provisioningWarning;
+    
     /**
      * @return the showExternalConfigurator
      */
@@ -733,5 +736,21 @@ public class ManageSubscriptionModel
 
     public void setShowProvisioningWarning(boolean showProvisioningWarning) {
         this.showProvisioningWarning = showProvisioningWarning;
+    }
+
+    public String getProvisioningError() {
+        return provisioningError;
+    }
+
+    public void setProvisioningError(String provisioningError) {
+        this.provisioningError = provisioningError;
+    }
+
+    public String getProvisioningWarning() {
+        return provisioningWarning;
+    }
+
+    public void setProvisioningWarning(String provisioningWarning) {
+        this.provisioningWarning = provisioningWarning;
     } 
 }
