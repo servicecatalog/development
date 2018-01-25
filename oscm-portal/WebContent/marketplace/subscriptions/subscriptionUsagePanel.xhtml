@@ -16,13 +16,9 @@
           <span id="anchor"></span>
           <a4j:outputPanel id="subscriptionUsagePanelPane" layout="block">
           
-            <a4j:outputPanel layout="block" styleClass="box error clearfix" rendered="#{not empty subscription.provisioningError}" >
-		      <dl>
-			    <dt>
-		          <h:outputText value="#{subscription.provisioningError}" />
-		        </dt>
-		      </dl>
-		    </a4j:outputPanel>
+		    <mp:notice rendered="#{subscription.showProvisioningWarning}"
+                noticeText="#{subscription.provisioningWarning}" />
+                
             <!-- subscription details -->
             <a4j:outputPanel layout="block" styleClass="leftCenterBorder clearfix">
               <mp:subscriptionBlock fieldId="subscriptionBlock"
