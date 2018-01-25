@@ -4279,26 +4279,13 @@ public class SubscriptionServiceBean
                     SubscriptionStateException.Reason.ONLY_PENDING);
         }
 
-        abortSubscription(subscriptionId, subscription);
         removeLocalizedResources(reason, subscription);
         storeSubscriptionAbortionReason(reason, subscription);       
-        //deleteProduct(subscription);
+
         List<PlatformUser> receivers = loadReceiversForAbortAsyncSubscription(
                 subscription);
         sendSubscriptionAbortEmail(subscriptionId, organizationId, subscription,
                 receivers);
-    }
-
-    private void deleteProduct(Subscription subscription) {
-        Product product = subscription.getProduct();
-        product.setStatus(ServiceStatus.DELETED);
-    }
-
-    private void abortSubscription(String subscriptionId,
-            Subscription subscription) {
-        //subscription.setStatus(SubscriptionStatus.INVALID);
-        subscription.setSubscriptionId(subscriptionId + "#"
-                + String.valueOf(System.currentTimeMillis()));
     }
 
     void removeLocalizedResources(List<VOLocalizedText> reason,
