@@ -4560,7 +4560,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 }
             });
         } catch (SubscriptionStateException e) {
-            assertInvalidStateException(e, SubscriptionStatus.PENDING);
+            assertInvalidStateException(e, SubscriptionStatus.INVALID);
         }
     }
 
