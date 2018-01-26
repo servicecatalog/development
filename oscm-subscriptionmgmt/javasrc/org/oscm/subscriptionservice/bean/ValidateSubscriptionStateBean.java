@@ -89,7 +89,7 @@ public class ValidateSubscriptionStateBean {
         EnumSet<SubscriptionStatus> forbiddenStates = EnumSet.of(
                 SubscriptionStatus.INVALID, SubscriptionStatus.DEACTIVATED,
                 SubscriptionStatus.SUSPENDED, SubscriptionStatus.PENDING_UPD,
-                SubscriptionStatus.SUSPENDED_UPD, SubscriptionStatus.PENDING);
+                SubscriptionStatus.SUSPENDED_UPD);
 
         checkOperationAllowed(dbSubscription, forbiddenStates);
     }
