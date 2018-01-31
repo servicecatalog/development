@@ -47,6 +47,8 @@ public class VOSubscription extends BaseVO implements Serializable {
     private String customTabUrl;
     private String customTabName;
     private String organizationId;
+    private String provisioningError;
+    
     /**
      * The technical service operations.
      */
@@ -532,4 +534,14 @@ public class VOSubscription extends BaseVO implements Serializable {
     public void setOrganizationId(String organizationId) {
         this.organizationId = organizationId;
     }
+
+	public String getProvisioningError() {
+		return provisioningError;
+	}
+
+	public void setProvisioningError(String provisioningError) {
+		this.provisioningError = provisioningError;
+	}
+    
+    
 }

@@ -4343,25 +4343,13 @@ public class SubscriptionServiceBean
                     SubscriptionStateException.Reason.ONLY_PENDING);
         }
 
-        abortSubscription(subscriptionId, subscription);
         removeLocalizedResources(reason, subscription);
-        deleteProduct(subscription);
+        storeSubscriptionAbortionReason(reason, subscription);       
+
         List<PlatformUser> receivers = loadReceiversForAbortAsyncSubscription(
                 subscription);
         sendSubscriptionAbortEmail(subscriptionId, organizationId, subscription,
                 receivers);
-    }
-
-    private void deleteProduct(Subscription subscription) {
-        Product product = subscription.getProduct();
-        product.setStatus(ServiceStatus.DELETED);
-    }
-
-    private void abortSubscription(String subscriptionId,
-            Subscription subscription) {
-        subscription.setStatus(SubscriptionStatus.INVALID);
-        subscription.setSubscriptionId(subscriptionId + "#"
-                + String.valueOf(System.currentTimeMillis()));
     }
 
     void removeLocalizedResources(List<VOLocalizedText> reason,
@@ -4371,7 +4359,23 @@ public class SubscriptionServiceBean
                 LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_PROGRESS);
         localizer.storeLocalizedResources(key,
                 LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_PROGRESS,
-                reason);
+                reason);      
+    }
+    
+    void storeSubscriptionAbortionReason(List<VOLocalizedText> reason,
+            Subscription subscription) {
+        long key = subscription.getKey();
+        localizer.removeLocalizedValues(key,
+                LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_ERROR);
+        localizer.storeLocalizedResources(key,
+                LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_ERROR,
+                reason);      
+    }
+    
+    void removeSubscriptionAbortionReason(Subscription subscription) {
+        long key = subscription.getKey();
+        localizer.removeLocalizedValues(key,
+                LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_ERROR);     
     }
 
     void sendSubscriptionAbortEmail(String subscriptionId,
@@ -5191,6 +5195,8 @@ public class SubscriptionServiceBean
             manageBean.validateTechnoloyProvider(subscription);
         }
 
+        removeSubscriptionAbortionReason(subscription);
+
         modUpgBean.setStatusForModifyComplete(subscription);
 
         Map<String, Parameter> paramMap = new HashMap<>();
@@ -5250,7 +5256,8 @@ public class SubscriptionServiceBean
                 subscriptionId, organizationId);
 
         stateValidator.checkAbortAllowedForModifying(subscription);
-
+        
+        storeSubscriptionAbortionReason(reason, subscription);
         abortAsyncUpgradeOrModifySubscription(subscription, organizationId,
                 reason, true);
     }

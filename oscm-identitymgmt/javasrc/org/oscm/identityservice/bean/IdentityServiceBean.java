@@ -1638,6 +1638,8 @@ public class IdentityServiceBean
             boolean validateOrganization)
             throws ObjectNotFoundException, OperationNotPermittedException {
 
+        logger.logDebug("Get user " + userId + " for tenant " + tenantId);
+
         PlatformUser platformUser = new PlatformUser();
         platformUser.setUserId(userId);
         platformUser.setTenantId(tenantId);
@@ -1911,7 +1913,8 @@ public class IdentityServiceBean
                                         cm.getBaseUrlWithTenant(tenantId),
                                         cm.getMarketplaceUrl(marketplaceId),
                                         cm.getBaseUrlHttpsWithTenant(tenantId),
-                                        cm.getMarketplaceUrlHttps(marketplaceId)},
+                                        cm.getMarketplaceUrlHttps(
+                                                marketplaceId) },
                                 marketplace);
 
                     } else {
@@ -1921,7 +1924,8 @@ public class IdentityServiceBean
                                         cm.getMarketplaceUrl(marketplaceId),
                                         String.valueOf(pu.getKey()),
                                         cm.getBaseUrlHttps(),
-                                        cm.getMarketplaceUrlHttps(marketplaceId)},
+                                        cm.getMarketplaceUrlHttps(
+                                                marketplaceId) },
                                 marketplace);
 
                     }
@@ -1930,14 +1934,15 @@ public class IdentityServiceBean
                         cm.sendMail(pu, EmailType.USER_CREATED_SAML_SP,
                                 new Object[] { pu.getUserId(),
                                         cm.getBaseUrlWithTenant(tenantId),
-                                        cm.getBaseUrlHttpsWithTenant(tenantId)},
+                                        cm.getBaseUrlHttpsWithTenant(
+                                                tenantId) },
                                 marketplace);
                     } else {
                         cm.sendMail(pu, EmailType.USER_CREATED,
                                 new Object[] { pu.getUserId(), password,
                                         cm.getBaseUrl(),
                                         String.valueOf(pu.getKey()),
-                                        cm.getBaseUrlHttps()},
+                                        cm.getBaseUrlHttps() },
                                 marketplace);
 
                     }
@@ -1948,14 +1953,14 @@ public class IdentityServiceBean
                     cm.sendMail(pu, EmailType.USER_CREATED_SAML_SP,
                             new Object[] { pu.getUserId(),
                                     cm.getMarketplaceUrl(marketplaceId),
-                                    cm.getMarketplaceUrlHttps(marketplaceId)},
+                                    cm.getMarketplaceUrlHttps(marketplaceId) },
                             marketplace);
                 } else {
                     cm.sendMail(pu, EmailType.USER_CREATED,
                             new Object[] { pu.getUserId(), password,
                                     cm.getMarketplaceUrl(marketplaceId),
                                     String.valueOf(pu.getKey()),
-                                    cm.getMarketplaceUrlHttps(marketplaceId)},
+                                    cm.getMarketplaceUrlHttps(marketplaceId) },
                             marketplace);
                 }
 
@@ -1967,14 +1972,14 @@ public class IdentityServiceBean
                             new Object[] { pu.getUserId(), "", cm.getBaseUrl(),
                                     cm.getMarketplaceUrl(marketplaceId),
                                     String.valueOf(pu.getKey()),
-                                    cm.getMarketplaceUrlHttps(marketplaceId)},
+                                    cm.getMarketplaceUrlHttps(marketplaceId) },
                             marketplace);
 
                 } else {
                     cm.sendMail(pu, EmailType.USER_IMPORTED,
                             new Object[] { pu.getUserId(), "", cm.getBaseUrl(),
                                     String.valueOf(pu.getKey()),
-                                    cm.getBaseUrlHttps()},
+                                    cm.getBaseUrlHttps() },
                             marketplace);
 
                 }
@@ -1983,7 +1988,7 @@ public class IdentityServiceBean
                         new Object[] { pu.getUserId(), "",
                                 cm.getMarketplaceUrl(marketplaceId),
                                 String.valueOf(pu.getKey()),
-                                cm.getMarketplaceUrlHttps(marketplaceId)},
+                                cm.getMarketplaceUrlHttps(marketplaceId) },
                         marketplace);
             }
         }
