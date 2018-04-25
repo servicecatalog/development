@@ -86,7 +86,6 @@ public class MarketplaceCreateTask extends WebtestTask {
             vo.setName(name);
             vo.setReviewEnabled(isReviewEnabled);
             vo.setTaggingEnabled(isTaggingEnabled);
-            vo.setSocialBookmarkEnabled(isSocialBookmarksEnabled);
             vo.setOwningOrganizationId(ownerId);
             vo = mpSvc.createMarketplace(vo);
             if (isEmpty(mIdProperty)) {

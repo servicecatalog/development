@@ -77,7 +77,6 @@ public class NewMarketplaceBeanTest {
         nmp.setOwningOrganizationId("new marketplace id");
         nmp.setTaggingEnabled(false);
         nmp.setReviewEnabled(false);
-        nmp.setSocialBookmarkEnabled(true);
         nmp.setCategoriesEnabled(false);
         nmp.setTenantId("tenant123");
 
@@ -89,9 +88,7 @@ public class NewMarketplaceBeanTest {
 
         assertEquals(!nmp.isClosed(), vmp.isOpen());
         assertEquals(nmp.isTaggingEnabled(), vmp.isTaggingEnabled());
-        assertEquals(nmp.isReviewEnabled(), vmp.isReviewEnabled());
-        assertEquals(nmp.isSocialBookmarkEnabled(),
-                vmp.isSocialBookmarkEnabled());
+        assertEquals(nmp.isReviewEnabled(), vmp.isReviewEnabled());;
         assertEquals(nmp.isCategoriesEnabled(), vmp.isCategoriesEnabled());
         assertEquals(nmp.getTenantId(), vmp.getTenantId());
 
