@@ -14,10 +14,17 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.ejb.Timer;
@@ -31,17 +38,24 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.oscm.app.business.ProductProvisioningServiceFactoryBean;
 import org.oscm.app.business.exceptions.BESNotificationException;
+import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.dao.BesDAO;
+import org.oscm.app.dao.OperationDAO;
 import org.oscm.app.dao.ServiceInstanceDAO;
+import org.oscm.app.domain.InstanceParameter;
+import org.oscm.app.domain.Operation;
 import org.oscm.app.domain.PlatformConfigurationKey;
 import org.oscm.app.domain.ProvisioningStatus;
 import org.oscm.app.domain.ServiceInstance;
 import org.oscm.app.v2_0.data.InstanceStatus;
 import org.oscm.app.v2_0.data.LocalizedText;
 import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
 import org.oscm.app.v2_0.exceptions.ConfigurationException;
 import org.oscm.app.v2_0.intf.APPlatformController;
+import org.oscm.operation.data.OperationResult;
 import org.oscm.test.ejb.TestNamingContextFactoryBuilder;
+import org.oscm.types.enumtypes.OperationStatus;
 import org.oscm.vo.VOUserDetails;
 import org.slf4j.Logger;
 
@@ -55,6 +69,8 @@ public class APPTimerServiceBeanTest {
     private APPConfigurationServiceBean configService;
     private ProductProvisioningServiceFactoryBean provFactoryBean;
     private BesDAO besDAOMock;
+    private OperationDAO operationDAOMock;
+    private OperationServiceBean opBeanMock;
     private APPCommunicationServiceBean mailService;
     private Logger logger;
     private APPlatformController controller;
@@ -72,14 +88,19 @@ public class APPTimerServiceBeanTest {
         ts = mock(TimerService.class);
         mailService = Mockito.mock(APPCommunicationServiceBean.class);
         besDAOMock = mock(BesDAO.class);
+        operationDAOMock = mock(OperationDAO.class);
+        opBeanMock =  mock(OperationServiceBean.class);
         provFactoryBean = mock(ProductProvisioningServiceFactoryBean.class);
         configService = mock(APPConfigurationServiceBean.class);
         instanceDAO = mock(ServiceInstanceDAO.class);
         timerBean = mock(APPTimerServiceBean.class);
+
         timerService.instanceDAO = instanceDAO;
         timerService.configService = configService;
         timerService.mailService = mailService;
         timerService.besDAO = besDAOMock;
+        timerService.operationDAO = operationDAOMock;
+        timerService.opBean = opBeanMock;
         timerService.timerService = ts;
         timerService.appTimerServiceBean = timerBean;
         Collection<Timer> timers = new ArrayList<Timer>();
@@ -89,6 +110,7 @@ public class APPTimerServiceBeanTest {
         doReturn(timers).when(timerService.timerService).getTimers();
 
     }
+    
 
     private List<ServiceInstance> getResult() {
         List<ServiceInstance> result = new ArrayList<ServiceInstance>();
@@ -100,6 +122,13 @@ public class APPTimerServiceBeanTest {
         return result;
     }
 
+
+    
+    
+   
+    
+
+    
     @Test
     public void handleTimer_APPSuspended() throws Exception {
         // given
@@ -344,5 +373,197 @@ public class APPTimerServiceBeanTest {
 
         // then
         verify(em, times(1)).refresh(any(ServiceInstance.class));
+        verify(em, times(2)).persist(any(ServiceInstance.class));
     }
+
+    private InstanceStatus getInstanceStatus(ServiceInstance instance,boolean ifControllerReady,  boolean instanceProvisioningRequested) throws BadResultException {
+        
+        InstanceStatus status = new InstanceStatus();
+        List<LocalizedText> list = new ArrayList<>();
+        list.add(new LocalizedText("en", "finished"));
+        status.setDescription(list);
+        status.setIsReady(ifControllerReady);
+        HashMap<String, Setting> parameters = new HashMap<>();
+        parameters.put(InstanceParameter.PUBLIC_IP,
+                new Setting(InstanceParameter.PUBLIC_IP, "4.3.2.1"));
+        if(!instanceProvisioningRequested)
+            status.setChangedParameters(parameters);
+        else instance.setInstanceParameters(parameters);
+        status.setInstanceProvisioningRequired(instanceProvisioningRequested);
+        
+        return status;
+    }
+    
+    private ServiceInstance createServiceInstance(ProvisioningStatus provisioningStatus, boolean ifControllerReady, boolean instanceProvisioningRequested)
+            throws Exception{
+     // given
+        ServiceInstance instance = new ServiceInstance();
+        instance.setInstanceId("instanceId");
+        instance.setSubscriptionId("subscriptionId");
+        instance.setControllerId("ess.vmware");
+       
+        InstanceStatus status = getInstanceStatus(instance, ifControllerReady, instanceProvisioningRequested);
+
+        instance.setProvisioningStatus(provisioningStatus);
+        when(
+                controller.getInstanceStatus(anyString(),
+                        any(ProvisioningSettings.class))).thenReturn(status);
+
+        if (!NamingManager.hasInitialContextFactoryBuilder()) {
+            NamingManager
+                    .setInitialContextFactoryBuilder(new TestNamingContextFactoryBuilder());
+        }
+        InitialContext context = new InitialContext();
+        context.bind(APPlatformController.JNDI_PREFIX + "ess.vmware",
+                controller);
+        
+        return instance;
+        
+    }
+    
+    @Test
+    public void testHandleTimer_doHandleControllerProvisioning_Status_Creation()
+            throws Exception {
+       
+        
+        ServiceInstance instance = createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION, false, true);
+    
+        // when
+        doNothing().when(besDAOMock).notifyOnProvisioningStatusUpdate(
+                any(ServiceInstance.class), anyListOf(LocalizedText.class));
+        
+        
+        timerService.doHandleControllerProvisioning(instance);
+    
+        // then
+        verify(em, times(1)).refresh(any(ServiceInstance.class));
+        verify(em, times(2)).persist(any(ServiceInstance.class));
+        verify(besDAOMock, times(1)).notifyOnProvisioningStatusUpdate(
+                any(ServiceInstance.class),
+                anyListOf(LocalizedText.class));
+        
+       
+    }
+ 
+
+    @Test
+    public void testHandleTimer_doHandleControllerProvisioning_Status_Deletion()
+            throws Exception {
+       
+        ServiceInstance instance = createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_DELETION, true, false);
+
+        // when
+        timerService.doHandleControllerProvisioning(instance);
+
+        // then
+        verify(em, times(1)).refresh(any(ServiceInstance.class));
+        verify(em, times(1)).persist(any(ServiceInstance.class));
+        verify(em, times(1)).remove(any(ServiceInstance.class));
+    }
+    
+    @Test
+    public void testDoHandleControllerProvisioning_Status_Operation_provisioningNotRequested()
+            throws Exception {
+        ServiceInstance instance = createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_OPERATION, true, false);
+        
+        // when
+        doNothing().when(besDAOMock).notifyAsyncOperationStatus(any(ServiceInstance.class),anyString(),
+                any(OperationStatus.class),
+                anyListOf(LocalizedText.class));
+        
+        Operation op = new Operation();
+        op.setTransactionId("transactionId");
+        doReturn(op).when(operationDAOMock)
+                .getOperationByInstanceId(anyString());
+        OperationResult operationResult = new OperationResult();
+        operationResult.setErrorMessage(null);
+        when(opBeanMock.executeServiceOperationFromQueue(anyString()))
+            .thenReturn(operationResult);
+        doReturn(instance).when(instanceDAO).getInstanceById(anyString());
+          
+        timerService.doHandleControllerProvisioning(instance);
+    
+        // then
+        verify(em, times(1)).refresh(any(ServiceInstance.class));
+        verify(besDAOMock, times(1)).notifyAsyncOperationStatus(
+                any(ServiceInstance.class),anyString(),
+                any(OperationStatus.class),
+                anyListOf(LocalizedText.class));
+    
+    }
+    
+    @Test
+    public void testDoHandleControllerProvisioning_Status_Operation_provisioningRequested()
+            throws Exception {
+        ServiceInstance instance = createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_OPERATION, true, true);
+        
+        // when
+        Operation op = new Operation();
+        op.setTransactionId("transactionId");
+        doReturn(op).when(operationDAOMock)
+                .getOperationByInstanceId(anyString());
+        
+        
+        timerService.doHandleControllerProvisioning(instance);
+    
+        // then
+        verify(em, times(1)).refresh(any(ServiceInstance.class));
+        verify(besDAOMock, times(0)).notifyAsyncOperationStatus(
+                any(ServiceInstance.class),anyString(),
+                any(OperationStatus.class),
+                anyListOf(LocalizedText.class));
+    
+    }
+    
+    @Test
+    public void testdoHandleControllerProvisioning_Status_Operation_NotReady()
+            throws Exception {
+        ServiceInstance instance = createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_OPERATION, false, false);
+        
+        // when
+        Operation op = new Operation();
+        op.setTransactionId("transactionId");
+        doReturn(op).when(operationDAOMock)
+                .getOperationByInstanceId(anyString());
+        
+        timerService.doHandleControllerProvisioning(instance);
+    
+        // then
+        verify(em, times(1)).refresh(any(ServiceInstance.class));
+        verify(besDAOMock, times(1)).notifyAsyncOperationStatus(
+                any(ServiceInstance.class),anyString(),
+                any(OperationStatus.class),
+                anyListOf(LocalizedText.class));
+    
+    }
+    
+    @Test
+    public void testHandleTimer_doHandleControllerProvisioning_Status_Modification()
+            throws Exception {
+        
+    ServiceInstance instance = createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_MODIFICATION, true, false);
+        
+        // when
+        OperationResult operationResult = new OperationResult();
+        operationResult.setErrorMessage(null);
+        when(opBeanMock.executeServiceOperationFromQueue(anyString()))
+            .thenReturn(operationResult);
+        doNothing().when(besDAOMock).notifyAsyncOperationStatus(any(ServiceInstance.class),anyString(),
+                any(OperationStatus.class),
+                anyListOf(LocalizedText.class));
+        doReturn(instance).when(instanceDAO).getInstanceById(anyString());
+    
+        timerService.doHandleControllerProvisioning(instance);
+    
+        // then
+        verify(em, times(1)).refresh(any(ServiceInstance.class));
+        //eine em.persist versteckt unter Methode serviceInstance.updateStatus(em, instanceStatus); 
+        verify(em, times(2)).persist(any(ServiceInstance.class));
+        verify(besDAOMock, times(0)).notifyAsyncOperationStatus(
+                any(ServiceInstance.class),anyString(),
+                any(OperationStatus.class),
+                anyListOf(LocalizedText.class));
+
+    }
+
 }

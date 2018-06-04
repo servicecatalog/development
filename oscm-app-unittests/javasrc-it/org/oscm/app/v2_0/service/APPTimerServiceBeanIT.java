@@ -26,6 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -38,6 +39,7 @@ import java.util.concurrent.Callable;
 
 import javax.ejb.EJBException;
 import javax.ejb.Timer;
+import javax.ejb.TimerService;
 import javax.naming.InitialContext;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -61,6 +63,7 @@ import org.oscm.app.v2_0.data.LocalizedText;
 import org.oscm.app.v2_0.data.ProvisioningSettings;
 import org.oscm.app.v2_0.data.Setting;
 import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.ConfigurationException;
 import org.oscm.app.v2_0.exceptions.SuspendException;
 import org.oscm.app.v2_0.intf.APPlatformController;
 import org.oscm.encrypter.AESEncrypter;
@@ -87,6 +90,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
     private final int RESPONSE_CODE = -1;
     private APPTimerServiceBean timerService;
     private APPTimerServiceBean timerService1;
+    private TimerService ts;
     private Timer timer;
 
     private EntityManager em;
@@ -139,7 +143,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         container.addBean(controller);
 
         timer = mock(Timer.class);
-
+        ts = mock(TimerService.class);
+        
         defaultUser = new VOUser();
         defaultUser.setUserId("user");
 
@@ -163,6 +168,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         timerService.opBean = opBean;
         timerService1.opBean = opBean;
         timerService.appTimerServiceBean = timerService1;
+        timerService.timerService = ts;
+        timerService1.timerService = ts;
     }
 
     private InstanceResult getInstanceResult(int returnCode) {
@@ -177,6 +184,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         return instanceResult;
     }
 
+    
     @Test
     public void testHandleTimerNoStoredServiceInstance() throws Exception {
         // when
@@ -1726,5 +1734,35 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         verify(besDAOMock, times(1)).notifyAsyncOperationStatus(eq(si),
                 eq(op.getTransactionId()), eq(OperationStatus.ERROR),
                 anyListOf(LocalizedText.class));
+    }
+    
+    @Test
+    public void testInitTimer_OK() throws Exception {
+        
+        doReturn("30000").when(configService)
+        .getProxyConfigurationSetting(PlatformConfigurationKey.APP_TIMER_INTERVAL);
+        doReturn(timer).when(ts)
+        .createTimer(Mockito.anyLong(),Mockito.anyLong(), any(Serializable.class));
+        
+        timerService.initTimers();
+
+        verify(timerService1, times(1)).initTimers_internal();
+        verify(configService, times(1)).getProxyConfigurationSetting(PlatformConfigurationKey.APP_TIMER_INTERVAL);
+        verify(ts, times(1)).createTimer(Mockito.anyLong(), Mockito.eq(new Long(30000)), any(Serializable.class));
+
+    }
+    
+    @Test
+    public void testInitTimer_Exception() throws Exception {
+        
+        doThrow(new ConfigurationException(ERROR_MESSAGE)).when(configService)
+        .getProxyConfigurationSetting(PlatformConfigurationKey.APP_TIMER_INTERVAL);
+        
+        timerService.initTimers();
+
+        verify(timerService1, times(1)).initTimers_internal();
+        verify(configService, times(1)).getProxyConfigurationSetting(PlatformConfigurationKey.APP_TIMER_INTERVAL);
+        verify(ts, times(1)).createTimer(Mockito.anyLong(), Mockito.eq(new Long(15000)), any(Serializable.class));
+
     }
 }
