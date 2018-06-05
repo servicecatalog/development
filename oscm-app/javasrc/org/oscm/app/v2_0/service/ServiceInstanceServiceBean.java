@@ -344,7 +344,9 @@ public class ServiceInstanceServiceBean {
             switch (dbInstance.getProvisioningStatus()) {
             case WAITING_FOR_SYSTEM_CREATION:
                 besDao.notifyAsyncSubscription(dbInstance,
-                        createInstanceResult(dbInstance), false, null);
+                        createInstanceResult(dbInstance), false,
+                        new APPlatformException(
+                                Messages.getAll("abort_pending_subscription")));
                 break;
             case WAITING_FOR_SYSTEM_MODIFICATION:
                 if (dbInstance.getRollbackParameters() != null) {
@@ -356,7 +358,9 @@ public class ServiceInstanceServiceBean {
                     }
                 }
                 besDao.notifyAsyncModifySubscription(dbInstance,
-                        createInstanceResult(dbInstance), false, null);
+                        createInstanceResult(dbInstance), false,
+                        new APPlatformException(
+                                Messages.getAll("abort_pending_subscription")));
                 break;
             case WAITING_FOR_SYSTEM_UPGRADE:
                 if (dbInstance.getRollbackParameters() != null) {
