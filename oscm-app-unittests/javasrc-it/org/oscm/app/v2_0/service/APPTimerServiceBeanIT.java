@@ -1738,14 +1738,16 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
     
     @Test
     public void testInitTimer_OK() throws Exception {
-        
+        // given
         doReturn("30000").when(configService)
         .getProxyConfigurationSetting(PlatformConfigurationKey.APP_TIMER_INTERVAL);
         doReturn(timer).when(ts)
         .createTimer(Mockito.anyLong(),Mockito.anyLong(), any(Serializable.class));
         
+        // when
         timerService.initTimers();
 
+        // then
         verify(timerService1, times(1)).initTimers_internal();
         verify(configService, times(1)).getProxyConfigurationSetting(PlatformConfigurationKey.APP_TIMER_INTERVAL);
         verify(ts, times(1)).createTimer(Mockito.anyLong(), Mockito.eq(new Long(30000)), any(Serializable.class));
@@ -1754,12 +1756,14 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
     
     @Test
     public void testInitTimer_Exception() throws Exception {
-        
+        // given
         doThrow(new ConfigurationException(ERROR_MESSAGE)).when(configService)
         .getProxyConfigurationSetting(PlatformConfigurationKey.APP_TIMER_INTERVAL);
         
+        // when
         timerService.initTimers();
 
+	// then
         verify(timerService1, times(1)).initTimers_internal();
         verify(configService, times(1)).getProxyConfigurationSetting(PlatformConfigurationKey.APP_TIMER_INTERVAL);
         verify(ts, times(1)).createTimer(Mockito.anyLong(), Mockito.eq(new Long(15000)), any(Serializable.class));
