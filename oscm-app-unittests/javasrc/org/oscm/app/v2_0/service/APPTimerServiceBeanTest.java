@@ -381,7 +381,7 @@ public class APPTimerServiceBeanTest {
         List<LocalizedText> list = new ArrayList<>();
         list.add(new LocalizedText("en", "finished"));
         status.setDescription(list);
-        status.setIsReady(ifControllerReady);        
+        status.setIsReady(ifControllerReady);
         HashMap<String, Setting> parameters = new HashMap<>();
         parameters.put(InstanceParameter.PUBLIC_IP,
                 new Setting(InstanceParameter.PUBLIC_IP, "4.3.2.1"));
