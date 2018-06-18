@@ -13,17 +13,6 @@ import java.net.InetAddress;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
-
-
-import javax.mail.Authenticator;
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Store;
-import javax.mail.search.SubjectTerm;
-import javax.security.auth.login.LoginException;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
@@ -35,7 +24,7 @@ import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.oscm.webtest.PortalHtmlElements;
+
 /**
  * Helper class for integration web tests using selenium and java mail.
  * 
@@ -43,64 +32,35 @@ import org.oscm.webtest.PortalHtmlElements;
  */
 public class WebTester {
     
-    private static final Logger logger = Logger.getLogger(WebTester.class);
+    protected static final Logger logger = Logger.getLogger(WebTester.class);
 
     public static final int IMPLICIT_WAIT = 10;
 
-    // property keys
-    private static final String BES_SECURE = "bes.secure";
-    private static final String BES_HTTP_URL = "bes.http.url";
-    private static final String BES_HTTPS_URL = "bes.https.url";
-    public static final String BES_ADMIN_USER_ID = "bes.user.id";
-    public static final String BES_ADMIN_USER_PWD = "bes.user.password";
-    
-    private static final String APP_SECURE = "app.secure";
-    private static final String APP_HTTP_URL = "app.http.url";
-    private static final String APP_HTTPS_URL = "app.https.url";
-    public static final String APP_ADMIN_USER_ID = "app.user.id";
-    public static final String APP_ADMIN_USER_PWD = "app.user.password";
-    
-    private static final String EMAIL_ADDRESS = "email.address";
-    private static final String EMAIL_HOST = "email.host";
-    private static final String EMAIL_USER = "email.user";
-    private static final String EMAIL_PASSWORD = "email.password";
-    private static final String EMAIL_PROTOCOL = "email.protocol";
-
     // path schemas
     private static final String PROPERTY_PATH = "../oscm-devruntime/javares/local/%s/webtest.properties";
-    private static final String BASE_PATH_PORTAL = "%s/oscm-portal/%s";
-    private static final String BASE_PATH_MARKETPLACE = "%s/oscm-portal/marketplace/%s";
-
-    // email parameters
-    private static final String MAIL_INBOX = "INBOX";
 
     // web element keys
-    private static final String ATTRIUBTE_VALUE = "value";
+    protected static final String ATTRIUBTE_VALUE = "value";
 
+    protected String baseUrl = "";
     
-    
-    private String basePortalUrl="";
+    protected HtmlUnitDriver driver;    
 
-    
-    private HtmlUnitDriver driver;    
-    private String address;
-    private Session mailSession;
-    private Properties prop;
-    private Properties emailProp;
+    protected Properties prop;
+
     
     public WebTester() throws Exception {
 
         loadPropertiesFile();
 
-        basePortalUrl = loadUrl(BES_SECURE, BES_HTTPS_URL, BES_HTTP_URL);
-
         driver = new HtmlUnitDriver(true);
         driver.manage().timeouts().implicitlyWait(IMPLICIT_WAIT,
                 TimeUnit.SECONDS);
         
-        initMailSession();
-        visitPortal("");
+
     }
+    
+    
     
     /**
      *  Load properties from personal devruntime folder
@@ -129,7 +89,7 @@ public class WebTester {
      * @throws NoSuchFieldException
      * @throws SecurityException
      */
-    private String loadUrl(String secureUrl, String httpsUrl, String httpUrl) throws NoSuchFieldException, SecurityException {
+    protected String loadUrl(String secureUrl, String httpsUrl, String httpUrl) throws NoSuchFieldException, SecurityException {
      
         boolean secure = Boolean.parseBoolean(prop.getProperty(secureUrl));
     
@@ -144,32 +104,6 @@ public class WebTester {
         return prop.getProperty(propertie);
     }
 
-   
-    /**
-     * initialize java mail session
-     */
-    private void initMailSession() {
-
-        address = prop.getProperty(EMAIL_ADDRESS);
-        String host = prop.getProperty(EMAIL_HOST);
-        final String user = prop.getProperty(EMAIL_USER);
-        final String password = prop.getProperty(EMAIL_PASSWORD);
-        String protocol = prop.getProperty(EMAIL_PROTOCOL);
-        
-        emailProp = new Properties();
-        emailProp.setProperty("mail.store.protocol", protocol);
-        emailProp.setProperty("mail.host", host);
-        emailProp.setProperty("mail.user", user);
-        emailProp.setProperty("mail.from", address);
-        emailProp.setProperty("mail.debug", "true");
-    
-        mailSession = Session.getInstance(emailProp, new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(user, password);
-            }
-        });
-    }
     /**
      * Closes all open resources of the helper
      */
@@ -177,122 +111,6 @@ public class WebTester {
         driver.close();
     }
 
-    /**
-     * Attempts a login to the OSCM portal with the given credentials. Note that
-     * this method assumes the webdriver to be at the login page.
-     * 
-     * @param user
-     *            the user name
-     * @param password
-     *            the password
-     * @throws InterruptedException 
-     * @throws Exception 
-     */
-    public void loginPortal(String user, String password) throws LoginException, InterruptedException {
-        
-
-        WebElement userInput = driver.findElement(By.id(PortalHtmlElements.PORTAL_INPUT_USERID));
-        userInput.sendKeys(user);
-
-        WebElement pwdInput = driver
-                .findElement(By.name(PortalHtmlElements.PORTAL_INPUT_PASSWORD));
-        pwdInput.sendKeys(password);
-
-        driver.findElement(By.id(PortalHtmlElements.PORTAL_BUTTON_LOGIN)).click();
-
-        wait(IMPLICIT_WAIT);
-        
-        if(!verifyFoundElement(PortalHtmlElements.PORTAL_DIV_LOGIN_FAILED)) 
-        {
-            logger.info("Login to OSCM Portal successfully with userid:" + user);
-        }else {
-            String info = "Login to OSCM Portal failed with userid:" + user;
-            logger.info(info);
-            throw new LoginException(info);
-        }
-    }
-
-
-    
-    /**
-     * Navigates the webdriver to the given page of the OSCM portal.
-     * 
-     * @param page
-     *            the page of the portal
-     * @throws Exception 
-     */
-    public void visitPortal(String segments) throws Exception {
-        String target = String.format(BASE_PATH_PORTAL, basePortalUrl, segments);
-        driver.navigate().to(target);
-
-        String actualTitle = driver.getTitle();
-        if (actualTitle==null || !actualTitle.contentEquals(PortalHtmlElements.PORTAL_TITLE))
-        {
-            logger.info("Navigate to " + target + " failed : HTTP Status 404 - Not Found");
-            throw new Exception("Page not found!");
-        }else {
-            logger.info("Navigate to " + target + " successfully");
-        }
-    }
-    
-    /**
-     * Logs out the current user from the OSCM portal. Note that this method
-     * assumes that there is a logged in user and that the driverApp is at a portal
-     * page.
-     */
-    public void logoutPortal() {
-        driver.findElement(By.id(PortalHtmlElements.PORTAL_LINK_LOGOUT)).click();
-
-        logger.info("Login out from OSCM Portal successfully");
-    }
-
-    /**
-     * Attempts a login to the OSCM marketplace with the given credentials. Note
-     * that this method assumes the webdriver to be at the login page.
-     * 
-     * @param user
-     *            the user name
-     * @param password
-     *            the password
-     */
-    public void loginMarketplace(String user, String password) {
-        WebElement userInput = driver
-                .findElement(By.id(PortalHtmlElements.MARKETPLACE_INPUT_USERID));
-        userInput.sendKeys(user);
-
-        WebElement pwdInput = driver
-                .findElement(By.id(PortalHtmlElements.MARKETPLACE_INPUT_PASSWORD));
-        pwdInput.sendKeys(password);
-
-        driver.findElement(By.id(PortalHtmlElements.MARKETPLACE_BUTTON_LOGIN)).click();
-
-        System.out.println("Login OSCM Marketplace");
-    }
-
-    /**
-     * Navigates the webdriver to the given page of the OSCM marketplace.
-     * 
-     * @param page
-     *            the page of the portal
-     */
-    public void visitMarketplace(String context) {
-        String target = String.format(BASE_PATH_MARKETPLACE, basePortalUrl, context);
-
-        driver.navigate().to(target);
-
-        System.out.println("Goto " + target);
-    }
-
-    /**
-     * Logs out the current user from the OSCM marketplace. Note that this
-     * method assumes that there is a logged in user and that the driverApp is at a
-     * marketplace page.
-     */
-    public void logoutMarketplace() {
-        driver.findElement(By.id(PortalHtmlElements.MARKETPLACE_LINK_LOGOUT)).click();
-
-        System.out.println("Logout OSCM Marketplace");
-    }
 
     /**
      * found the text between two given text in String
@@ -301,24 +119,15 @@ public class WebTester {
      * @param after
      * @return
      */
-    public String foundTextBetween(String msg, String before, String after) {
+    protected String foundTextBetween(String msg, String before, String after) {
 
         msg = msg.substring(msg.indexOf(before) + before.length(), msg.indexOf(after));
  
         return msg;
        
     }
-    
-    /**
-     * found the text between two given text in String
-     * @param msg
-     * @return
-     */
-    public String getCreatedId(String msg) {
 
-        return foundTextBetween(msg, "ID ", " has");
-       
-    }
+    
 
     /**
      * Reads the error message from the page notification.
@@ -328,9 +137,8 @@ public class WebTester {
      *             if error message is not present
      */
     public String readErrorMessage() {
-        WebElement element = driver.findElement(By.id(PortalHtmlElements.PORTAL_SPAN_ERRORS));
-        return element.findElement(By.className(PortalHtmlElements.PORTAL_ERRORCLASS))
-                .getText();
+        return "";
+
     }
 
     /**
@@ -341,22 +149,11 @@ public class WebTester {
      *             if info message is not present
      */
     public String readInfoMessage() {
-        WebElement element = driver.findElement(By.id(PortalHtmlElements.PORTAL_SPAN_INFOS));
-        return element.findElement(By.className(PortalHtmlElements.PORTAL_INFOCLASS))
-                .getText();
+        return "";
     }
 
     public boolean getPortalExecutionResult() {
-        waitForElement(PortalHtmlElements.PORTAL_DIV_SHOWMESSAGE, 10);
-        if(!verifyFoundElement(PortalHtmlElements.PORTAL_SPAN_ERRORS)
-                && verifyFoundElement(PortalHtmlElements.PORTAL_SPAN_INFOS))
-        {
-            logger.info(readInfoMessage());
-            return true;
-        }else {
-            logger.info(readErrorMessage());
-            return false;
-        }
+        return false;
     }
     /**
      * Verifies if found the required element
@@ -379,8 +176,7 @@ public class WebTester {
         }
         return false;
     }
-    
-    
+
     /**
      * Verifies if the content of the element with the given id is equal to the
      * given value.
@@ -526,43 +322,7 @@ public class WebTester {
         (new WebDriverWait(driver, seconds)).withTimeout(seconds, TimeUnit.SECONDS);
     }
     
-    /**
-     * Reads the latest email with the given subject from the email inbox.
-     * 
-     * @param subject
-     *            the email subject
-     * @return the email body or null if no email was found
-     * @throws Exception
-     */
-    public String readLatestEmailWithSubject(String subject) throws Exception {
-        Store store = mailSession.getStore();
-        store.connect();
-
-        Folder folder = store.getFolder(MAIL_INBOX);
-        folder.open(Folder.READ_WRITE);
-
-        Message[] messages = null;
-
-        messages = folder.search(new SubjectTerm(subject));
-
-        String body = null;
-        if (messages.length > 0) {
-            Message latest = messages[0];
-
-            for (Message m : messages) {
-                if (latest.getSentDate().compareTo(m.getSentDate()) < 0) {
-                    latest = m;
-                }
-            }
-            body = (String) latest.getContent();
-        }
-
-        folder.close(false);
-        store.close();
-
-        return body;
-    }
-
+ 
     /**
      * Returns the current URL that the webdriver is visiting.
      * 
@@ -572,15 +332,7 @@ public class WebTester {
         return driver.getCurrentUrl();
     }
 
-    /**
-     * Returns the configured email address.
-     * 
-     * @return the email address
-     */
-    public String getEmailAddress() {
-        return address;
-    }
-    
+
     public void log (String msg) {
         logger.info(msg);
     }

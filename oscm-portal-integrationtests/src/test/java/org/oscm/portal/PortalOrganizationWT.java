@@ -20,7 +20,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.oscm.webtest.PortalHtmlElements;
 import org.oscm.webtest.PortalPathSegments;
-import org.oscm.webtest.WebTester;
+import org.oscm.webtest.PortalTester;
 
 /**
  * Integration web test to create an organization.
@@ -35,14 +35,14 @@ public class PortalOrganizationWT {
 
     private static final int PASSWORD_LENGTH = 8;
 
-    private static WebTester tester;
+    private static PortalTester tester;
     private static String passwordOrgAdmin = "";
 
     @BeforeClass
     public static void setup() throws Exception {
-        tester = new WebTester();
-        String userid=tester.getPropertie(WebTester.BES_ADMIN_USER_ID);
-        String userpassword = tester.getPropertie(WebTester.BES_ADMIN_USER_PWD);
+        tester = new PortalTester();
+        String userid=tester.getPropertie(PortalTester.BES_ADMIN_USER_ID);
+        String userpassword = tester.getPropertie(PortalTester.BES_ADMIN_USER_PWD);
         tester.loginPortal(userid, userpassword);
     }
 
@@ -53,7 +53,7 @@ public class PortalOrganizationWT {
     }
 
     @Test
-    public void createSupplierOrg() throws Exception {
+    public void test01createSupplierOrg() throws Exception {
 
         tester.visitPortal(PortalPathSegments.CREATE_ORGANIZATION);
 
@@ -83,7 +83,7 @@ public class PortalOrganizationWT {
     }
 
     @Test
-    public void readEmailForPassword() throws Exception {
+    public void test02readEmailForPassword() throws Exception {
 
         Thread.sleep(30000);
 
@@ -105,15 +105,15 @@ public class PortalOrganizationWT {
     }
 
     @Test
-    public void testChangePassword() throws LoginException, InterruptedException {
+    public void test03ChangePassword() throws LoginException, InterruptedException {
 //        String passwprd = tester.getPropertie(WebTester.BES_ADMIN_USER_PWD);        
 
         tester.logoutPortal();
         tester.loginPortal(ORG_ADMIN, passwordOrgAdmin);
 
         tester.writeValue(PortalHtmlElements.PORTAL_PASSWORD_INPUT_CURRENT, passwordOrgAdmin);
-        tester.writeValue(PortalHtmlElements.PORTAL_PASSWORD_INPUT_CHANGE, tester.getPropertie(WebTester.BES_ADMIN_USER_PWD));
-        tester.writeValue(PortalHtmlElements.PORTAL_PASSWORD_INPUT_REPEAT, tester.getPropertie(WebTester.BES_ADMIN_USER_PWD));
+        tester.writeValue(PortalHtmlElements.PORTAL_PASSWORD_INPUT_CHANGE, tester.getPropertie(PortalTester.BES_ADMIN_USER_PWD));
+        tester.writeValue(PortalHtmlElements.PORTAL_PASSWORD_INPUT_REPEAT, tester.getPropertie(PortalTester.BES_ADMIN_USER_PWD));
 
         tester.clickElement(PortalHtmlElements.PORTAL_PASSWORD_BUTTON_SAVE);
 

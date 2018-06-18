@@ -74,6 +74,8 @@
 		    <manifest>
 			<addClasspath>true</addClasspath>
 			<mainClass>org.oscm.webtest.WebTester</mainClass>
+			<mainClass>org.oscm.webtest.PortalTester</mainClass>
+			<mainClass>org.oscm.webtest.AppTester</mainClass>
 			<classpathPrefix>dependency-jars/</classpathPrefix>
 		    </manifest>
 		</archive>

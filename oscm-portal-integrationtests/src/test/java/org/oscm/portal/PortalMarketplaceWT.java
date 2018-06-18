@@ -17,7 +17,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.oscm.webtest.PortalHtmlElements;
 import org.oscm.webtest.PortalPathSegments;
-import org.oscm.webtest.WebTester;
+import org.oscm.webtest.PortalTester;
 
 /**
  * Integration web test to create an new marketplace.
@@ -30,13 +30,13 @@ public class PortalMarketplaceWT {
     
     private String marketplaceId;
     
-    private static WebTester tester;
+    private static PortalTester tester;
     
     @BeforeClass
     public static void setup() throws Exception {
-        tester = new WebTester();
-        String userid=tester.getPropertie(WebTester.BES_ADMIN_USER_ID);
-        String userpassword = tester.getPropertie(WebTester.BES_ADMIN_USER_PWD);
+        tester = new PortalTester();
+        String userid=tester.getPropertie(PortalTester.BES_ADMIN_USER_ID);
+        String userpassword = tester.getPropertie(PortalTester.BES_ADMIN_USER_PWD);
         tester.loginPortal(userid, userpassword);
     }
 
@@ -47,7 +47,7 @@ public class PortalMarketplaceWT {
     }
 
     @Test
-    public void create() throws Exception {
+    public void test01create() throws Exception {
         marketplaceId = "";
       
         tester.visitPortal(PortalPathSegments.CREATE_MARKETPLACE);
