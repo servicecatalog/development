@@ -1,0 +1,24 @@
+<!-- Copyright FUJITSU LIMITED 2017-->
+<project name="Setup Integration Test Environment - for Selenium Test" basedir="." default="setup.forSelenium">
+<property name="dir.root" value="${basedir}/../.." />
+  <target name="setup.forSelenium">
+    <antcall target="prepareBes" />
+    <antcall target="prepareApp" />
+    <antcall target="restartBes" />
+    <antcall target="restartApp" />    
+  </target>
+  <target name="restartBes">
+  <ant antfile="build-integration-setup-app.xml" target="restartBes"/>
+  </target>
+    <target name="restartApp">
+  <ant antfile="build-integration-setup-app.xml" target="restartAPP"/>
+  </target>
+  <target name="prepareBes">
+  <ant antfile="build.xml" target="STANDALONE.setupWithoutCoverage"/>
+  </target>
+   <target name="prepareApp">
+  <ant antfile="build-app.xml" target="APP.setup" /> 
+  <ant antfile="build-integration-setup-app.xml" target="_deleteCerts" />
+  <ant antfile="build-integration-setup-app.xml" target="_exchangeAndImportCerts" />
+  </target>
+</project>
