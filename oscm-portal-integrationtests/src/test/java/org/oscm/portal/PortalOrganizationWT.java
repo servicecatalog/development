@@ -21,6 +21,7 @@ import org.junit.runners.MethodSorters;
 import org.oscm.webtest.PortalHtmlElements;
 import org.oscm.webtest.PortalPathSegments;
 import org.oscm.webtest.PortalTester;
+import org.oscm.webtest.WebTester;
 
 /**
  * Integration web test to create an organization.
@@ -114,9 +115,7 @@ public class PortalOrganizationWT {
         tester.writeValue(PortalHtmlElements.PORTAL_PASSWORD_INPUT_CURRENT, passwordOrgAdmin);
         tester.writeValue(PortalHtmlElements.PORTAL_PASSWORD_INPUT_CHANGE, tester.getPropertie(PortalTester.BES_ADMIN_USER_PWD));
         tester.writeValue(PortalHtmlElements.PORTAL_PASSWORD_INPUT_REPEAT, tester.getPropertie(PortalTester.BES_ADMIN_USER_PWD));
-
         tester.clickElement(PortalHtmlElements.PORTAL_PASSWORD_BUTTON_SAVE);
-
         tester.wait(WebTester.IMPLICIT_WAIT);        
         String currentURL = tester.getCurrentUrl();
         assertTrue(currentURL.contains(PortalPathSegments.IMPORT_TECHNICALSERVICE));

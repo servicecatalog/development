@@ -119,7 +119,7 @@ public class WebTester {
      * @param after
      * @return
      */
-    protected String foundTextBetween(String msg, String before, String after) {
+    protected String findTextBetween(String msg, String before, String after) {
 
         msg = msg.substring(msg.indexOf(before) + before.length(), msg.indexOf(after));
  

@@ -7,25 +7,13 @@
  *******************************************************************************/
 
 package org.oscm.webtest;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import java.util.Properties;
-
 import javax.security.auth.login.LoginException;
-
-import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.TimeoutException;
-
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.htmlunit.HtmlUnitDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.oscm.webtest.PortalHtmlElements;
 /**
  * Helper class for integration web tests using selenium and java mail.
  * 
@@ -118,29 +106,11 @@ public class AppTester extends WebTester {
      * Logs out the current user from the OSCM portal. Note that this method
      * assumes that there is a logged in user and that the driverApp is at a portal
      * page.
+     * @throws Exception 
      */
-    public void logoutApp() {
-       
-        logger.info("No Logout for APP");
-    }
-
-
-    /**
-     * found the text between two given text in String
-     * @param msg
-     * @param before
-     * @param after
-     * @return
-     */
-    public String foundTextBetween(String msg, String before, String after) {
-
-        msg = msg.substring(msg.indexOf(before) + before.length(), msg.indexOf(after));
- 
-        return msg;
+    public void logoutApp() throws Exception {
        
     }
-
-    
 
     /**
      * Reads the error message from the page notification.
@@ -225,11 +195,11 @@ public class AppTester extends WebTester {
         return input.getAttribute("value");
     }
     
-    public String returnRemoveLink(List<WebElement> tableRows, int index) {
+    public void clickRemoveLink(List<WebElement> tableRows, int index) {
         
         WebElement td = tableRows.get(index).findElement(By.xpath("//td[2]"));
-        WebElement input = td.findElement(By.xpath("//*[ends-with(@id,'"+ AppHtmlElements.APP_INPUT_END_EXISTORGID +"')]"));
-        return input.getAttribute("value");
+        WebElement href = td.findElement(By.tagName("a"));
+        href.click();
     }
     
 

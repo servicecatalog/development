@@ -224,7 +224,7 @@ public class PortalTester extends WebTester {
      */
     public String getCreatedId(String msg) {
 
-        return foundTextBetween(msg, "ID ", " has");
+        return findTextBetween(msg, "ID ", " has");
        
     }
 
