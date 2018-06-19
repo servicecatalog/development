@@ -1,24 +1,30 @@
 <!-- Copyright FUJITSU LIMITED 2017-->
 <project name="Setup Integration Test Environment - for Selenium Test" basedir="." default="setup.forSelenium">
 <property name="dir.root" value="${basedir}/../.." />
+<property name="devscript.dir" location="${dir.root}/oscm-devruntime/javares/devscripts" />
   <target name="setup.forSelenium">
     <antcall target="prepareBes" />
     <antcall target="prepareApp" />
     <antcall target="restartBes" />
-    <antcall target="restartApp" />    
+    <antcall target="restartApp" />
+  	<antcall target="prepareAppSamples" />
   </target>
   <target name="restartBes">
-  <ant antfile="build-integration-setup-app.xml" target="restartBes"/>
+  	<ant antfile="build-integration-setup-app.xml" target="restartBes"/>
   </target>
-    <target name="restartApp">
-  <ant antfile="build-integration-setup-app.xml" target="restartAPP"/>
+  <target name="restartApp">
+	<ant antfile="build-integration-setup-app.xml" target="restartAPP"/>
   </target>
   <target name="prepareBes">
-  <ant antfile="build.xml" target="STANDALONE.setupWithoutCoverage"/>
+  	<ant antfile="build.xml" target="STANDALONE.setupWithoutCoverage"/>
   </target>
    <target name="prepareApp">
-  <ant antfile="build-app.xml" target="APP.setup" /> 
-  <ant antfile="build-integration-setup-app.xml" target="_deleteCerts" />
-  <ant antfile="build-integration-setup-app.xml" target="_exchangeAndImportCerts" />
+  	<ant antfile="build-app.xml" target="APP.setup" /> 
+  	<ant antfile="build-integration-setup-app.xml" target="_deleteCerts" />
+  	<ant antfile="build-integration-setup-app.xml" target="_exchangeAndImportCerts" />
   </target>
+   <target name="prepareAppSamples">
+   	<ant antfile="${devscript.dir}/build-dev-PackageDeploySamples.xml" target="APPSample.DEPLOY" dir="${devscript.dir}"/>
+   	
+   	</target>
 </project>
