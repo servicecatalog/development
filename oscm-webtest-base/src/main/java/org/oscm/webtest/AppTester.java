@@ -39,12 +39,12 @@ public class AppTester extends WebTester {
     public AppTester() throws Exception {
         super();
 
-        String base = loadUrl(APP_SECURE, APP_HTTPS_URL, APP_HTTP_URL);
-        if(base.contains("https"))
+        String baseUrl = loadUrl(APP_SECURE, APP_HTTPS_URL, APP_HTTP_URL);
+        if(baseUrl.contains("https"))
         {
-            baseUrl = "https://" + base;
+            base = baseUrl.replace("https://", "");
         }else {
-            baseUrl = "http://" + base;
+            base = baseUrl.replace("http://", "");
         }
     }
     

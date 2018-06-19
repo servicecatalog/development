@@ -32,23 +32,17 @@ import org.openqa.selenium.support.ui.WebDriverWait;
  */
 public class WebTester {
     
-    protected static final Logger logger = Logger.getLogger(WebTester.class);
-
     public static final int IMPLICIT_WAIT = 10;
-
-    // path schemas
-    private static final String PROPERTY_PATH = "../oscm-devruntime/javares/local/%s/webtest.properties";
-
+    
+    protected static final Logger logger = Logger.getLogger(WebTester.class);    
     // web element keys
     protected static final String ATTRIUBTE_VALUE = "value";
-
     protected String baseUrl = "";
-    
     protected HtmlUnitDriver driver;    
-
     protected Properties prop;
 
-    
+ // path schemas
+    private static final String PROPERTY_PATH = "../oscm-devruntime/javares/local/%s/webtest.properties";
     public WebTester() throws Exception {
 
         loadPropertiesFile();
