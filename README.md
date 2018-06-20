@@ -112,4 +112,3 @@ After the environment is set up, developers can use the Ant targets to build/red
 #### Deploying eclipse-birt-runtime
 
 OSCM uses [eclipse-birt-runtime](http://www.eclipse.org/birt/) to generate reports. After OSCM is deployed, it is time for you to download and deploy eclipse-birt-runtime. You can find it under the [link](http://download.eclipse.org/birt/downloads/). Birt.war is the application you should be interested in. We advise you to get the latest version. When you have deployed the application, you may upload all the reports that we have designed for you. The reports are delivered with every [release](https://github.com/servicecatalog/development/releases) in oscm-reports.zip. Just unpack the content to a folder on GlassFish where the application has been deployed (usually: ${glassfishHome}\glassfish\domains\\{domain}\applications\\{ecilpse_runtime_folder}).
-
