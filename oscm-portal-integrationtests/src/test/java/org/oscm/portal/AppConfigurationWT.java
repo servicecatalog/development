@@ -1,3 +1,10 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2018                                           
+ *                                                                                                                                 
+ *  Creation Date: 20 6, 2018                                                      
+ *                                                                              
+ *******************************************************************************/
 package org.oscm.portal;
 
 import org.junit.AfterClass;
@@ -5,32 +12,44 @@ import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import org.oscm.webtest.AppTester;
-import org.oscm.webtest.PortalTester;
+import org.oscm.webtest.AppConfigurationTester;
 
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 
 public class AppConfigurationWT {
 
-    private static AppTester tester;
+    private static AppConfigurationTester tester;
+    private static String TEST_CONTROLLER_ID = "ess.selenium";
     
     @BeforeClass
     public static void setup() throws Exception {
-        tester = new AppTester();
-        String userid=tester.getPropertie(AppTester.APP_ADMIN_USER_ID);
-        String userpassword = tester.getPropertie(AppTester.APP_ADMIN_USER_PWD);
-        tester.loginApp(userid, userpassword);
+        tester = new AppConfigurationTester();
+        String userid=tester.getPropertie(AppConfigurationTester.APP_ADMIN_USER_ID);
+        String userpassword = tester.getPropertie(AppConfigurationTester.APP_ADMIN_USER_PWD);
+        tester.loginAppConfig(userid, userpassword);
     }
 
     @AfterClass
     public static void cleanUp() throws Exception {
-        tester.logoutApp();
+        tester.logoutAppConfig();
         tester.close();
+
     }
 
     @Test
-    public void test01createNewControllerId() throws Exception {
+    public void test01setConfiguration() throws Exception {
+
+        tester.setAppAdminMailAddress(PlaygroundSuiteTest.supplierOrgAdminMail);
+        tester.setBssUserId(PlaygroundSuiteTest.supplierOrgAdminId);
+        tester.setBssUserPwd(PlaygroundSuiteTest.supplierOrgAdminPwd);       
+    }  
+    
+    @Test
+    public void test02createNewControllerId() throws Exception {
+
+        tester.registerController(TEST_CONTROLLER_ID, PlaygroundSuiteTest.supplierOrgId);
+        PlaygroundSuiteTest.controllerId = TEST_CONTROLLER_ID;
         
     }    
     

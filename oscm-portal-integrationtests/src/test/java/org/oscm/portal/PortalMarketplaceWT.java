@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2017                                           
+ *  Copyright FUJITSU LIMITED 2018                                           
  *                                                                                                                                 
  *  Creation Date: Feb 8, 2017                                                      
  *                                                                              
@@ -15,6 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.openqa.selenium.By;
 import org.oscm.webtest.PortalHtmlElements;
 import org.oscm.webtest.PortalPathSegments;
 import org.oscm.webtest.PortalTester;
@@ -58,7 +59,7 @@ public class PortalMarketplaceWT {
 
         tester.clickElement(PortalHtmlElements.CREATE_MARKETPLACE__BUTTON_SAVE);
 
-        assertTrue(tester.getPortalExecutionResult());
+        assertTrue(tester.getExecutionResult());
         
     }
     
@@ -73,12 +74,12 @@ public class PortalMarketplaceWT {
         
         tester.visitPortal(PortalPathSegments.DELETE_MARKETPLACE);
         tester.selectDropdown(PortalHtmlElements.DELETE_MARKETPLACE_DROPDOWN_IDLIST, marketplaceId);
-        tester.waitForElement(PortalHtmlElements.DELETE_MARKETPLACE_BUTTON_DELETE, 10);        
+        tester.waitForElement(By.id(PortalHtmlElements.DELETE_MARKETPLACE_BUTTON_DELETE), 10);        
         tester.clickElement(PortalHtmlElements.DELETE_MARKETPLACE_BUTTON_DELETE);
-        tester.waitForElement(PortalHtmlElements.DELETE_MARKETPLACE_BUTTON_CONFIRM, 10);        
+        tester.waitForElement(By.id(PortalHtmlElements.DELETE_MARKETPLACE_BUTTON_CONFIRM), 10);        
         tester.clickElement(PortalHtmlElements.DELETE_MARKETPLACE_BUTTON_CONFIRM);
 
-        assertTrue(tester.getPortalExecutionResult());
+        assertTrue(tester.getExecutionResult());
     }
 
 }

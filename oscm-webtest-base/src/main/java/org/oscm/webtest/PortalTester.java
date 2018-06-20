@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2017                                           
+ *  Copyright FUJITSU LIMITED 2018                                           
  *                                                                                                                                 
- *  Creation Date: Feb 7, 2017                                                      
+ *  Creation Date: 20 6, 2018                                                      
  *                                                                              
  *******************************************************************************/
 
@@ -28,17 +28,6 @@ import org.oscm.webtest.PortalHtmlElements;
  * @author miethaner
  */
 public class PortalTester extends WebTester {
-    
-//    private static final Logger logger = Logger.getLogger(PortalTester.class);
-//
-//    public static final int IMPLICIT_WAIT = 10;
-
-    // property keys
-    private static final String BES_SECURE = "bes.secure";
-    private static final String BES_HTTP_URL = "bes.http.url";
-    private static final String BES_HTTPS_URL = "bes.https.url";
-    public static final String BES_ADMIN_USER_ID = "bes.user.id";
-    public static final String BES_ADMIN_USER_PWD = "bes.user.password";
     
     private static final String EMAIL_ADDRESS = "email.address";
     private static final String EMAIL_HOST = "email.host";
@@ -124,7 +113,7 @@ public class PortalTester extends WebTester {
 
         wait(IMPLICIT_WAIT);
         
-        if(!verifyFoundElement(PortalHtmlElements.PORTAL_DIV_LOGIN_FAILED)) 
+        if(!verifyFoundElement(By.id(PortalHtmlElements.PORTAL_DIV_LOGIN_FAILED))) 
         {
             log("Login to OSCM Portal successfully with userid:" + user);
         }else {
@@ -254,10 +243,10 @@ public class PortalTester extends WebTester {
                 .getText();
     }
 
-    public boolean getPortalExecutionResult() {
-        waitForElement(PortalHtmlElements.PORTAL_DIV_SHOWMESSAGE, 20);
-        if(!verifyFoundElement(PortalHtmlElements.PORTAL_SPAN_ERRORS)
-                && verifyFoundElement(PortalHtmlElements.PORTAL_SPAN_INFOS))
+    public boolean getExecutionResult() {
+        waitForElement(By.id(PortalHtmlElements.PORTAL_DIV_SHOWMESSAGE), 20);
+        if(!verifyFoundElement(By.id(PortalHtmlElements.PORTAL_SPAN_ERRORS))
+                && verifyFoundElement(By.id(PortalHtmlElements.PORTAL_SPAN_INFOS)))
         {
             log(readInfoMessage());
             return true;

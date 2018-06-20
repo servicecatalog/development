@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2017                                           
+ *  Copyright FUJITSU LIMITED 2018                                           
  *                                                                                                                                 
- *  Creation Date: Feb 7, 2017                                                      
+ *  Creation Date: 20 6, 2018                                                      
  *                                                                              
  *******************************************************************************/
 
@@ -33,6 +33,18 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 public class WebTester {
     
     public static final int IMPLICIT_WAIT = 10;
+    // property keys
+    public static final String BES_SECURE = "bes.secure";
+    public static final String BES_HTTP_URL = "bes.http.url";
+    public static final String BES_HTTPS_URL = "bes.https.url";
+    public static final String BES_ADMIN_USER_ID = "bes.user.id";
+    public static final String BES_ADMIN_USER_PWD = "bes.user.password";
+    
+    public static final String APP_SECURE = "app.secure";
+    public static final String APP_HTTP_URL = "app.http.url";
+    public static final String APP_HTTPS_URL = "app.https.url";
+    public static final String APP_ADMIN_USER_ID = "app.user.id";
+    public static final String APP_ADMIN_USER_PWD = "app.user.password";
     
     protected static final Logger logger = Logger.getLogger(WebTester.class);    
     // web element keys
@@ -41,6 +53,8 @@ public class WebTester {
     protected HtmlUnitDriver driver;    
     protected Properties prop;
 
+    
+    
  // path schemas
     private static final String PROPERTY_PATH = "../oscm-devruntime/javares/local/%s/webtest.properties";
     public WebTester() throws Exception {
@@ -135,20 +149,16 @@ public class WebTester {
 
     }
 
-    /**
-     * Reads the info message from the page notification.
-     * 
-     * @return the info message
-     * @throws NoSuchElementException
-     *             if info message is not present
-     */
     public String readInfoMessage() {
         return "";
     }
 
-    public boolean getPortalExecutionResult() {
+    public boolean getExecutionResult() {
         return false;
     }
+    
+   
+    
     /**
      * Verifies if found the required element
      * 
@@ -160,10 +170,10 @@ public class WebTester {
      * @throws NoSuchElementException
      *             if element is not present
      */
-    public boolean verifyFoundElement(String id) {
-        
+    public boolean verifyFoundElement(By by) {
+
         try {
-        if(driver.findElement(By.id(id))!=null)
+        if(driver.findElement(by)!=null)
             return true;
         }catch(NoSuchElementException e) {
             return false;
@@ -296,9 +306,9 @@ public class WebTester {
      * @throws TimeoutException
      *             if the timeout is reached
      */
-    public void waitForElement(String id, int seconds) {
+    public void waitForElement(By by, int seconds) {
         (new WebDriverWait(driver, seconds))
-                .until(ExpectedConditions.presenceOfElementLocated(By.id(id)));
+                .until(ExpectedConditions.presenceOfElementLocated(by));
     }
 
     /**
