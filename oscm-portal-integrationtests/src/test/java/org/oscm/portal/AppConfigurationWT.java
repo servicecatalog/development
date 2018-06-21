@@ -13,20 +13,20 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.oscm.webtest.AppConfigurationTester;
-
-
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 
 public class AppConfigurationWT {
 
     private static AppConfigurationTester tester;
-    private static String TEST_CONTROLLER_ID = "ess.selenium";
-    
+    private static String TEST_CONTROLLER_ID = "ess."+System.currentTimeMillis();
+
     @BeforeClass
     public static void setup() throws Exception {
         tester = new AppConfigurationTester();
-        String userid=tester.getPropertie(AppConfigurationTester.APP_ADMIN_USER_ID);
-        String userpassword = tester.getPropertie(AppConfigurationTester.APP_ADMIN_USER_PWD);
+        String userid = tester
+                .getPropertie(AppConfigurationTester.APP_ADMIN_USER_ID);
+        String userpassword = tester
+                .getPropertie(AppConfigurationTester.APP_ADMIN_USER_PWD);
         tester.loginAppConfig(userid, userpassword);
     }
 
@@ -41,17 +41,20 @@ public class AppConfigurationWT {
     public void test01setConfiguration() throws Exception {
 
         tester.setAppAdminMailAddress(PlaygroundSuiteTest.supplierOrgAdminMail);
-        tester.setBssUserId(PlaygroundSuiteTest.supplierOrgAdminId);
-        tester.setBssUserPwd(PlaygroundSuiteTest.supplierOrgAdminPwd);       
-    }  
-    
-    @Test
-    public void test02createNewControllerId() throws Exception {
+        // BSS_USER_ID from app must be the administrator from platform_operator
+        tester.setBssUserId(tester
+                .getPropertie(AppConfigurationTester.APP_ADMIN_USER_ID));
+        tester.setBssUserPwd(tester
+                .getPropertie(AppConfigurationTester.APP_ADMIN_USER_PWD));
+    }
 
-        tester.registerController(TEST_CONTROLLER_ID, PlaygroundSuiteTest.supplierOrgId);
+    @Test
+    public void test02createNewControllerId() throws Exception {        
+
+        tester.registerController(TEST_CONTROLLER_ID,
+                PlaygroundSuiteTest.supplierOrgId);
         PlaygroundSuiteTest.controllerId = TEST_CONTROLLER_ID;
-        
-    }    
-    
-    
+
+    }
+
 }

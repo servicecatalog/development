@@ -1,3 +1,10 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2018                                           
+ *                                                                                                                                 
+ *  Creation Date: 20 6, 2018                                                      
+ *                                                                              
+ *******************************************************************************/
 package org.oscm.webtest;
 
 import javax.security.auth.login.LoginException;
@@ -8,18 +15,19 @@ import org.openqa.selenium.By;
  * Helper class for integration web tests for oscm-app-sample
  */
 public class AppSampleTester extends WebTester {
-    private String base;
+    private String base="";
+    private String head="";
     
     public AppSampleTester() throws Exception {
         super();
 
-        String baseUrl = loadUrl(APP_SECURE, APP_HTTPS_URL, APP_HTTP_URL);
-        if(baseUrl.contains("https"))
-        {
-            base = baseUrl.replace("https://", "");
-        }else {
-            base = baseUrl.replace("http://", "");
+        baseUrl = loadUrl(APP_SECURE, APP_HTTPS_URL, APP_HTTP_URL);
+        if (baseUrl.contains("https")) {
+            head = "https://";
+        } else {
+            head = "http://";
         }
+        base = baseUrl.replace(head, "");
     }
     
 
@@ -37,17 +45,17 @@ public class AppSampleTester extends WebTester {
      */
     public void loginAppSamples(String user, String password, String controllerId) throws LoginException, InterruptedException {
         
-        String url = "https://" + user + ":" + password + "@" + base +AppPathSegments.APP_SAMPLE_CONTROLLER;
+        String url = head + user + ":" + password + "@" + base +AppPathSegments.APP_SAMPLE_CONTROLLER;
         driver.get(url);
         driver.manage().window().maximize();
     
         wait(IMPLICIT_WAIT);
         
-        if(verifyFoundElement(By.id(AppHtmlElements.APP_CONFIG_FORM1))) 
+        if(verifyFoundElement(By.id(AppHtmlElements.APP_SAMPLECONTROLLER_FORM_ID))) 
         {
-            logger.info("Login to APP successfully with userid:" + user);
+            logger.info("Login to "+url+" successfully with userid:" + user);
         }else {
-            String info = "Login to APP failed with userid:" + user;
+            String info = "Login to "+url+" failed with userid:" + user;
             logger.info(info);
             throw new LoginException(info);
         }
@@ -62,12 +70,11 @@ public class AppSampleTester extends WebTester {
      *            the page of the portal
      * @throws Exception 
      */
-    public void visitAppConfig() throws Exception {
-        String target = baseUrl + AppPathSegments.APP_CONFIGURATION;
+    public void visitAppSamples() throws Exception {
+        String target = baseUrl + AppPathSegments.APP_SAMPLE_CONTROLLER;
         driver.navigate().to(target);
 
-        String actualTitle = driver.getTitle();
-        if (actualTitle==null || !actualTitle.contentEquals(AppHtmlElements.APP_CONFIG_TITLE))
+        if(verifyFoundElement(By.id(AppHtmlElements.APP_SAMPLECONTROLLER_FORM_ID))) 
         {
             logger.info("Navigate to " + target + " failed : HTTP Status 404 - Not Found");
             throw new Exception("Page not found!");
@@ -82,8 +89,7 @@ public class AppSampleTester extends WebTester {
      * page.
      * @throws Exception 
      */
-    public void logoutAppConfig() throws Exception {
-       
+    public void logoutAppSamples() throws Exception {
     }
 
 }

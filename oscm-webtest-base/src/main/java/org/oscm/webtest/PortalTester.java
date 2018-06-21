@@ -81,12 +81,6 @@ public class PortalTester extends WebTester {
             }
         });
     }
-    /**
-     * Closes all open resources of the helper
-     */
-    public void close() {
-        driver.close();
-    }
 
     /**
      * Attempts a login to the OSCM portal with the given credentials. Note that
@@ -153,7 +147,6 @@ public class PortalTester extends WebTester {
      */
     public void logoutPortal() {
         driver.findElement(By.id(PortalHtmlElements.PORTAL_LINK_LOGOUT)).click();
-
         log("Login out from OSCM Portal successfully");
     }
 
@@ -201,7 +194,6 @@ public class PortalTester extends WebTester {
      */
     public void logoutMarketplace() {
         driver.findElement(By.id(PortalHtmlElements.MARKETPLACE_LINK_LOGOUT)).click();
-
         System.out.println("Logout OSCM Marketplace");
     }
 

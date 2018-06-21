@@ -1,3 +1,10 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2018                                           
+ *                                                                                                                                 
+ *  Creation Date: 20 6, 2018                                                      
+ *                                                                              
+ *******************************************************************************/
 package org.oscm.webtest;
 
 public class PortalHtmlElements{
@@ -11,7 +18,6 @@ public class PortalHtmlElements{
 
     public static final String PORTAL_SPAN_ERRORS = "errorMessages:";
     public static final String PORTAL_ERRORCLASS = "rf-msgs-sum";
-
     public static final String PORTAL_SPAN_INFOS = "infoMessages:";
     public static final String PORTAL_INFOCLASS = "rf-msgs-sum";
     

@@ -31,7 +31,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
  * @author miethaner
  */
 public class WebTester {
-    
+
     public static final int IMPLICIT_WAIT = 10;
     // property keys
     public static final String BES_SECURE = "bes.secure";
@@ -39,24 +39,23 @@ public class WebTester {
     public static final String BES_HTTPS_URL = "bes.https.url";
     public static final String BES_ADMIN_USER_ID = "bes.user.id";
     public static final String BES_ADMIN_USER_PWD = "bes.user.password";
-    
+
     public static final String APP_SECURE = "app.secure";
     public static final String APP_HTTP_URL = "app.http.url";
     public static final String APP_HTTPS_URL = "app.https.url";
     public static final String APP_ADMIN_USER_ID = "app.user.id";
     public static final String APP_ADMIN_USER_PWD = "app.user.password";
-    
-    protected static final Logger logger = Logger.getLogger(WebTester.class);    
+
+    protected static final Logger logger = Logger.getLogger(WebTester.class);
     // web element keys
     protected static final String ATTRIUBTE_VALUE = "value";
     protected String baseUrl = "";
-    protected HtmlUnitDriver driver;    
+    protected HtmlUnitDriver driver;
     protected Properties prop;
 
-    
-    
- // path schemas
+    // path schemas
     private static final String PROPERTY_PATH = "../oscm-devruntime/javares/local/%s/webtest.properties";
+
     public WebTester() throws Exception {
 
         loadPropertiesFile();
@@ -64,14 +63,11 @@ public class WebTester {
         driver = new HtmlUnitDriver(true);
         driver.manage().timeouts().implicitlyWait(IMPLICIT_WAIT,
                 TimeUnit.SECONDS);
-        
 
     }
-    
-    
-    
+
     /**
-     *  Load properties from personal devruntime folder
+     * Load properties from personal devruntime folder
      * 
      */
     private void loadPropertiesFile() throws Exception {
@@ -82,7 +78,7 @@ public class WebTester {
             localhost = InetAddress.getLocalHost().getHostName();
         }
         String filePath = String.format(PROPERTY_PATH, localhost);
-        
+
         prop = new Properties();
         FileInputStream fis = new FileInputStream(filePath);
         prop.load(fis);
@@ -92,22 +88,23 @@ public class WebTester {
 
     /**
      * load Url
+     * 
      * @param prefix
      * @return
      * @throws NoSuchFieldException
      * @throws SecurityException
      */
-    protected String loadUrl(String secureUrl, String httpsUrl, String httpUrl) throws NoSuchFieldException, SecurityException {
-     
+    protected String loadUrl(String secureUrl, String httpsUrl, String httpUrl)
+            throws NoSuchFieldException, SecurityException {
+
         boolean secure = Boolean.parseBoolean(prop.getProperty(secureUrl));
-    
         if (secure) {
             return prop.getProperty(httpUrl);
         } else {
             return prop.getProperty(httpsUrl);
-        }  
+        }
     }
- 
+
     public String getPropertie(String propertie) {
         return prop.getProperty(propertie);
     }
@@ -119,9 +116,9 @@ public class WebTester {
         driver.close();
     }
 
-
     /**
      * found the text between two given text in String
+     * 
      * @param msg
      * @param before
      * @param after
@@ -129,13 +126,12 @@ public class WebTester {
      */
     protected String findTextBetween(String msg, String before, String after) {
 
-        msg = msg.substring(msg.indexOf(before) + before.length(), msg.indexOf(after));
- 
-        return msg;
-       
-    }
+        msg = msg.substring(msg.indexOf(before) + before.length(),
+                msg.indexOf(after));
 
-    
+        return msg;
+
+    }
 
     /**
      * Reads the error message from the page notification.
@@ -156,9 +152,7 @@ public class WebTester {
     public boolean getExecutionResult() {
         return false;
     }
-    
-   
-    
+
     /**
      * Verifies if found the required element
      * 
@@ -173,9 +167,9 @@ public class WebTester {
     public boolean verifyFoundElement(By by) {
 
         try {
-        if(driver.findElement(by)!=null)
-            return true;
-        }catch(NoSuchElementException e) {
+            if (driver.findElement(by) != null)
+                return true;
+        } catch (NoSuchElementException e) {
             return false;
         }
         return false;
@@ -195,8 +189,9 @@ public class WebTester {
      */
     public boolean verifyEqualElement(String id, String value) {
         WebElement element = driver.findElement(By.id(id));
-        if(element == null) return false;
-        
+        if (element == null)
+            return false;
+
         String attribute = element.getAttribute(ATTRIUBTE_VALUE);
 
         if (attribute != null && attribute.equals(value)) {
@@ -323,10 +318,10 @@ public class WebTester {
      *             if the timeout is reached
      */
     public void wait(int seconds) {
-        (new WebDriverWait(driver, seconds)).withTimeout(seconds, TimeUnit.SECONDS);
+        (new WebDriverWait(driver, seconds)).withTimeout(seconds,
+                TimeUnit.SECONDS);
     }
-    
- 
+
     /**
      * Returns the current URL that the webdriver is visiting.
      * 
@@ -336,8 +331,7 @@ public class WebTester {
         return driver.getCurrentUrl();
     }
 
-
-    public void log (String msg) {
+    public void log(String msg) {
         logger.info(msg);
     }
 }

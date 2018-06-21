@@ -5,7 +5,6 @@
  *  Creation Date: 20 6, 2018                                                      
  *                                                                              
  *******************************************************************************/
-
 package org.oscm.webtest;
 
 import java.util.List;
@@ -14,12 +13,10 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 
-
 /**
  * Helper class for integration web tests for oscm-app/default.jsf
  */
 public class AppConfigurationTester extends WebTester {
-
 
     private String appAdminMailAddress = "";
     private String appBaseUrl = "";
@@ -28,16 +25,18 @@ public class AppConfigurationTester extends WebTester {
     private String bssUserPwd = "";
 
     private String base;
+    private String head;
 
     public AppConfigurationTester() throws Exception {
         super();
 
-        String baseUrl = loadUrl(APP_SECURE, APP_HTTPS_URL, APP_HTTP_URL);
+        baseUrl = loadUrl(APP_SECURE, APP_HTTPS_URL, APP_HTTP_URL);
         if (baseUrl.contains("https")) {
-            base = baseUrl.replace("https://", "");
+            head = "https://";
         } else {
-            base = baseUrl.replace("http://", "");
+            head = "http://";
         }
+        base = baseUrl.replace(head, "");
     }
 
     /**
@@ -54,7 +53,7 @@ public class AppConfigurationTester extends WebTester {
     public void loginAppConfig(String user, String password)
             throws LoginException, InterruptedException {
 
-        String url = "https://" + user + ":" + password + "@" + base
+        String url = head + user + ":" + password + "@" + base
                 + AppPathSegments.APP_CONFIGURATION;
         driver.get(url);
         driver.manage().window().maximize();
@@ -62,9 +61,10 @@ public class AppConfigurationTester extends WebTester {
         wait(IMPLICIT_WAIT);
 
         if (verifyFoundElement(By.id(AppHtmlElements.APP_CONFIG_FORM1))) {
-            logger.info("Login to APP successfully with userid:" + user);
+            logger.info(
+                    "Login to " + url + " successfully with userid:" + user);
         } else {
-            String info = "Login to APP failed with userid:" + user;
+            String info = "Login to " + url + " failed with userid:" + user;
             logger.info(info);
             throw new LoginException(info);
         }
@@ -81,9 +81,7 @@ public class AppConfigurationTester extends WebTester {
         String target = baseUrl + AppPathSegments.APP_CONFIGURATION;
         driver.navigate().to(target);
 
-        String actualTitle = driver.getTitle();
-        if (actualTitle == null || !actualTitle
-                .contentEquals(AppHtmlElements.APP_CONFIG_TITLE)) {
+        if (verifyFoundElement(By.id(AppHtmlElements.APP_CONFIG_FORM1))) {
             logger.info("Navigate to " + target
                     + " failed : HTTP Status 404 - Not Found");
             throw new Exception("Page not found!");
@@ -100,7 +98,6 @@ public class AppConfigurationTester extends WebTester {
      * @throws Exception
      */
     public void logoutAppConfig() throws Exception {
-
     }
 
     /**
@@ -112,7 +109,7 @@ public class AppConfigurationTester extends WebTester {
      */
     public String readErrorMessage() {
         WebElement element = driver.findElement(
-                By.className(AppHtmlElements.APP_CONFIG_LICLASS_STATUS_MSG));
+                By.className(AppHtmlElements.APP_CONFIG_DIV_CLASS_STATUS_MSG));
         return element
                 .findElement(By.className(
                         AppHtmlElements.APP_CONFIG_LICLASS_STATUS_MSG_ERROR))
@@ -128,7 +125,7 @@ public class AppConfigurationTester extends WebTester {
      */
     public String readInfoMessage() {
         WebElement element = driver.findElement(
-                By.className(AppHtmlElements.APP_CONFIG_LICLASS_STATUS_MSG));
+                By.className(AppHtmlElements.APP_CONFIG_DIV_CLASS_STATUS_MSG));
         return element
                 .findElement(By.className(
                         AppHtmlElements.APP_CONFIG_LICLASS_STATUS_MSG_OK))
@@ -137,7 +134,7 @@ public class AppConfigurationTester extends WebTester {
 
     public boolean getExecutionResult() {
         waitForElement(
-                By.className(AppHtmlElements.APP_CONFIG_LICLASS_STATUS_MSG),
+                By.className(AppHtmlElements.APP_CONFIG_DIV_CLASS_STATUS_MSG),
                 10);
 
         if (!verifyFoundElement(By
@@ -169,9 +166,7 @@ public class AppConfigurationTester extends WebTester {
 
         WebElement baseForm = driver.findElement(By.xpath(
                 "//form[@id='" + AppHtmlElements.APP_CONFIG_FORM1 + "']"));
-        baseForm.findElement(By.xpath("//input[@value='"
-                + AppHtmlElements.APP_CONFIG_FORM1_BUTTON_VALUE_SAVE_CONFIG
-                + "']")).click();
+        baseForm.findElement(By.className(AppHtmlElements.APP_CONFIG_FORM_BUTTON_CLASS)).click();
         if (!getExecutionResult())
             throw new Exception();
     }
@@ -232,8 +227,8 @@ public class AppConfigurationTester extends WebTester {
         input.sendKeys(keyword);
 
         driver.findElement(By.xpath("//form[@id='"
-                + AppHtmlElements.APP_CONFIG_FORM2 + "']" + "//input[@value='"
-                + AppHtmlElements.APP_CONFIG_FORM2_BUTTON_VALUE_SAVE_CONFIG
+                + AppHtmlElements.APP_CONFIG_FORM2 + "']" + "//input[@class='"
+                + AppHtmlElements.APP_CONFIG_FORM_BUTTON_CLASS
                 + "']")).click();
 
         if (!getExecutionResult())
