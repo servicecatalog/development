@@ -19,8 +19,7 @@ import org.oscm.webtest.AppConfigurationTester;
 public class AppConfigurationWT {
 
     private static AppConfigurationTester tester;
-    private static String TEST_CONTROLLER_ID = "ess."
-            + System.currentTimeMillis();
+    private static String TEST_CONTROLLER_ID = "ess.sample";
 
     @BeforeClass
     public static void setup() throws Exception {

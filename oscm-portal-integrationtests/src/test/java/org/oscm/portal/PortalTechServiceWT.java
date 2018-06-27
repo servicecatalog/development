@@ -90,4 +90,5 @@ public class PortalTechServiceWT {
         tester.getDriver().findElement(By.xpath(descriptionXpath)).clear();
         tester.getDriver().findElement(By.xpath(descriptionXpath)).sendKeys(paramDescription);
     }
+
 }
