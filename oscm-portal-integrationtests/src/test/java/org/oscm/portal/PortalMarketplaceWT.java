@@ -27,7 +27,7 @@ import org.oscm.webtest.PortalTester;
 public class PortalMarketplaceWT {
     
 
-    private static final String MARKETPLACE = "mp_test";
+    private static final String MARKETPLACE = "mp_" + PlaygroundSuiteTest.supplierOrgId;
     
     private String marketplaceId;
     
@@ -60,7 +60,7 @@ public class PortalMarketplaceWT {
         tester.clickElement(PortalHtmlElements.CREATE_MARKETPLACE__BUTTON_SAVE);
 
         assertTrue(tester.getExecutionResult());
-        
+        PlaygroundSuiteTest.marketPlaceId = tester.readInfoMessage().split(" ")[2];       
     }
     
 //    @Test

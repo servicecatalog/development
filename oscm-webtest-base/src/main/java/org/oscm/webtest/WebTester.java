@@ -18,7 +18,7 @@ import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
-
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -305,6 +305,23 @@ public class WebTester {
         (new WebDriverWait(driver, seconds))
                 .until(ExpectedConditions.presenceOfElementLocated(by));
     }
+    
+    /**
+     * Waits for the element with the given id to be present or until the given
+     * amount of seconds has passed.
+     * 
+     * @param id
+     *            the element id
+     * @param seconds
+     *            the seconds until timeout
+     * @throws TimeoutException
+     *             if the timeout is reached
+     */
+    public void waitForElementVisible(By by, int seconds) {
+        (new WebDriverWait(driver, seconds))
+        .until(ExpectedConditions.elementToBeClickable(by));
+        
+    }
 
     /**
      * Waits for the element with the given id to be present or until the given
@@ -333,5 +350,12 @@ public class WebTester {
 
     public void log(String msg) {
         logger.info(msg);
+    }
+    public HtmlUnitDriver getDriver() {
+        return driver;
+    }
+    
+    public void setDriver(HtmlUnitDriver driver) {
+        this.driver = driver;
     }
 }

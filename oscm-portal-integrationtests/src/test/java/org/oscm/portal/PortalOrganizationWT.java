@@ -120,7 +120,6 @@ public class PortalOrganizationWT {
         tester.wait(WebTester.IMPLICIT_WAIT);        
         String currentURL = tester.getCurrentUrl();
         assertTrue(currentURL.contains(PortalPathSegments.IMPORT_TECHNICALSERVICE));
-        PlaygroundSuiteTest.supplierOrgAdminPwd = tester.getPropertie(WebTester.BES_ADMIN_USER_PWD);
-        
+        PlaygroundSuiteTest.supplierOrgAdminPwd = tester.getPropertie(WebTester.BES_ADMIN_USER_PWD);   
     }
 }

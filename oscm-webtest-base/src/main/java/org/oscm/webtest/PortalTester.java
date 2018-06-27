@@ -9,6 +9,7 @@
 package org.oscm.webtest;
 
 import java.util.Properties;
+
 import javax.mail.Authenticator;
 import javax.mail.Folder;
 import javax.mail.Message;
@@ -21,20 +22,22 @@ import javax.security.auth.login.LoginException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
-import org.oscm.webtest.PortalHtmlElements;
 /**
  * Helper class for integration web tests using selenium and java mail.
  * 
  * @author miethaner
  */
 public class PortalTester extends WebTester {
-    
     private static final String EMAIL_ADDRESS = "email.address";
     private static final String EMAIL_HOST = "email.host";
     private static final String EMAIL_USER = "email.user";
     private static final String EMAIL_PASSWORD = "email.password";
     private static final String EMAIL_PROTOCOL = "email.protocol";
-
+    
+    public static final String TECHSERVICE_PARAM_EMAIL = "The receiver of emails.";
+    public static final String TECHSERVICE_PARAM_USER = "IAAS user";
+    public static final String TECHSERVICE_PARAM_PWD = "IAAS password";
+    public static final String TECHSERVICE_PARAM_MESSAGETEXT = "The message text for emails.";
     // path schemas
     private static final String BASE_PATH_PORTAL = "%s/oscm-portal/%s";
     private static final String BASE_PATH_MARKETPLACE = "%s/oscm-portal/marketplace/%s";
@@ -293,5 +296,6 @@ public class PortalTester extends WebTester {
     public String getEmailAddress() {
         return address;
     }
+
 
 }

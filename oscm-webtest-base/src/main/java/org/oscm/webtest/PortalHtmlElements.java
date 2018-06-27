@@ -60,5 +60,32 @@ public class PortalHtmlElements{
     public static final String CREATE_ORGANIZATION_INPUT_ORGADDRESS = "editForm:organizationAddress";
     public static final String CREATE_ORGANIZATION_DROPDOWN_ORGCOUNTRY = "editForm:organizationCountry";
     public static final String CREATE_ORGANIZATION_BUTTON_SAVE = "editForm:saveButtonLink";
+    
+    public static final String IMPORT_TECHSERVICE_UPLOAD_INPUT = "importForm:file";
+    public static final String IMPORT_TECHSERVICE_UPLOAD_BUTTON = "importForm:importButtonLink";
+    
+    public static final String UPDATE_TECHSERVICE_PARAM_TABLE = "editForm:parameterTable";
+    public static final String UPDATE_TECHSERVICE_DROPDOWN_SERVICENAME = "techServiceForm:techServiceId";
+    public static final String UPDATE_TECHSERVICE_BUTTONLINK_SAVE = "editForm:saveButtonLink";
+    
+    public static final String DEFINE_MARKETSERVICE_DROPDOWN_SERVICENAME = "editForm:techServiceId";
+    public static final String DEFINE_MARKETSERVICE_INPUT_SERVICENAME = "editForm:serviceId";
+    public static final String DEFINE_MARKETSERVICE_PARAM_TABLE = "editForm:parameterTable";
+    public static final String DEFINE_MARKETSERVICE_BUTTONLINK_SAVE = "editForm:saveButtonLink";
+    public static final String DEFINE_MARKETSERVICE_BUTTON_SAVE = "editForm:saveButton";
 
- }
+    
+    public static final String DEFINE_PRICEMODEL_DROPDOWN_SERVICENAME = "serviceSelectForm:serviceSelection";
+    public static final String DEFINE_PRICEMODEL_BUTTON_SAVE = "editForm:saveButton";
+    public static final String DEFINE_PRICEMODEL_CHECKBOX_FREE_OF_CHARGE = "editForm:isfree:0";
+    public static final String DEFINE_PRICEMODEL_CHECKBOX_PRO_RATE = "editForm:isfree:1";
+    public static final String DEFINE_PRICEMODEL_CHECKBOX_PER_UNITE = "editForm:isfree:2";
+    
+    public static final String DEFINE_PUBLISH_OPTION_DROPDOWN_SERVICENAME = "editForm:selectedServiceId";
+    public static final String DEFINE_PUBLISH_OPTION_DROPDOWN_MARKETPLACE = "editForm:marketplace";
+    public static final String DEFINE_PUBLISH_OPTION_BUTTON_SAVE = "editForm:saveButton";
+    
+    public static final String DEACTIVATION_SERVICE_FORM = "serviceDeActivationForm";
+    public static final String DEACTIVATION_SERVICE_TABLE = "serviceDeActivationForm:activationTable";
+    public static final String DEACTIVATION_SERVICE_BUTTON_SAVE = "serviceDeActivationForm:deActivateButtonLink";
+}
