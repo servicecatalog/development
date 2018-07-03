@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.oscm.webtest;
 
+import static org.junit.Assert.assertTrue;
+
 public class PortalHtmlElements{
     
     public static final String PORTAL_TITLE = "Service Catalog Manager";
@@ -28,6 +30,12 @@ public class PortalHtmlElements{
     public static final String PORTAL_PASSWORD_INPUT_REPEAT = "passwordform:password2";
     public static final String PORTAL_PASSWORD_BUTTON_SAVE= "passwordform:changeButtonLink";
     
+    public static final String MARKETPLACE_PASSWORD_INPUT_CURRENT = "passwordForm:currentPassword";
+    public static final String MARKETPLACE_PASSWORD_INPUT_CHANGE = "passwordForm:password";
+    public static final String MARKETPLACE_PASSWORD_INPUT_REPEAT = "passwordForm:password2";
+    public static final String MARKETPLACE_PASSWORD_BUTTONLINK_SAVE= "passwordForm:changeButtonLink";
+    public static final String MARKETPLACE_SPAN_WELCOME = "formLogout:welcome";
+    public static final String GOTO_MARKETPLACE_DROPDOWN_MARKETPLACE="gotoMarketplaceForm:marketplace";
     public static final String MARKETPLACE_INPUT_USERID = "loginForm:loginUserId";
     public static final String MARKETPLACE_INPUT_PASSWORD = "loginForm:loginPassword";
     public static final String MARKETPLACE_BUTTON_LOGIN = "loginForm:loginButtonLink";
@@ -88,4 +96,12 @@ public class PortalHtmlElements{
     public static final String DEACTIVATION_SERVICE_FORM = "serviceDeActivationForm";
     public static final String DEACTIVATION_SERVICE_TABLE = "serviceDeActivationForm:activationTable";
     public static final String DEACTIVATION_SERVICE_BUTTON_SAVE = "serviceDeActivationForm:deActivateButtonLink";
+    
+    public static final String REGISTER_CUSTOMER_INPUT_EMAIL = "editForm:email";
+    public static final String REGISTER_CUSTOMER_INPUT_USERID = "editForm:userId";
+    public static final String REGISTER_CUSTOMER_DROPDOWN_COUNTRY = "editForm:country";
+    public static final String REGISTER_CUSTOMER_DROPDOWN_MARKETPLACE = "editForm:marketplace";
+    public static final String REGISTER_CUSTOMER_BUTTONLINK_SAVE = "editForm:saveButtonLink";
+    
+    
 }

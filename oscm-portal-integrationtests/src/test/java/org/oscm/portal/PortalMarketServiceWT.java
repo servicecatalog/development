@@ -100,7 +100,7 @@ public class PortalMarketServiceWT {
         dropdownServiceName.selectByVisibleText(PlaygroundSuiteTest.marketServiceId);        
 
         Select dropdownMarketplace = new Select(tester.getDriver().findElement(By.id(PortalHtmlElements.DEFINE_PUBLISH_OPTION_DROPDOWN_MARKETPLACE)));
-        dropdownMarketplace.selectByValue(PlaygroundSuiteTest.marketPlaceId);
+        dropdownMarketplace.selectByValue(PlaygroundSuiteTest.supplierOrgId);
         
         tester.waitForElementVisible(By.id(PortalHtmlElements.DEFINE_PUBLISH_OPTION_BUTTON_SAVE), 10);        
         tester.clickElement(PortalHtmlElements.DEFINE_PUBLISH_OPTION_BUTTON_SAVE);

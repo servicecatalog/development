@@ -21,5 +21,8 @@ public class PortalPathSegments {
     public static final String DEFINE_PREICEMODEL = "priceModel/servicePriceModel.jsf";
     public static final String DEFINE_PUBLISHOPTION ="service/publish.jsf";
     public static final String ACTIVE_MARKETSERVICE = "service/activation.jsf";
-
+    
+    public static final String REGISTER_CUSTOMER = "organization/addCustomer.jsf";
+    
+    public static final String GOTO_MARKETPLACE = "shop/gotoMarketplace.jsf";
 }

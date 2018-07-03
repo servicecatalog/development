@@ -20,12 +20,10 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 
 @SuiteClasses({ PortalOrganizationWT.class, PortalMarketplaceWT.class, 
-    AppConfigurationWT.class,PortalTechServiceWT.class, PortalMarketServiceWT.class})
+    AppConfigurationWT.class,PortalTechServiceWT.class, PortalMarketServiceWT.class, PortalCustomerWT.class})
 public class PlaygroundSuiteTest {
 
     public static String supplierOrgId="";
-    public static String customerOrgId="";
-    
     public static String supplierOrgAdminId="";
     public static String supplierOrgAdminPwd="";
     public static String supplierOrgAdminMail="";
@@ -36,4 +34,7 @@ public class PlaygroundSuiteTest {
     public static String marketServiceId="";
     public static String techServiceUserId="";
     public static String techServiceUserPwd="";
+    
+    public static String customerId="";
+    public static String customerPwd="";
 }
