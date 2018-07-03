@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
+ *
  *  Copyright FUJITSU LIMITED 2017
- *                                                                              
- *  Creation Date: 17.08.2010                                                      
- *                                                                              
+ *
+ *  Creation Date: 17.08.2010
+ *
  *******************************************************************************/
 
 package org.oscm.app.v2_0.service;
@@ -1386,7 +1386,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
 
     /**
      * Returns the first service instance entry found in the database.
-     * 
+     *
      * @return A service instance.
      */
     private ServiceInstance getServiceInstance() throws Exception {
@@ -1408,7 +1408,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
     /**
      * Reads the existing service instances and validates that their status
      * matches the ones specified (in the given order).
-     * 
+     *
      * @param expectedStatus
      *            The status to check for.
      */
@@ -1525,7 +1525,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
 
     /**
      * Creates and persists a service instance object.
-     * 
+     *
      * @param status
      *            the status to be set for the service instance
      * @param parameters
@@ -1556,7 +1556,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
 
     /**
      * Creates and persists a service instance object.
-     * 
+     *
      * @param status
      *            the status to be set for the service instance
      * @param instanceProvisioning
@@ -1610,7 +1610,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
                 si.setRollbackParameters(
                         "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\r\n<properties>\r\n<entry key=\"param1.name\">NAME1</entry>\r\n<entry key=\"param1.value\">VALUE1</entry>\r\n<entry key=\"param1.encryption\">false</entry>\r\n<entry key=\"ROLLBACK_SUBSCRIPTIONID\">"
                                 + si.getSubscriptionId()
-                                + "</entry>\r\n<entry key=\"param1.name\">NAME2</entry>\r\n<entry key=\"param1.value\">VALUE2</entry>\r\n<entry key=\"param1.encryption\">false</entry>\r\n</properties>\r\n");
+                                + "</entry>\r\n<entry key=\"param2.name\">NAME2</entry>\r\n<entry key=\"param2.value\">VALUE2</entry>\r\n<entry key=\"param2.encryption\">false</entry>\r\n</properties>\r\n");
                 si.setRollbackInstanceAttributes(
                         "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\r\n<properties>\r\n<entry key=\"att1.name\">NAME1</entry>\r\n<entry key=\"att1.value\">VALUE1</entry>\r\n<entry key=\"att1.encryption\">false</entry>\r\n<entry key=\"ROLLBACK_SUBSCRIPTIONID\">"
                                 + si.getSubscriptionId()
@@ -1625,7 +1625,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
 
     /**
      * Updates the "runWithTimer" flag for the given service
-     * 
+     *
      * @param si
      *            the service which should be updated
      * @param runWithTimer
