@@ -7,8 +7,6 @@
  *******************************************************************************/
 package org.oscm.webtest;
 
-import static org.junit.Assert.assertTrue;
-
 public class PortalHtmlElements{
     
     public static final String PORTAL_TITLE = "Service Catalog Manager";

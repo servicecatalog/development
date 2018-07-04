@@ -13,12 +13,12 @@ import java.net.InetAddress;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -331,12 +331,12 @@ public class WebTester {
      *            the element id
      * @param seconds
      *            the seconds until timeout
+     * @throws InterruptedException 
      * @throws TimeoutException
      *             if the timeout is reached
      */
-    public void wait(int seconds) {
-        (new WebDriverWait(driver, seconds)).withTimeout(seconds,
-                TimeUnit.SECONDS);
+    public void wait(int seconds) throws InterruptedException {
+        driver.manage().timeouts().implicitlyWait(seconds, TimeUnit.SECONDS);
     }
 
     /**

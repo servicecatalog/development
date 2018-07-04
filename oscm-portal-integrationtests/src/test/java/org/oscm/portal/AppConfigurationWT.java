@@ -52,10 +52,18 @@ public class AppConfigurationWT {
     @Test
     public void test02createNewControllerId() throws Exception {
 
-        tester.registerController(TEST_CONTROLLER_ID,
-                PlaygroundSuiteTest.supplierOrgId);
+        try{
+            tester.registerController(TEST_CONTROLLER_ID,PlaygroundSuiteTest.supplierOrgId);
+        }catch(Exception e)
+        {
+            if(e.getMessage()!=null && e.getMessage().contentEquals(AppConfigurationTester.ERROR_MSG_CONTROLLER_EXISTS))
+                tester.changeOrgIdOnController(TEST_CONTROLLER_ID,PlaygroundSuiteTest.supplierOrgId);
+        }
+                
         PlaygroundSuiteTest.controllerId = TEST_CONTROLLER_ID;
-
+        
     }
+    
+    
 
 }
