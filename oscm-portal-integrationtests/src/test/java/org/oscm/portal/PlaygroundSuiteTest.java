@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2017                                           
+ *  Copyright FUJITSU LIMITED 2018                                           
  *                                                                                                                                 
  *  Creation Date: Feb 7, 2017                                                      
  *                                                                              
@@ -19,9 +19,22 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Suite.class)
 
-@SuiteClasses({ PortalOrganizationWT.class, PortalMarketplaceWT.class})
+@SuiteClasses({ PortalOrganizationWT.class, PortalMarketplaceWT.class, 
+    AppConfigurationWT.class,PortalTechServiceWT.class, PortalMarketServiceWT.class, PortalCustomerWT.class})
 public class PlaygroundSuiteTest {
 
-    public static String supplierOrgId;
-    public static String customerOrgId;
+    public static String supplierOrgId="";
+    public static String supplierOrgAdminId="";
+    public static String supplierOrgAdminPwd="";
+    public static String supplierOrgAdminMail="";
+    public static String marketPlaceId="";
+    
+    public static String controllerId="";
+    public static String techServiceId="";
+    public static String marketServiceId="";
+    public static String techServiceUserId="";
+    public static String techServiceUserPwd="";
+    
+    public static String customerId="";
+    public static String customerPwd="";
 }

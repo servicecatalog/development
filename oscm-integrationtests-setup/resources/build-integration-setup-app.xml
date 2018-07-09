@@ -41,7 +41,7 @@
   <import file="${basedir}/macrodefs_integration.xml" />
   <import file="${dir.workapp.setup.install}/macrodefs-glassfish.xml" />
 
-  <glassfishProperties filepath="${app.domain.path}"/>
+  <glassfishProperties filepath="${dir.workapp.setup}/domains/app_domain"/>
   <taskdef file="${workspace.dir}/oscm-build-antextensions/javares/org/oscm/build/ant/tasks.xml">
     <classpath>
       <fileset dir="${dir.build.src}/oscm-build/javalib" includes="*.jar" />

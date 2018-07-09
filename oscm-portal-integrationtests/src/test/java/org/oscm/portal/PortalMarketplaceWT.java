@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2017                                           
+ *  Copyright FUJITSU LIMITED 2018                                           
  *                                                                                                                                 
  *  Creation Date: Feb 8, 2017                                                      
  *                                                                              
@@ -8,33 +8,37 @@
 
 package org.oscm.portal;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import org.oscm.webtest.WebTester;
+import org.openqa.selenium.By;
+import org.oscm.webtest.PortalHtmlElements;
+import org.oscm.webtest.PortalPathSegments;
+import org.oscm.webtest.PortalTester;
 
 /**
  * Integration web test to create an new marketplace.
- * 
- * @author miethaner
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class PortalMarketplaceWT {
+    
 
-    private static final String USER = "administrator";
-    private static final String PASSWORD = "admin123";
-
-    private static final String MARKETPLACE = "mp_test";
-
-    private static WebTester tester;
-
+    private static final String MARKETPLACE = "mp_" + System.currentTimeMillis();
+    
+    private String marketplaceId;
+    
+    private static PortalTester tester;
+    
     @BeforeClass
     public static void setup() throws Exception {
-        tester = new WebTester();
-        tester.visitPortal("");
-        tester.loginPortal(USER, PASSWORD);
+        tester = new PortalTester();
+        String userid=tester.getPropertie(PortalTester.BES_ADMIN_USER_ID);
+        String userpassword = tester.getPropertie(PortalTester.BES_ADMIN_USER_PWD);
+        tester.loginPortal(userid, userpassword);
     }
 
     @AfterClass
@@ -44,16 +48,38 @@ public class PortalMarketplaceWT {
     }
 
     @Test
-    public void test01Create() {
+    public void test01create() throws Exception {
+        marketplaceId = "";
+      
+        tester.visitPortal(PortalPathSegments.CREATE_MARKETPLACE);
 
-        tester.visitPortal("shop/createMarketplace.jsf");
-
-        tester.writeValue("createMarketplaceForm:marketplaceName", MARKETPLACE);
-        tester.writeValue("createMarketplaceForm:organizationIdInput",
+        tester.writeValue(PortalHtmlElements.CREATE_MARKETPLACE_INPUT_NAME, MARKETPLACE);
+        tester.writeValue(PortalHtmlElements.CREATE_MARKETPLACE_INPUT_ORG_ID,
                 PlaygroundSuiteTest.supplierOrgId);
 
-        tester.clickElement("createMarketplaceForm:saveButtonLink");
+        tester.clickElement(PortalHtmlElements.CREATE_MARKETPLACE__BUTTON_SAVE);
 
-        System.out.println(tester.readInfoMessage());
+        assertTrue(tester.getExecutionResult());
+        PlaygroundSuiteTest.marketPlaceId = MARKETPLACE;       
     }
+    
+//    @Test
+    public void remove() throws Exception {
+        
+        marketplaceId = tester.getCreatedId(tester.readInfoMessage());
+        
+        if(marketplaceId == null || marketplaceId == "")
+            throw new Exception("Marketplace " + MARKETPLACE + " doesn't exists!");
+
+        
+        tester.visitPortal(PortalPathSegments.DELETE_MARKETPLACE);
+        tester.selectDropdown(PortalHtmlElements.DELETE_MARKETPLACE_DROPDOWN_IDLIST, marketplaceId);
+        tester.waitForElement(By.id(PortalHtmlElements.DELETE_MARKETPLACE_BUTTON_DELETE), 10);        
+        tester.clickElement(PortalHtmlElements.DELETE_MARKETPLACE_BUTTON_DELETE);
+        tester.waitForElement(By.id(PortalHtmlElements.DELETE_MARKETPLACE_BUTTON_CONFIRM), 10);        
+        tester.clickElement(PortalHtmlElements.DELETE_MARKETPLACE_BUTTON_CONFIRM);
+
+        assertTrue(tester.getExecutionResult());
+    }
+
 }
