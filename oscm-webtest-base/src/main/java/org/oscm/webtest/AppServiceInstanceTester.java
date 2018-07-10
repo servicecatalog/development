@@ -43,9 +43,9 @@ public class AppServiceInstanceTester extends WebTester {
      * @throws InterruptedException 
      * @throws Exception 
      */
-    public void loginAppServiceInstance(String user, String password, String controllerId) throws LoginException, InterruptedException {
+    public void loginAppServiceInstance(String userid, String password, String controllerId) throws LoginException, InterruptedException {
         
-        String url = head + user + ":" + password + "@" + base +AppPathSegments.APP_SERVICE_INSTANCE + controllerId;
+        String url = head + userid + ":" + password + "@" + base +AppPathSegments.APP_SERVICE_INSTANCE + controllerId;
         driver.get(url);
         driver.manage().window().maximize();
     
@@ -53,9 +53,9 @@ public class AppServiceInstanceTester extends WebTester {
         
         if(verifyFoundElement(By.id(AppHtmlElements.APP_SERVICEINSTANCE_TABLE_ID))) 
         {
-            logger.info("Login to "+url+" successfully with userid:" + user);
+            logger.info("Login to "+url+" successfully with userid:" + userid);
         }else {
-            String info = "Login to "+url+" failed with userid:" + user;
+            String info = "Login to "+url+" failed with userid:" + userid;
             logger.info(info);
             throw new LoginException(info);
         }

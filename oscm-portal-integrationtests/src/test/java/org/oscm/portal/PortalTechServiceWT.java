@@ -30,7 +30,7 @@ import org.oscm.webtest.PortalTester;
 public class PortalTechServiceWT {
 
  private static final String FILE_PATH_IMPORT_TECHSERVICE = "technicalservice.xml.path";
- private static final String IMPORT_TECHSERVICE_ID = "AppSampleService";
+ private static final String IMPORT_TECHSERVICE_NAME = "AppSampleService";
 
  private static PortalTester tester;
     
@@ -69,7 +69,7 @@ public class PortalTechServiceWT {
      
         tester.visitPortal(PortalPathSegments.UPDATE_TECHNICALSERVICE);
         Select dropdownServiceName = new Select(tester.getDriver().findElement(By.id(PortalHtmlElements.UPDATE_TECHSERVICE_DROPDOWN_SERVICENAME)));
-        dropdownServiceName.selectByVisibleText(IMPORT_TECHSERVICE_ID);
+        dropdownServiceName.selectByVisibleText(IMPORT_TECHSERVICE_NAME);
 
         tester.waitForElementVisible(By.id(PortalHtmlElements.UPDATE_TECHSERVICE_BUTTONLINK_SAVE), 10);
         setParamDescription("APP_CONTROLLER_ID", PlaygroundSuiteTest.controllerId);
@@ -80,7 +80,7 @@ public class PortalTechServiceWT {
         
         tester.clickElement(PortalHtmlElements.UPDATE_TECHSERVICE_BUTTONLINK_SAVE);
         assertTrue(tester.getExecutionResult());
-        PlaygroundSuiteTest.techServiceId = IMPORT_TECHSERVICE_ID;
+        PlaygroundSuiteTest.techServiceName = IMPORT_TECHSERVICE_NAME;
     }
     
 

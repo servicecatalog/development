@@ -22,22 +22,12 @@ public class PortalHtmlElements{
     public static final String PORTAL_INFOCLASS = "rf-msgs-sum";
     
     public static final String PORTAL_DIV_SHOWMESSAGE = "mainTmplMessagesPanel";
+    public static final String MARKETPLACE_SPAN_SHOWMESSAGE = "globalMessagesHolder";
     
     public static final String PORTAL_PASSWORD_INPUT_CURRENT = "passwordform:currentPassword";
     public static final String PORTAL_PASSWORD_INPUT_CHANGE = "passwordform:password";
     public static final String PORTAL_PASSWORD_INPUT_REPEAT = "passwordform:password2";
     public static final String PORTAL_PASSWORD_BUTTON_SAVE= "passwordform:changeButtonLink";
-    
-    public static final String MARKETPLACE_PASSWORD_INPUT_CURRENT = "passwordForm:currentPassword";
-    public static final String MARKETPLACE_PASSWORD_INPUT_CHANGE = "passwordForm:password";
-    public static final String MARKETPLACE_PASSWORD_INPUT_REPEAT = "passwordForm:password2";
-    public static final String MARKETPLACE_PASSWORD_BUTTONLINK_SAVE= "passwordForm:changeButtonLink";
-    public static final String MARKETPLACE_SPAN_WELCOME = "formLogout:welcome";
-    public static final String GOTO_MARKETPLACE_DROPDOWN_MARKETPLACE="gotoMarketplaceForm:marketplace";
-    public static final String MARKETPLACE_INPUT_USERID = "loginForm:loginUserId";
-    public static final String MARKETPLACE_INPUT_PASSWORD = "loginForm:loginPassword";
-    public static final String MARKETPLACE_BUTTON_LOGIN = "loginForm:loginButtonLink";
-    public static final String MARKETPLACE_LINK_LOGOUT = "formLogout:logout";
     
     public static final String CREATE_MARKETPLACE_INPUT_NAME = "createMarketplaceForm:marketplaceName";
     public static final String CREATE_MARKETPLACE_INPUT_ORG_ID = "createMarketplaceForm:organizationIdInput";    
@@ -75,7 +65,8 @@ public class PortalHtmlElements{
     public static final String UPDATE_TECHSERVICE_BUTTONLINK_SAVE = "editForm:saveButtonLink";
     
     public static final String DEFINE_MARKETSERVICE_DROPDOWN_SERVICENAME = "editForm:techServiceId";
-    public static final String DEFINE_MARKETSERVICE_INPUT_SERVICENAME = "editForm:serviceId";
+    public static final String DEFINE_MARKETSERVICE_INPUT_SERVICENAME = "editForm:serviceName";
+    public static final String DEFINE_MARKETSERVICE_INPUT_SERVICEID = "editForm:serviceId";
     public static final String DEFINE_MARKETSERVICE_PARAM_TABLE = "editForm:parameterTable";
     public static final String DEFINE_MARKETSERVICE_BUTTONLINK_SAVE = "editForm:saveButtonLink";
     public static final String DEFINE_MARKETSERVICE_BUTTON_SAVE = "editForm:saveButton";
@@ -100,6 +91,27 @@ public class PortalHtmlElements{
     public static final String REGISTER_CUSTOMER_DROPDOWN_COUNTRY = "editForm:country";
     public static final String REGISTER_CUSTOMER_DROPDOWN_MARKETPLACE = "editForm:marketplace";
     public static final String REGISTER_CUSTOMER_BUTTONLINK_SAVE = "editForm:saveButtonLink";
+    
+    public static final String MARKETPLACE_PASSWORD_INPUT_CURRENT = "passwordForm:currentPassword";
+    public static final String MARKETPLACE_PASSWORD_INPUT_CHANGE = "passwordForm:password";
+    public static final String MARKETPLACE_PASSWORD_INPUT_REPEAT = "passwordForm:password2";
+    public static final String MARKETPLACE_PASSWORD_BUTTONLINK_SAVE= "passwordForm:changeButtonLink";
+    public static final String MARKETPLACE_SPAN_WELCOME = "formLogout:welcome";
+    public static final String GOTO_MARKETPLACE_DROPDOWN_MARKETPLACE="gotoMarketplaceForm:marketplace";
+    public static final String GOTO_MARKETPLACE_BUTTONLINK_GOTO="goForm:gotoBtnLink";
+    public static final String MARKETPLACE_INPUT_USERID = "loginForm:loginUserId";
+    public static final String MARKETPLACE_INPUT_PASSWORD = "loginForm:loginPassword";
+    public static final String MARKETPLACE_BUTTON_LOGIN = "loginForm:loginButtonLink";
+    public static final String MARKETPLACE_LINK_LOGOUT = "formLogout:logout";
+    public static final String MARKETPLACE_LINKTEXT_LOGIN = "Login";
+    
+    public static final String MARKETPLACE_LINK_SERVICE_NAME = "//*[@title='%s']/../../..//*[@class='serviceShowDetailsButton']/a";
+    public static final String MARKETPLACE_SUBSCRIPTION_BUTTON_GETITNOW = "buyme";
+    public static final String MARKETPLACE_SUBSCRIPTION_INPUT_SUBNAME = "configurationForm:subscriptionIdText";
+    public static final String MARKETPLACE_SUBSCRIPTION_INPUT_REFNUMBER = "configurationForm:purchaseOrderNumberText";
+    public static final String MARKETPLACE_SUBSCRIPTION_BUTTONLINK_NEXT = "configurationForm:nextLink";
+    public static final String MARKETPLACE_SUBSCRIPTION_CHECKBOX_LICENSEAGREE = "confirmForm:agreeCheckbox";
+    public static final String MARKETPLACE_SUBSCRIPTION_BUTTONLINK_CONFIRM = "confirmForm:confirmLink";
     
     
 }

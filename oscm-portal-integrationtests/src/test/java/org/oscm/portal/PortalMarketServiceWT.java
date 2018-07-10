@@ -31,7 +31,7 @@ public class PortalMarketServiceWT {
     
     private static final String TECHSERVICE_IAAS_USER_ID = "DummyUser";
     private static final String TECHSERVICE_IAAS_USER_PWD = "DummyPwd123";
-    private static final String marketServiceId = "ms_"+ System.currentTimeMillis();
+    private static final String marketServiceName = "ms_"+ System.currentTimeMillis();
 
     private static PortalTester tester;
     
@@ -57,16 +57,23 @@ public class PortalMarketServiceWT {
         Select dropdownServiceName = new Select(tester.getDriver().findElement(By.id(PortalHtmlElements.DEFINE_MARKETSERVICE_DROPDOWN_SERVICENAME)));
         dropdownServiceName.selectByVisibleText("AppSampleService");        
         tester.waitForElementVisible(By.id(PortalHtmlElements.DEFINE_MARKETSERVICE_BUTTONLINK_SAVE), 5);
-        tester.writeValue(PortalHtmlElements.DEFINE_MARKETSERVICE_INPUT_SERVICENAME, marketServiceId);    
+        tester.writeValue(PortalHtmlElements.DEFINE_MARKETSERVICE_INPUT_SERVICEID, marketServiceName);
+        tester.getDriver().findElement(By.id(PortalHtmlElements.DEFINE_MARKETSERVICE_INPUT_SERVICENAME)).clear();
+        tester.writeValue(PortalHtmlElements.DEFINE_MARKETSERVICE_INPUT_SERVICENAME, marketServiceName); 
         setDescriptionValue(PortalTester.TECHSERVICE_PARAM_EMAIL, PlaygroundSuiteTest.supplierOrgAdminMail);
         setDescriptionValue(PortalTester.TECHSERVICE_PARAM_MESSAGETEXT, "You are welcome!");
         setDescriptionValue(PortalTester.TECHSERVICE_PARAM_USER, TECHSERVICE_IAAS_USER_ID);
         setDescriptionValue(PortalTester.TECHSERVICE_PARAM_PWD, TECHSERVICE_IAAS_USER_PWD);
+        checkCheckBox(PortalTester.TECHSERVICE_PARAM_EMAIL);
+        checkCheckBox(PortalTester.TECHSERVICE_PARAM_MESSAGETEXT);
+        checkCheckBox(PortalTester.TECHSERVICE_PARAM_USER);
+        checkCheckBox(PortalTester.TECHSERVICE_PARAM_PWD);
+        
         tester.waitForElementVisible(By.id(PortalHtmlElements.DEFINE_MARKETSERVICE_BUTTONLINK_SAVE), 10);
         tester.clickElement(PortalHtmlElements.DEFINE_MARKETSERVICE_BUTTONLINK_SAVE);
-        tester.log("Params: marketServiceId:=" + marketServiceId + " ");
+        tester.log("Params: marketServiceName:=" + marketServiceName + " ");
         assertTrue(tester.getExecutionResult());
-        PlaygroundSuiteTest.marketServiceId = marketServiceId;
+        PlaygroundSuiteTest.marketServiceName = marketServiceName;
         PlaygroundSuiteTest.techServiceUserId = TECHSERVICE_IAAS_USER_ID;
         PlaygroundSuiteTest.techServiceUserPwd = TECHSERVICE_IAAS_USER_PWD;
     }
@@ -75,9 +82,8 @@ public class PortalMarketServiceWT {
     public void test02definePreisModel() throws Exception {
 
         tester.visitPortal(PortalPathSegments.DEFINE_PREICEMODEL);
-//        tester.waitForElement(By.id(PortalHtmlElements.DEFINE_PRICEMODEL_DROPDOWN_SERVICENAME), 10);
         Select dropdownServiceName = new Select(tester.getDriver().findElement(By.id(PortalHtmlElements.DEFINE_PRICEMODEL_DROPDOWN_SERVICENAME)));
-        dropdownServiceName.selectByVisibleText(PlaygroundSuiteTest.marketServiceId);        
+        dropdownServiceName.selectByVisibleText(PlaygroundSuiteTest.marketServiceName);        
         tester.waitForElementVisible(By.id(PortalHtmlElements.DEFINE_PRICEMODEL_BUTTON_SAVE), 10);
         if(!tester.getDriver().findElement(By.id(PortalHtmlElements.DEFINE_PRICEMODEL_CHECKBOX_FREE_OF_CHARGE)).isSelected())
         {
@@ -96,7 +102,7 @@ public class PortalMarketServiceWT {
         tester.visitPortal(PortalPathSegments.DEFINE_PUBLISHOPTION);
         tester.waitForElement(By.id(PortalHtmlElements.DEFINE_PUBLISH_OPTION_DROPDOWN_SERVICENAME), 10);
         Select dropdownServiceName = new Select(tester.getDriver().findElement(By.id(PortalHtmlElements.DEFINE_PUBLISH_OPTION_DROPDOWN_SERVICENAME)));
-        dropdownServiceName.selectByVisibleText(PlaygroundSuiteTest.marketServiceId);        
+        dropdownServiceName.selectByVisibleText(PlaygroundSuiteTest.marketServiceName);        
 
         Select dropdownMarketplace = new Select(tester.getDriver().findElement(By.id(PortalHtmlElements.DEFINE_PUBLISH_OPTION_DROPDOWN_MARKETPLACE)));
         dropdownMarketplace.selectByValue(PlaygroundSuiteTest.supplierOrgId);
@@ -114,7 +120,7 @@ public class PortalMarketServiceWT {
         tester.visitPortal(PortalPathSegments.ACTIVE_MARKETSERVICE);
         tester.waitForElement(By.id(PortalHtmlElements.DEACTIVATION_SERVICE_TABLE), 5);
         
-        String serviceXpath = "//table[@id='"+PortalHtmlElements.DEACTIVATION_SERVICE_TABLE +"']//span[.= '"+ PlaygroundSuiteTest.marketServiceId +"']/../../td[1]/input";
+        String serviceXpath = "//table[@id='"+PortalHtmlElements.DEACTIVATION_SERVICE_TABLE +"']//span[.= '"+ PlaygroundSuiteTest.marketServiceName +"']/../../td[1]/input";
         if ( !tester.getDriver().findElement(By.xpath(serviceXpath)).isSelected() )
         {
             tester.getDriver().findElement(By.xpath(serviceXpath)).click();
@@ -127,6 +133,11 @@ public class PortalMarketServiceWT {
         String descriptionXpath = "//table[@id='"+PortalHtmlElements.DEFINE_MARKETSERVICE_PARAM_TABLE +"']//span[.= '"+ description +"']/../../../td[3]/div/input";
         tester.getDriver().findElement(By.xpath(descriptionXpath)).clear();
         tester.getDriver().findElement(By.xpath(descriptionXpath)).sendKeys(value);
+    }
+    
+    private void checkCheckBox(String label) {
+        if(!tester.getDriver().findElement(By.xpath("//*[span='"+ label + "']/../../td[2]//input")).isSelected())
+            tester.getDriver().findElement(By.xpath("//*[span='"+ label + "']/../../td[2]//input")).click();   
     }
 
 }

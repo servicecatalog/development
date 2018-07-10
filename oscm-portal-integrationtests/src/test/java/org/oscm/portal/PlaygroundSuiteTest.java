@@ -19,22 +19,22 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Suite.class)
 
-@SuiteClasses({ PortalOrganizationWT.class, PortalMarketplaceWT.class, 
-    AppConfigurationWT.class,PortalTechServiceWT.class, PortalMarketServiceWT.class, PortalCustomerWT.class})
+ @SuiteClasses({ PortalOrganizationWT.class, PortalMarketplaceWT.class,
+ AppConfigurationWT.class,PortalTechServiceWT.class,
+ PortalMarketServiceWT.class, MarketplaceSubscriptionWT.class})
 public class PlaygroundSuiteTest {
 
-    public static String supplierOrgId="";
-    public static String supplierOrgAdminId="";
-    public static String supplierOrgAdminPwd="";
-    public static String supplierOrgAdminMail="";
-    public static String marketPlaceId="";
-    
-    public static String controllerId="";
-    public static String techServiceId="";
-    public static String marketServiceId="";
-    public static String techServiceUserId="";
-    public static String techServiceUserPwd="";
-    
-    public static String customerId="";
-    public static String customerPwd="";
+    public static String supplierOrgId = "";
+    public static String supplierOrgName = "";
+    public static String supplierOrgAdminId = "";
+    public static String supplierOrgAdminPwd = "";
+    public static String supplierOrgAdminMail = "";
+    public static String supplierOrgAdminUserkey = "";
+    public static String marketPlaceId = "";
+
+    public static String controllerId = "";
+    public static String techServiceName = "";
+    public static String marketServiceName = "";
+    public static String techServiceUserId = "";
+    public static String techServiceUserPwd = "";
 }

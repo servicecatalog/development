@@ -36,6 +36,7 @@ public class PortalOrganizationWT {
     private static final String ORG_ADMIN = "mp_admin_"+ ORG;
 
     private static final int PASSWORD_LENGTH = 8;
+    private static final int USERKEY_LENGTH = 5;
 
     private static PortalTester tester;
     private static String passwordOrgAdmin = "";
@@ -82,6 +83,7 @@ public class PortalOrganizationWT {
         tester.clickElement(PortalHtmlElements.CREATE_ORGANIZATION_BUTTON_SAVE);
        
         assertTrue(tester.getExecutionResult());
+        PlaygroundSuiteTest.supplierOrgName = ORG;
         PlaygroundSuiteTest.supplierOrgId = tester.readInfoMessage().split(" ")[2];
         PlaygroundSuiteTest.supplierOrgAdminId = ORG_ADMIN;
         PlaygroundSuiteTest.supplierOrgAdminMail = tester.getEmailAddress();
@@ -93,17 +95,13 @@ public class PortalOrganizationWT {
 
         String body = tester.readLatestEmailWithSubject(tester.getPropertie("email.createaccount.head"));
 
-        String phrase = tester.getPropertie("email.createaccount.phrase")+ " ";
-
+        String phrasePassword = tester.getPropertie("email.createaccount.phrase.password")+ " ";
         assertNotNull(body);
 
-        int index = body.indexOf(phrase);
-
+        int index = body.indexOf(phrasePassword);
         assertTrue(index > 0);
-
-        passwordOrgAdmin = body.substring(index + phrase.length(),
-                index + phrase.length() + PASSWORD_LENGTH);
-        
+        passwordOrgAdmin = body.substring(index + phrasePassword.length(),
+                index + phrasePassword.length() + PASSWORD_LENGTH);        
         assertTrue(passwordOrgAdmin!="");
         tester.log("password from "+ tester.getEmailAddress() + " is: " + passwordOrgAdmin);
     }
@@ -121,5 +119,21 @@ public class PortalOrganizationWT {
         String currentURL = tester.getCurrentUrl();
         assertTrue(currentURL.contains(PortalPathSegments.IMPORT_TECHNICALSERVICE));
         PlaygroundSuiteTest.supplierOrgAdminPwd = tester.getPropertie(WebTester.BES_ADMIN_USER_PWD);   
+    }
+    
+    @Test
+    public void test04readEmailForUserkey() throws Exception {
+
+        String body = tester.readLatestEmailWithSubject(tester.getPropertie("email.createaccount.head"));
+        String phraseUserKey = tester.getPropertie("email.createaccount.phrase.userkey")+ " ";
+        assertNotNull(body);
+
+        int index = body.indexOf(phraseUserKey);
+        assertTrue(index > 0);
+        String userKey = body.substring(index + phraseUserKey.length(),
+                index + phraseUserKey.length() + USERKEY_LENGTH);        
+        assertTrue(userKey!="");
+        tester.log("userKey from "+ PlaygroundSuiteTest.supplierOrgAdminId + " is: " + userKey);
+        PlaygroundSuiteTest.supplierOrgAdminUserkey=userKey;
     }
 }

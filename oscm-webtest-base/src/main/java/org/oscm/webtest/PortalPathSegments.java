@@ -25,4 +25,7 @@ public class PortalPathSegments {
     public static final String REGISTER_CUSTOMER = "organization/addCustomer.jsf";
     
     public static final String GOTO_MARKETPLACE = "shop/gotoMarketplace.jsf";
+    public static final String INDEX_MARKETPLACE = "index.jsf";
+    public static final String URL_MARKETPLACE_ID = "index.jsf?mId=";
+    
 }

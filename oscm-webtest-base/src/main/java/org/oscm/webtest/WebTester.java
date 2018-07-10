@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -39,7 +40,8 @@ public class WebTester {
     public static final String BES_HTTPS_URL = "bes.https.url";
     public static final String BES_ADMIN_USER_ID = "bes.user.id";
     public static final String BES_ADMIN_USER_PWD = "bes.user.password";
-
+    public static final String BES_ADMIN_USER_KEY = "bes.user.key";
+    
     public static final String APP_SECURE = "app.secure";
     public static final String APP_HTTP_URL = "app.http.url";
     public static final String APP_HTTPS_URL = "app.https.url";
@@ -50,7 +52,7 @@ public class WebTester {
     // web element keys
     protected static final String ATTRIUBTE_VALUE = "value";
     protected String baseUrl = "";
-    protected HtmlUnitDriver driver;
+    protected WebDriver driver;
     protected Properties prop;
 
     // path schemas
@@ -59,7 +61,6 @@ public class WebTester {
     public WebTester() throws Exception {
 
         loadPropertiesFile();
-
         driver = new HtmlUnitDriver(true);
         driver.manage().timeouts().implicitlyWait(IMPLICIT_WAIT,
                 TimeUnit.SECONDS);
@@ -351,11 +352,11 @@ public class WebTester {
     public void log(String msg) {
         logger.info(msg);
     }
-    public HtmlUnitDriver getDriver() {
+    public WebDriver getDriver() {
         return driver;
     }
     
-    public void setDriver(HtmlUnitDriver driver) {
+    public void setDriver(WebDriver driver) {
         this.driver = driver;
     }
 }

@@ -161,19 +161,40 @@ public class PortalTester extends WebTester {
      *            the user name
      * @param password
      *            the password
+     * @throws Exception 
      */
-    public void loginMarketplace(String user, String password) {
+    public void loginMarketplace(String user, String password, String supplierOrgId) throws Exception {
+        visitMarketplace(PortalPathSegments.URL_MARKETPLACE_ID + supplierOrgId);
+        
+        if(verifyFoundElement(By.id(PortalHtmlElements.MARKETPLACE_LINK_LOGOUT)))
+        {
+            driver.findElement(By.id(PortalHtmlElements.MARKETPLACE_LINK_LOGOUT)).click();
+            waitForElement(By.id(PortalHtmlElements.MARKETPLACE_LINKTEXT_LOGIN), WebTester.IMPLICIT_WAIT);
+        }
+
+        if(verifyFoundElement(By.linkText(PortalHtmlElements.MARKETPLACE_LINKTEXT_LOGIN)))
+        {
+            driver.findElement(By.linkText(PortalHtmlElements.MARKETPLACE_LINKTEXT_LOGIN)).click();
+            waitForElement(By.id(PortalHtmlElements.MARKETPLACE_BUTTON_LOGIN), WebTester.IMPLICIT_WAIT);
+        }
+
         WebElement userInput = driver
                 .findElement(By.id(PortalHtmlElements.MARKETPLACE_INPUT_USERID));
         userInput.sendKeys(user);
-
         WebElement pwdInput = driver
                 .findElement(By.id(PortalHtmlElements.MARKETPLACE_INPUT_PASSWORD));
         pwdInput.sendKeys(password);
 
         driver.findElement(By.id(PortalHtmlElements.MARKETPLACE_BUTTON_LOGIN)).click();
-
-        System.out.println("Login OSCM Marketplace");
+        if(verifyFoundElement(By.id(PortalHtmlElements.MARKETPLACE_SPAN_WELCOME))) 
+        {
+            log("Login to OSCM Marketplace successfully with userid:" + user);
+        }else {
+            String info = "Login to Marketplace Portal failed with userid:" + user;
+            log(info);
+            throw new LoginException(info);
+        }
+        
     }
 
     /**
@@ -239,7 +260,10 @@ public class PortalTester extends WebTester {
     }
 
     public boolean getExecutionResult() {
-        waitForElement(By.id(PortalHtmlElements.PORTAL_DIV_SHOWMESSAGE), 20);
+        String idPanel = PortalHtmlElements.PORTAL_DIV_SHOWMESSAGE;
+        if(driver.getCurrentUrl().contains("/marketplace/"))
+            idPanel = PortalHtmlElements.MARKETPLACE_SPAN_SHOWMESSAGE;
+        waitForElement(By.id(idPanel), 20);
         if(!verifyFoundElement(By.id(PortalHtmlElements.PORTAL_SPAN_ERRORS))
                 && verifyFoundElement(By.id(PortalHtmlElements.PORTAL_SPAN_INFOS)))
         {
