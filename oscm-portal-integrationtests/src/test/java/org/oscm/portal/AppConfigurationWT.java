@@ -10,7 +10,9 @@ package org.oscm.portal;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
 import org.junit.runners.MethodSorters;
 import org.oscm.webtest.AppConfigurationTester;
 import org.oscm.webtest.AppControllerDBTester;
@@ -20,8 +22,10 @@ public class AppConfigurationWT {
 
     private static AppConfigurationTester tester;
     private static AppControllerDBTester dbTester;
-
     private static String TEST_CONTROLLER_ID = "ess.sample";
+
+    @Rule
+    public TestWatcher testWatcher = new JUnitHelper();
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -80,9 +84,8 @@ public class AppConfigurationWT {
                 PlaygroundSuiteTest.controllerId);
         dbTester.insertSetting("VERSION", "1.0",
                 PlaygroundSuiteTest.controllerId);
-        dbTester.insertSetting("APP_PROVISIONING_ON_INSTANCE",
-                "false",
+        dbTester.insertSetting("APP_PROVISIONING_ON_INSTANCE", "false",
                 PlaygroundSuiteTest.controllerId);
         dbTester.updateEncryptPWDasAdmin(PlaygroundSuiteTest.controllerId);
-        }
+    }
 }

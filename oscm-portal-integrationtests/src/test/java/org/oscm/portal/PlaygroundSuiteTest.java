@@ -11,6 +11,7 @@ package org.oscm.portal;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
+import org.oscm.webtest.WebTester;
 
 /**
  * Test suite for integration web tests for the OSCM portal
@@ -18,10 +19,9 @@ import org.junit.runners.Suite.SuiteClasses;
  * @author miethaner
  */
 @RunWith(Suite.class)
-
- @SuiteClasses({ PortalOrganizationWT.class, PortalMarketplaceWT.class,
- AppConfigurationWT.class,PortalTechServiceWT.class,
- PortalMarketServiceWT.class, MarketplaceSubscriptionWT.class})
+@SuiteClasses({ PortalOrganizationWT.class, PortalMarketplaceWT.class,
+        AppConfigurationWT.class, PortalTechServiceWT.class,
+        PortalMarketServiceWT.class, MarketplaceSubscriptionWT.class })
 public class PlaygroundSuiteTest {
 
     public static String supplierOrgId = "";
@@ -37,4 +37,5 @@ public class PlaygroundSuiteTest {
     public static String marketServiceName = "";
     public static String techServiceUserId = "";
     public static String techServiceUserPwd = "";
+    public static String currentTimestampe = WebTester.getCurrentTime();
 }

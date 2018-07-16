@@ -10,12 +10,11 @@
 
 	<name>${project.artifactId}-${project.version}</name>
 	<url>https://github.com/servicecatalog</url>
-
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.version>1.8</jdk.version>
+		<junit.version>4.12</junit.version>
 	</properties>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -36,7 +35,7 @@
 						<phase>test</phase>
 						<configuration>
 							<redirectTestOutputToFile>true</redirectTestOutputToFile>
-							<reportsDirectory>../shippable/testresults</reportsDirectory>
+							<reportsDirectory>../seleniumtest/testresults</reportsDirectory>
 						</configuration>
 					</execution>
 				</executions>
@@ -62,7 +61,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.12</version>
+			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
 

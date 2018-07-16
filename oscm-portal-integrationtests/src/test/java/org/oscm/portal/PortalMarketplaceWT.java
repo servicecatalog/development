@@ -13,7 +13,9 @@ import static org.junit.Assert.assertTrue;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
 import org.junit.runners.MethodSorters;
 import org.openqa.selenium.By;
 import org.oscm.webtest.PortalHtmlElements;
@@ -25,19 +27,21 @@ import org.oscm.webtest.PortalTester;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class PortalMarketplaceWT {
-    
 
-    private static final String MARKETPLACE = "mp_" + System.currentTimeMillis();
-    
+    @Rule
+    public TestWatcher testWatcher = new JUnitHelper();
+
+    private static final String MARKETPLACE = "mp_"
+            + PlaygroundSuiteTest.currentTimestampe;
     private String marketplaceId;
-    
     private static PortalTester tester;
-    
+
     @BeforeClass
     public static void setup() throws Exception {
         tester = new PortalTester();
-        String userid=tester.getPropertie(PortalTester.BES_ADMIN_USER_ID);
-        String userpassword = tester.getPropertie(PortalTester.BES_ADMIN_USER_PWD);
+        String userid = tester.getPropertie(PortalTester.BES_ADMIN_USER_ID);
+        String userpassword = tester
+                .getPropertie(PortalTester.BES_ADMIN_USER_PWD);
         tester.loginPortal(userid, userpassword);
     }
 
@@ -50,34 +54,42 @@ public class PortalMarketplaceWT {
     @Test
     public void test01create() throws Exception {
         marketplaceId = "";
-      
+
         tester.visitPortal(PortalPathSegments.CREATE_MARKETPLACE);
 
-        tester.writeValue(PortalHtmlElements.CREATE_MARKETPLACE_INPUT_NAME, MARKETPLACE);
+        tester.writeValue(PortalHtmlElements.CREATE_MARKETPLACE_INPUT_NAME,
+                MARKETPLACE);
         tester.writeValue(PortalHtmlElements.CREATE_MARKETPLACE_INPUT_ORG_ID,
                 PlaygroundSuiteTest.supplierOrgId);
 
         tester.clickElement(PortalHtmlElements.CREATE_MARKETPLACE__BUTTON_SAVE);
 
         assertTrue(tester.getExecutionResult());
-        PlaygroundSuiteTest.marketPlaceId = MARKETPLACE;       
+        PlaygroundSuiteTest.marketPlaceId = MARKETPLACE;
     }
-    
-//    @Test
-    public void remove() throws Exception {
-        
-        marketplaceId = tester.getCreatedId(tester.readInfoMessage());
-        
-        if(marketplaceId == null || marketplaceId == "")
-            throw new Exception("Marketplace " + MARKETPLACE + " doesn't exists!");
 
-        
+    // @Test
+    public void remove() throws Exception {
+
+        marketplaceId = tester.getCreatedId(tester.readInfoMessage());
+
+        if (marketplaceId == null || marketplaceId == "")
+            throw new Exception(
+                    "Marketplace " + MARKETPLACE + " doesn't exists!");
+
         tester.visitPortal(PortalPathSegments.DELETE_MARKETPLACE);
-        tester.selectDropdown(PortalHtmlElements.DELETE_MARKETPLACE_DROPDOWN_IDLIST, marketplaceId);
-        tester.waitForElement(By.id(PortalHtmlElements.DELETE_MARKETPLACE_BUTTON_DELETE), 10);        
-        tester.clickElement(PortalHtmlElements.DELETE_MARKETPLACE_BUTTON_DELETE);
-        tester.waitForElement(By.id(PortalHtmlElements.DELETE_MARKETPLACE_BUTTON_CONFIRM), 10);        
-        tester.clickElement(PortalHtmlElements.DELETE_MARKETPLACE_BUTTON_CONFIRM);
+        tester.selectDropdown(
+                PortalHtmlElements.DELETE_MARKETPLACE_DROPDOWN_IDLIST,
+                marketplaceId);
+        tester.waitForElement(
+                By.id(PortalHtmlElements.DELETE_MARKETPLACE_BUTTON_DELETE), 10);
+        tester.clickElement(
+                PortalHtmlElements.DELETE_MARKETPLACE_BUTTON_DELETE);
+        tester.waitForElement(
+                By.id(PortalHtmlElements.DELETE_MARKETPLACE_BUTTON_CONFIRM),
+                10);
+        tester.clickElement(
+                PortalHtmlElements.DELETE_MARKETPLACE_BUTTON_CONFIRM);
 
         assertTrue(tester.getExecutionResult());
     }

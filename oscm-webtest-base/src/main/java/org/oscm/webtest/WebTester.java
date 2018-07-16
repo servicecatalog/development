@@ -10,6 +10,8 @@ package org.oscm.webtest;
 
 import java.io.FileInputStream;
 import java.net.InetAddress;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -41,12 +43,13 @@ public class WebTester {
     public static final String BES_ADMIN_USER_ID = "bes.user.id";
     public static final String BES_ADMIN_USER_PWD = "bes.user.password";
     public static final String BES_ADMIN_USER_KEY = "bes.user.key";
-    
+
     public static final String APP_SECURE = "app.secure";
     public static final String APP_HTTP_URL = "app.http.url";
     public static final String APP_HTTPS_URL = "app.https.url";
     public static final String APP_ADMIN_USER_ID = "app.user.id";
     public static final String APP_ADMIN_USER_PWD = "app.user.password";
+    public static final String TIME_INTERVAL = "create.subscription.waiting.seconds";
 
     protected static final Logger logger = Logger.getLogger(WebTester.class);
     // web element keys
@@ -54,6 +57,7 @@ public class WebTester {
     protected String baseUrl = "";
     protected WebDriver driver;
     protected Properties prop;
+    private int waitingTime;
 
     // path schemas
     private static final String PROPERTY_PATH = "../oscm-devruntime/javares/local/%s/webtest.properties";
@@ -64,6 +68,7 @@ public class WebTester {
         driver = new HtmlUnitDriver(true);
         driver.manage().timeouts().implicitlyWait(IMPLICIT_WAIT,
                 TimeUnit.SECONDS);
+        setWaitingTime(IMPLICIT_WAIT);
 
     }
 
@@ -306,7 +311,7 @@ public class WebTester {
         (new WebDriverWait(driver, seconds))
                 .until(ExpectedConditions.presenceOfElementLocated(by));
     }
-    
+
     /**
      * Waits for the element with the given id to be present or until the given
      * amount of seconds has passed.
@@ -320,8 +325,8 @@ public class WebTester {
      */
     public void waitForElementVisible(By by, int seconds) {
         (new WebDriverWait(driver, seconds))
-        .until(ExpectedConditions.elementToBeClickable(by));
-        
+                .until(ExpectedConditions.elementToBeClickable(by));
+
     }
 
     /**
@@ -332,7 +337,7 @@ public class WebTester {
      *            the element id
      * @param seconds
      *            the seconds until timeout
-     * @throws InterruptedException 
+     * @throws InterruptedException
      * @throws TimeoutException
      *             if the timeout is reached
      */
@@ -352,11 +357,26 @@ public class WebTester {
     public void log(String msg) {
         logger.info(msg);
     }
+
     public WebDriver getDriver() {
         return driver;
     }
-    
+
     public void setDriver(WebDriver driver) {
         this.driver = driver;
+    }
+
+    public static String getCurrentTime() {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        Date date = new Date();
+        return formatter.format(date);
+    }
+
+    public int getWaitingTime() {
+        return waitingTime;
+    }
+
+    public void setWaitingTime(int waitingTime) {
+        this.waitingTime = waitingTime;
     }
 }
