@@ -3,6 +3,7 @@
 <property name="dir.root" value="${basedir}/../.." />
 <property name="devscript.dir" location="${dir.root}/oscm-devruntime/javares/devscripts" />
   <target name="setup.forSelenium">
+  	<antcall target="prepareBes"/>
     <antcall target="prepareAppWithSample" />
     <antcall target="restartDomains" />
   </target>

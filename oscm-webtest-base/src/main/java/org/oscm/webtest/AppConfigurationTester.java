@@ -17,7 +17,7 @@ import org.openqa.selenium.WebElement;
  * Helper class for integration web tests for oscm-app/default.jsf
  */
 public class AppConfigurationTester extends WebTester {
-    
+
     public static final String ERROR_MSG_CONTROLLER_EXISTS = "Controller ID already exists.";
     private String appAdminMailAddress = "";
     private String appBaseUrl = "";
@@ -27,8 +27,7 @@ public class AppConfigurationTester extends WebTester {
 
     private String base;
     private String head;
-    
-    
+
     public AppConfigurationTester() throws Exception {
         super();
 
@@ -168,48 +167,51 @@ public class AppConfigurationTester extends WebTester {
 
         WebElement baseForm = driver.findElement(By.xpath(
                 "//form[@id='" + AppHtmlElements.APP_CONFIG_FORM1 + "']"));
-        baseForm.findElement(By.className(AppHtmlElements.APP_CONFIG_FORM_BUTTON_CLASS)).click();
-        if (!getExecutionResult())
-        {
-            if(readErrorMessage().contains(ERROR_MSG_CONTROLLER_EXISTS))
+        baseForm.findElement(
+                By.className(AppHtmlElements.APP_CONFIG_FORM_BUTTON_CLASS))
+                .click();
+        if (!getExecutionResult()) {
+            if (readErrorMessage().contains(ERROR_MSG_CONTROLLER_EXISTS))
                 throw new Exception(ERROR_MSG_CONTROLLER_EXISTS);
-            else throw new Exception("other error");
+            else
+                throw new Exception("other error");
         }
     }
 
-private void clearNewEntry() {
-    WebElement inputCid = driver
-            .findElement(By.xpath("//input[contains(@id,'"
-                    + AppHtmlElements.APP_CONFIG_FORM1_INPUT_END_NEWCONTROLLERID
-                    + "')]"));
-    inputCid.clear();
-    WebElement inputOrgid = driver
-            .findElement(By.xpath("//input[contains(@id,'"
-                    + AppHtmlElements.APP_CONFIG_FORM1_INPUT_END_NEWORGID
-                    + "')]"));
-    inputOrgid.clear();
-}
-    
+    private void clearNewEntry() {
+        WebElement inputCid = driver
+                .findElement(By.xpath("//input[contains(@id,'"
+                        + AppHtmlElements.APP_CONFIG_FORM1_INPUT_END_NEWCONTROLLERID
+                        + "')]"));
+        inputCid.clear();
+        WebElement inputOrgid = driver
+                .findElement(By.xpath("//input[contains(@id,'"
+                        + AppHtmlElements.APP_CONFIG_FORM1_INPUT_END_NEWORGID
+                        + "')]"));
+        inputOrgid.clear();
+    }
+
     public void changeOrgIdOnController(String controllerId, String newOrdId)
             throws Exception {
         clearNewEntry();
-        log("xpath := //form[@id='" + AppHtmlElements.APP_CONFIG_FORM1 +  
-                "']/table/tbody[1]/tr/td[./text()='"+controllerId +"']/../td[2]/input");
-        WebElement input = driver.findElement(By
-                .xpath("//form[@id='" + AppHtmlElements.APP_CONFIG_FORM1
-                        + "']/table/tbody[1]/tr/td[./text()='"+controllerId +"']/../td[2]/input"));
+        log("xpath := //form[@id='" + AppHtmlElements.APP_CONFIG_FORM1
+                + "']/table/tbody[1]/tr/td[./text()='" + controllerId
+                + "']/../td[2]/input");
+        WebElement input = driver.findElement(
+                By.xpath("//form[@id='" + AppHtmlElements.APP_CONFIG_FORM1
+                        + "']/table/tbody[1]/tr/td[./text()='" + controllerId
+                        + "']/../td[2]/input"));
         input.clear();
         input.sendKeys(newOrdId);
 
         driver.findElement(By.xpath("//form[@id='"
                 + AppHtmlElements.APP_CONFIG_FORM1 + "']" + "//input[@class='"
-                + AppHtmlElements.APP_CONFIG_FORM_BUTTON_CLASS
-                + "']")).click();
+                + AppHtmlElements.APP_CONFIG_FORM_BUTTON_CLASS + "']")).click();
 
         if (!getExecutionResult())
             throw new Exception();
     }
-    
+
     public List<WebElement> getContentAppConfigTable(String formId) {
 
         WebElement baseTableBody = driver.findElement(
@@ -254,11 +256,6 @@ private void clearNewEntry() {
 
     private void changeInputValueForm2(int index, String keyword)
             throws Exception {
-        log(driver
-                .findElement(By
-                        .xpath("//form[@id='" + AppHtmlElements.APP_CONFIG_FORM2
-                                + "']/table/tbody[1]/tr[" + index + "]/td[2]"))
-                .getText());
         WebElement input = driver.findElement(
                 By.xpath("//form[@id='" + AppHtmlElements.APP_CONFIG_FORM2
                         + "']/table/tbody[1]/tr[" + index + "]/td[2]/input"));
@@ -267,8 +264,7 @@ private void clearNewEntry() {
 
         driver.findElement(By.xpath("//form[@id='"
                 + AppHtmlElements.APP_CONFIG_FORM2 + "']" + "//input[@class='"
-                + AppHtmlElements.APP_CONFIG_FORM_BUTTON_CLASS
-                + "']")).click();
+                + AppHtmlElements.APP_CONFIG_FORM_BUTTON_CLASS + "']")).click();
 
         if (!getExecutionResult())
             throw new Exception();
