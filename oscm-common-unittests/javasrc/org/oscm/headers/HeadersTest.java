@@ -97,7 +97,7 @@ public class HeadersTest {
                             || fileName.contains("import_en.css")) {
                         continue;
                     }
-                    checkFile(fileName, "*  Copyright FUJITSU LIMITED 2017");
+                    checkFile(fileName, "*  Copyright FUJITSU LIMITED 201");
                 } else if (fileName.toLowerCase().endsWith(".xml")
                         || fileName.toLowerCase().endsWith(".xhtml")) {
                     if (fileName
@@ -113,7 +113,7 @@ public class HeadersTest {
                             || fileName.contains("wt.testInWork.properties")) {
                         continue;
                     }
-                    checkFile(fileName, "# Copyright FUJITSU LIMITED 2017");
+                    checkFile(fileName, "# Copyright FUJITSU LIMITED 201");
                 }
             }
         }
