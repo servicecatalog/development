@@ -152,8 +152,8 @@ public class UserServiceBean implements UserService {
 
             // keep a reference (not managed) with the old email
             PlatformUser old = existing.getEmail() != null ? UserDataAssembler
-                    .copyPlatformUser(existing) : null;
-
+                    .copyPlatformUserWithRoles(existing) : null;
+            
             updateUserAndRoles(user, existing);
 
             // notify subscriptions

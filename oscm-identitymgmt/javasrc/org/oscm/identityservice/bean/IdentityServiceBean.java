@@ -902,7 +902,7 @@ public class IdentityServiceBean
         PermissionCheck.sameOrg(dm.getCurrentUser(), existingUser, logger);
 
         PlatformUser oldUser = existingUser.getEmail() != null
-                ? UserDataAssembler.copyPlatformUser(existingUser)
+                ? UserDataAssembler.copyPlatformUserWithRoles(existingUser)
                 : null;
 
         // validate permissions for the call, administrator may change any user,
