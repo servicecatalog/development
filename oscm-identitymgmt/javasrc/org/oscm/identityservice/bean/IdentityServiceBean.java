@@ -1005,6 +1005,7 @@ public class IdentityServiceBean
         long ch2 = UserChecksum.of(oldUser);
         if (ch1 == ch2)
             return;
+        
         SendMailStatus<PlatformUser> mailStatus = cm.sendMail(
                 EmailType.USER_UPDATED, null, null,
                 platformUsers.toArray(new PlatformUser[platformUsers.size()]));
