@@ -34,7 +34,6 @@ class UserChecksum {
             sb.append(pUser.getSalutation().name() + ",");
         sb.append(pUser.getFirstName() + ",");
         sb.append(pUser.getLastName() + ",");
-        sb.append(pUser.getRealmUserId() + ",");
         sb.append(pUser.getLocale() + ",");
         sb.append(pUser.getAddress() + ",");
         sb.append(pUser.getPhone() + ",");
