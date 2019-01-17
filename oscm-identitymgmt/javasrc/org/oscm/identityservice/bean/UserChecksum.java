@@ -22,12 +22,22 @@ import org.oscm.domobjects.RoleAssignment;
 class UserChecksum {
 
     static long of(PlatformUser pUser) {
+
+        // TODO avoid with factory
+        if (pUser == null) {
+            return of("null");
+        }
         StringBuffer sb = new StringBuffer();
         sb.append(pUser.getUserId() + ",");
         sb.append(pUser.getEmail() + ",");
+        if (pUser.getSalutation() != null)
+            sb.append(pUser.getSalutation().name() + ",");
         sb.append(pUser.getFirstName() + ",");
         sb.append(pUser.getLastName() + ",");
+        sb.append(pUser.getRealmUserId() + ",");
         sb.append(pUser.getLocale() + ",");
+        sb.append(pUser.getAddress() + ",");
+        sb.append(pUser.getPhone() + ",");
         sb.append(pUser.getTenantId() + ",");
 
         Iterator<RoleAssignment> roleIterator = pUser.getAssignedRoles()

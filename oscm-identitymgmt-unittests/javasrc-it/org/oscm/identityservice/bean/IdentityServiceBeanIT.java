@@ -406,12 +406,31 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         try {
             final String mail = "admin@organization.com";
             modifyUserData(mail, mail);
+            assertEquals(0, sendedMails.size());
+        } finally {
+            sendedMails.clear();
+        }
+    }
+    
+    @Test
+    public void testUpdateUser_NoEmail() throws Exception {
+        sendedMails.clear();
+        try {
+            final String mail = "admin@organization.com";
+            modifyUserData(null, mail);
             assertEquals(1, sendedMails.size());
             checkEmail(0, mail);
         } finally {
             sendedMails.clear();
         }
     }
+
+   
+    private void checkEmail(int i, String mail) {
+        checkEmail(i, mail, EmailType.USER_UPDATED); 
+    }
+    
+  
 
     private void modifyUserData(final String oldEmail, final String newEmail)
             throws Exception {
@@ -437,11 +456,11 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         });
     }
 
-    private void checkEmail(int index, String expectedEmail) {
+    private void checkEmail(int index, String expectedEmail, EmailType expectedType) {
         assertEquals(expectedEmail,
                 sendedMails.get(index).getInstance().getEmail());
 
-        assertEquals(EmailType.USER_UPDATED,
+        assertEquals(expectedType,
                 sendedMails.get(index).getEmailType());
 
         assertNull(sendedMails.get(index).getParams());
