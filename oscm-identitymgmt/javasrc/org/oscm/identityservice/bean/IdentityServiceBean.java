@@ -901,6 +901,7 @@ public class IdentityServiceBean
         // check whether user belongs to same organization than the caller
         PermissionCheck.sameOrg(dm.getCurrentUser(), existingUser, logger);
 
+        //TODO avoid null by using factory pattern  
         PlatformUser oldUser = existingUser.getEmail() != null
                 ? UserDataAssembler.copyPlatformUserWithRoles(existingUser)
                 : null;
