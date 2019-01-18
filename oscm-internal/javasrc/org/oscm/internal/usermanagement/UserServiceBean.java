@@ -156,6 +156,9 @@ public class UserServiceBean implements UserService {
             
             updateUserAndRoles(user, existing);
 
+            ds.flush();
+            ds.refresh(existing);
+            
             // notify subscriptions
             isl.notifySubscriptionsAboutUserUpdate(existing);
 
@@ -333,6 +336,9 @@ public class UserServiceBean implements UserService {
             // update user data and roles
             updateUserAndRoles(user, existing);
 
+            ds.flush();
+            ds.refresh(existing);
+            
             updateUserGroups(groupsToBeAssigned, user, existing);
             List<UsageLicense> assignments = slsl.getSubscriptionAssignments(
                     existing, Subscription.ASSIGNABLE_SUBSCRIPTION_STATUS);
