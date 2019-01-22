@@ -389,7 +389,7 @@ public class IdentityServiceBeanIT extends EJBTestBase {
             final String oldEmail = "admin@organization.com";
             final String newEmail = "enes.sejfi@est.fujitsu.com";
 
-            modifyUserData(oldEmail, newEmail);
+            modifyUserDataEmail(oldEmail, newEmail);
 
             assertEquals(2, sendedMails.size());
             checkEmail(0, newEmail);
@@ -405,7 +405,19 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         sendedMails.clear();
         try {
             final String mail = "admin@organization.com";
-            modifyUserData(mail, mail);
+            modifyUserDataEmail(mail, mail);
+            assertEquals(0, sendedMails.size());
+        } finally {
+            sendedMails.clear();
+        }
+    }
+
+    @Test
+    public void testUpdateUser_NoEmail() throws Exception {
+        sendedMails.clear();
+        try {
+            final String mail = "admin@organization.com";
+            modifyUserDataEmail(null, mail);
             assertEquals(1, sendedMails.size());
             checkEmail(0, mail);
         } finally {
@@ -413,23 +425,60 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         }
     }
 
-    private void modifyUserData(final String oldEmail, final String newEmail)
-            throws Exception {
+    @Test
+    public void testUpdateUser_UserID() throws Exception {
+        sendedMails.clear();
+        try {
+            modifyUserDataUserId("admin", "admin123");
+            assertEquals(1, sendedMails.size());
+            checkEmail(0, givenUserDetails().getEMail());
+        } finally {
+            sendedMails.clear();
+        }
+    }
+    
+    @Test
+    public void testUpdateUser_Address() throws Exception {
+        sendedMails.clear();
+        try {
+            modifyUserDataUserAddress();
+            assertEquals(1, sendedMails.size());
+            checkEmail(0, givenUserDetails().getEMail());
+        } finally {
+            sendedMails.clear();
+        }
+    }
+
+    
+    @Test
+    public void testUpdateUser_Phone() throws Exception {
+        sendedMails.clear();
+        try {
+            modifyUserDataPhone();
+            assertEquals(1, sendedMails.size());
+            checkEmail(0, givenUserDetails().getEMail());
+        } finally {
+            sendedMails.clear();
+        }
+    }
+    
+    private void checkEmail(int i, String mail) {
+        checkEmail(i, mail, EmailType.USER_UPDATED);
+    }
+
+    private void modifyUserDataEmail(final String oldEmail,
+            final String newEmail) throws Exception {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                PlatformUser existingUser = new PlatformUser();
-                existingUser.setEmail(oldEmail);
-                existingUser.setLocale(Locale.GERMAN.toString());
+                VOUserDetails user = givenUserDetails();
+                user.setEMail(newEmail);
+
+                PlatformUser existingUser = UserDataAssembler
+                        .toPlatformUser(user);
                 existingUser.setOrganization(mgr.getReference(
                         Organization.class, organization.getKey()));
-                existingUser.setUserId("g");
-
-                VOUserDetails user = new VOUserDetails();
-                user.setUserId("g");
-                user.setEMail(newEmail);
-                user.setLocale(Locale.GERMAN.toString());
-                user.setOrganizationId(organization.getOrganizationId());
+                existingUser.setEmail(oldEmail);
 
                 idMgmtLocal.modifyUserData(existingUser, user, false, true);
                 return null;
@@ -437,12 +486,98 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         });
     }
 
-    private void checkEmail(int index, String expectedEmail) {
+    private void modifyUserDataUserId(final String oldId, final String newId)
+            throws Exception {
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+
+                VOUserDetails user = givenUserDetails();
+                user.setUserId(newId);
+                
+                PlatformUser existingUser = UserDataAssembler
+                        .toPlatformUser(user);
+                existingUser.setOrganization(mgr.getReference(
+                        Organization.class, organization.getKey()));
+                existingUser.setUserId(oldId);
+
+                idMgmtLocal.modifyUserData(existingUser, user, false, true);
+                return null;
+            }
+
+        });
+    }
+
+    private void modifyUserDataUserAddress() throws Exception {
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+
+                VOUserDetails user = givenUserDetails();
+                
+
+                PlatformUser existingUser = UserDataAssembler
+                        .toPlatformUser(user);
+                existingUser.setOrganization(mgr.getReference(
+                        Organization.class, organization.getKey()));
+                
+                existingUser.setAddress("1st Avenue\nNewtown 123");
+
+                idMgmtLocal.modifyUserData(existingUser, user, false, true);
+                return null;
+            }
+
+        });
+    }
+    
+    private void modifyUserDataPhone()
+            throws Exception {
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+
+                VOUserDetails user = givenUserDetails();
+
+                PlatformUser existingUser = UserDataAssembler
+                        .toPlatformUser(user);
+                existingUser.setOrganization(mgr.getReference(
+                        Organization.class, organization.getKey()));
+                existingUser.setPhone("555");
+
+                idMgmtLocal.modifyUserData(existingUser, user, false, true);
+                return null;
+            }
+
+        });
+    }
+
+    VOUserDetails givenUserDetails() {
+        return givenUserData("admin@organization.com", "g",
+                Locale.GERMAN.toString(), organization.getOrganizationId(),
+                "Donald", "Duck", "12345", "Street 123\n 333 Ducktown");
+    }
+
+    VOUserDetails givenUserData(String email, String userId, String locale,
+            String orgid, String firstName, String lastName, String phone,
+            String address) {
+        VOUserDetails user = new VOUserDetails();
+        user.setUserId(userId);
+        user.setEMail(email);
+        user.setLocale(locale);
+        user.setOrganizationId(orgid);
+        user.setPhone(phone);
+        user.setAddress(address);
+        user.setFirstName(firstName);
+        user.setFirstName(lastName);
+        return user;
+    }
+
+    private void checkEmail(int index, String expectedEmail,
+            EmailType expectedType) {
         assertEquals(expectedEmail,
                 sendedMails.get(index).getInstance().getEmail());
 
-        assertEquals(EmailType.USER_UPDATED,
-                sendedMails.get(index).getEmailType());
+        assertEquals(expectedType, sendedMails.get(index).getEmailType());
 
         assertNull(sendedMails.get(index).getParams());
     }
@@ -3183,9 +3318,8 @@ public class IdentityServiceBeanIT extends EJBTestBase {
     }
 
     private List<RoleAssignment> getRoleAssignmentByUserKey(long key) {
-        return ParameterizedTypes.list(mgr
-                .createQuery(
-                        "SELECT o FROM RoleAssignment o WHERE o.user.key = :userKey")
+        return ParameterizedTypes.list(mgr.createQuery(
+                "SELECT o FROM RoleAssignment o WHERE o.user.key = :userKey")
                 .setParameter("userKey", Long.valueOf(key)).getResultList(),
                 RoleAssignment.class);
     }

@@ -12,7 +12,9 @@
 
 package org.oscm.identityservice.assembler;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.validator.GenericValidator;
 
@@ -20,6 +22,7 @@ import org.oscm.domobjects.OrganizationToRole;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.RoleAssignment;
 import org.oscm.domobjects.Tenant;
+import org.oscm.domobjects.UserRole;
 import org.oscm.validator.BLValidator;
 import org.oscm.vo.BaseAssembler;
 import org.oscm.internal.types.enumtypes.SettingType;
@@ -75,8 +78,8 @@ public class UserDataAssembler extends BaseAssembler {
     }
 
     static void updateVoUser(PlatformUser platformUser, VOUser voUser) {
-        voUser.setOrganizationId(platformUser.getOrganization()
-                .getOrganizationId());
+        voUser.setOrganizationId(
+                platformUser.getOrganization().getOrganizationId());
         voUser.setOrganizationName(platformUser.getOrganization().getName());
         voUser.setUserId(platformUser.getUserId());
         voUser.setStatus(platformUser.getStatus());
@@ -120,15 +123,15 @@ public class UserDataAssembler extends BaseAssembler {
         userDetails.setAddress(platformUser.getAddress());
         userDetails.setLocale(platformUser.getLocale());
         userDetails.setSalutation(platformUser.getSalutation());
-        userDetails.setRemoteLdapActive(platformUser.getOrganization()
-                .isRemoteLdapActive());
-        userDetails.setRemoteLdapAttributes(platformUser.getOrganization()
-                .getLdapUserAttributes());
+        userDetails.setRemoteLdapActive(
+                platformUser.getOrganization().isRemoteLdapActive());
+        userDetails.setRemoteLdapAttributes(
+                platformUser.getOrganization().getLdapUserAttributes());
         Tenant tenant = platformUser.getOrganization().getTenant();
-        if(tenant!=null){
+        if (tenant != null) {
             userDetails.setTenantId(tenant.getTenantId());
         }
-        
+
     }
 
     /**
@@ -143,8 +146,8 @@ public class UserDataAssembler extends BaseAssembler {
             VOUser voUser) {
         for (OrganizationToRole orgToRole : platformUser.getOrganization()
                 .getGrantedRoles()) {
-            voUser.getOrganizationRoles().add(
-                    orgToRole.getOrganizationRole().getRoleName());
+            voUser.getOrganizationRoles()
+                    .add(orgToRole.getOrganizationRole().getRoleName());
         }
     }
 
@@ -156,7 +159,8 @@ public class UserDataAssembler extends BaseAssembler {
      * @param voUser
      *            The value object to be updated.
      */
-    private static void updateUserRoles(PlatformUser platformUser, VOUser voUser) {
+    private static void updateUserRoles(PlatformUser platformUser,
+            VOUser voUser) {
         for (RoleAssignment roleAssignment : platformUser.getAssignedRoles()) {
             voUser.addUserRole(roleAssignment.getRole().getRoleName());
         }
@@ -202,8 +206,8 @@ public class UserDataAssembler extends BaseAssembler {
      *             Thrown if the object versions does not match.
      */
     public static PlatformUser updatePlatformUser(VOUserDetails userDetails,
-            PlatformUser userToBeUpdated) throws ValidationException,
-            ConcurrentModificationException {
+            PlatformUser userToBeUpdated)
+            throws ValidationException, ConcurrentModificationException {
         validate(userDetails);
         verifyVersionAndKey(userToBeUpdated, userDetails);
         copyAttributes(userDetails, userToBeUpdated);
@@ -291,8 +295,8 @@ public class UserDataAssembler extends BaseAssembler {
             List<SettingType> settingList, PlatformUser userToBeUpdated) {
         for (int i = 0; i < settingList.size(); i++) {
             if (settingList.get(i) == SettingType.LDAP_ATTR_ADDITIONAL_NAME) {
-                userToBeUpdated.setAdditionalName(userDetails
-                        .getAdditionalName());
+                userToBeUpdated
+                        .setAdditionalName(userDetails.getAdditionalName());
             } else if (settingList.get(i) == SettingType.LDAP_ATTR_EMAIL) {
                 if (!GenericValidator.isBlankOrNull(userDetails.getEMail())) {
                     userToBeUpdated.setEmail(userDetails.getEMail());
@@ -359,5 +363,51 @@ public class UserDataAssembler extends BaseAssembler {
         u.setKey(platformUser.getKey());
         u.setTenantId(platformUser.getTenantId());
         return u;
+    }
+
+    /**
+     * Copies all user detailed attributes from one platform user to another
+     * platform user including roles.
+     * 
+     * @param platformUser
+     *            source instance
+     * @return Platform user copy
+     */
+    public static PlatformUser copyPlatformUserWithRoles(
+            PlatformUser platformUser) {
+        PlatformUser u = new PlatformUser();
+        u.setUserId(platformUser.getUserId());
+        u.setStatus(platformUser.getStatus());
+        u.setFirstName(platformUser.getFirstName());
+        u.setAdditionalName(platformUser.getAdditionalName());
+        u.setLastName(platformUser.getLastName());
+        u.setEmail(platformUser.getEmail());
+        u.setAddress(platformUser.getAddress());
+        u.setPhone(platformUser.getPhone());
+        u.setLocale(platformUser.getLocale());
+        u.setSalutation(platformUser.getSalutation());
+        u.setKey(platformUser.getKey());
+        u.setTenantId(platformUser.getTenantId());
+
+        if (!nullOrEmpty(platformUser.getAssignedRoles())) {
+            Set<RoleAssignment> ras = new HashSet<RoleAssignment>();
+            for (RoleAssignment roleAssignment : platformUser
+                    .getAssignedRoles()) {
+                RoleAssignment ra = new RoleAssignment();
+                UserRole userRole = roleAssignment.getRole();
+
+                UserRole ur = new UserRole();
+                ur.setRoleName(userRole.getRoleName());
+                ur.setKey(userRole.getKey());
+                ra.setRole(ur);
+                ras.add(ra);
+            }
+            u.setAssignedRoles(ras);
+        }
+        return u;
+    }
+
+    private static <T> boolean nullOrEmpty(Set<T> set) {
+        return set == null || set.isEmpty();
     }
 }

@@ -144,6 +144,7 @@
   </target>
 
   <target name="_copyDocument">
+  	<!--
     <copy todir="${workspace.dir}/oscm-app-aws/doc">
       <fileset dir="../../document/Development/oscm-app-aws/doc">
         <exclude name=".project"/>
@@ -197,6 +198,7 @@
         <exclude name=".project"/>
       </fileset>
     </copy>
+    -->
     <!--<copy todir="${workspace.dir}/UserDoc">-->
       <!--<fileset dir="../../document/Development/UserDoc" />-->
     <!--</copy>-->

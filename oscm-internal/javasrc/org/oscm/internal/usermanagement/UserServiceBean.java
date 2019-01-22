@@ -152,10 +152,13 @@ public class UserServiceBean implements UserService {
 
             // keep a reference (not managed) with the old email
             PlatformUser old = existing.getEmail() != null ? UserDataAssembler
-                    .copyPlatformUser(existing) : null;
-
+                    .copyPlatformUserWithRoles(existing) : null;
+            
             updateUserAndRoles(user, existing);
 
+            ds.flush();
+            ds.refresh(existing);
+            
             // notify subscriptions
             isl.notifySubscriptionsAboutUserUpdate(existing);
 
@@ -328,11 +331,14 @@ public class UserServiceBean implements UserService {
                     user.getKey());
             // keep a reference (not managed) with the old email
             PlatformUser old = existing.getEmail() != null ? UserDataAssembler
-                    .copyPlatformUser(existing) : null;
+                    .copyPlatformUserWithRoles(existing) : null;
 
             // update user data and roles
             updateUserAndRoles(user, existing);
 
+            ds.flush();
+            ds.refresh(existing);
+            
             updateUserGroups(groupsToBeAssigned, user, existing);
             List<UsageLicense> assignments = slsl.getSubscriptionAssignments(
                     existing, Subscription.ASSIGNABLE_SUBSCRIPTION_STATUS);

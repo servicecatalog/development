@@ -395,11 +395,9 @@ public class IdentityServiceBean
                         TriggerProcessParameterName.MARKETPLACE_ID)
                 .getValue(String.class);
         Map<Long, UnitUserRole> userGroupKeyToRole = ParameterizedTypes
-                .hashmap(
-                        tp.getParamValueForName(
-                                TriggerProcessParameterName.USER_GROUPS_WITH_ROLES)
-                                .getValue(Map.class),
-                        Long.class, UnitUserRole.class);
+                .hashmap(tp.getParamValueForName(
+                        TriggerProcessParameterName.USER_GROUPS_WITH_ROLES)
+                        .getValue(Map.class), Long.class, UnitUserRole.class);
 
         // generate a one-time password for the user
         VOUserDetails result;
@@ -903,8 +901,10 @@ public class IdentityServiceBean
         // check whether user belongs to same organization than the caller
         PermissionCheck.sameOrg(dm.getCurrentUser(), existingUser, logger);
 
+        //TODO avoid null by using factory pattern  
         PlatformUser oldUser = existingUser.getEmail() != null
-                ? UserDataAssembler.copyPlatformUser(existingUser) : null;
+                ? UserDataAssembler.copyPlatformUserWithRoles(existingUser)
+                : null;
 
         // validate permissions for the call, administrator may change any user,
         // a non administrator may only change his own account
@@ -1002,6 +1002,11 @@ public class IdentityServiceBean
             platformUsers.add(oldUser);
         }
 
+        long ch1 = UserChecksum.of(existingUser);
+        long ch2 = UserChecksum.of(oldUser);
+        if (ch1 == ch2)
+            return;
+        
         SendMailStatus<PlatformUser> mailStatus = cm.sendMail(
                 EmailType.USER_UPDATED, null, null,
                 platformUsers.toArray(new PlatformUser[platformUsers.size()]));
@@ -1568,12 +1573,14 @@ public class IdentityServiceBean
             if (!organizationAdmin.hasManagerRole()) {
                 url.append("/marketplace/confirm.jsf?")
                         .append((marketplaceId != null)
-                                ? "mId=" + marketplaceId + "&" : "")
+                                ? "mId=" + marketplaceId + "&"
+                                : "")
                         .append("enc=");
             } else {
                 url.append("/public/confirm.jsf?")
                         .append((marketplaceId != null)
-                                ? "mId=" + marketplaceId + "&" : "")
+                                ? "mId=" + marketplaceId + "&"
+                                : "")
                         .append("enc=");
             }
 
