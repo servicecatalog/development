@@ -364,8 +364,8 @@
       <formatter type="xml" />
       <batchtest todir="${result.work.testreport.ws.dir}">
         <fileset dir="${javasrc.dir}">
-          <include name="**/*Test.java" />
-          <include name="**/*Test?.java" />
+          <include name="**/*TestSample.java" />
+          <include name="**/*TestSample?.java" />
         </fileset>
       </batchtest>
     </junit>
