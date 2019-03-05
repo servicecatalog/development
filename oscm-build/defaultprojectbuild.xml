@@ -365,7 +365,7 @@
       <batchtest todir="${result.work.testreport.ws.dir}">
         <fileset dir="${javasrc.dir}">
           <include name="**/*LoadTest.java" />
-          <include name="**/*LoadTest?.java" />
+          <include name="**/*TestSample.java" />
         </fileset>
       </batchtest>
     </junit>
