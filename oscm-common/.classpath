@@ -8,7 +8,18 @@
 	<classpathentry kind="lib" path="/libraries/apache-log4j/javalib/log4j-1.2.16.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry kind="lib" path="/libraries/apache-codec/javalib/commons-codec-1.7.jar"/>
-	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
+	<classpathentry exported="true" kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="lib" path="/libraries/glassfish4/modules/javax.inject.jar"/>
+	<classpathentry exported="true" kind="lib" path="/libraries/glassfish4/modules/javax.servlet-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="/libraries/glassfish4/modules/ejb.security.jar"/>
+	<classpathentry exported="true" kind="lib" path="/libraries/glassfish4/modules/javax.persistence.jar"/>
+	<classpathentry exported="true" kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
+	<classpathentry exported="true" kind="lib" path="/libraries/glassfish4/javalib/javax.inject-1.jar"/>
+	<classpathentry exported="true" kind="lib" path="/libraries/glassfish4/modules/endorsed/javax.annotation-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="/libraries/glassfish4/modules/javax.interceptor-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="/libraries/glassfish4/modules/endorsed/webservices-api-osgi.jar"/>
+	<classpathentry exported="true" kind="lib" path="/libraries/glassfish4/modules/cdi-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="/libraries/glassfish4/modules/javax.transaction-api.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
