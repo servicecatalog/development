@@ -16,11 +16,11 @@ import org.oscm.ws.base.WebserviceTestBase;
 
 public class SubscriptionServiceWSLoadTest {
     
-    private ServiceProvisioningService serviceProvisioningService;
-    private SubscriptionService subscriptionService;
+    private static ServiceProvisioningService serviceProvisioningService;
+    private static SubscriptionService subscriptionService;
     
     @BeforeClass
-    public void setup() throws Exception{
+    public static void setup() throws Exception{
         
         long userKey = 10000;
         
