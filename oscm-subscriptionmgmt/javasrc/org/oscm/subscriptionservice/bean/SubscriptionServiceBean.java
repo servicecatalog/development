@@ -306,8 +306,8 @@ public class SubscriptionServiceBean
         Subscription sub;
         PlatformUser currentUser = dataManager.getCurrentUser();
 
-        Product prod = dataManager
-                .getReference(Product.class, service.getKey());
+        Product prod = dataManager.getReference(Product.class,
+                service.getKey());
         checkIfServiceAvailable(service.getKey(), service.getServiceId(),
                 currentUser);
         checkIfSubscriptionAlreadyExists(prod);
@@ -396,7 +396,8 @@ public class SubscriptionServiceBean
             orgBillingContact.setOrgAddressUsed(true);
             orgBillingContact.setEmail(email);
             String organizationId = organization.getName() == null
-                    ? user.getUserId() : organization.getName();
+                    ? user.getUserId()
+                    : organization.getName();
             orgBillingContact.setBillingContactId(organizationId
                     + DateFactory.getInstance().getTransactionTime());
             orgBillingContact.setOrganization(organization);
@@ -473,8 +474,9 @@ public class SubscriptionServiceBean
         List<VOUsageLicense> usersToBeAdded = new ArrayList<>();
         VOUsageLicense lic = new VOUsageLicense();
         lic.setUser(UserDataAssembler.toVOUserDetails(userToAssign));
-        lic.setRoleDefinition((serviceRoles == null || serviceRoles.isEmpty())
-                ? null : serviceRoles.get(0));
+        lic.setRoleDefinition(
+                (serviceRoles == null || serviceRoles.isEmpty()) ? null
+                        : serviceRoles.get(0));
         usersToBeAdded.add(lic);
 
         TriggerProcess proc = new TriggerProcess();
@@ -658,7 +660,8 @@ public class SubscriptionServiceBean
         Marketplace mp = null;
         Product publishedService = productTemplate
                 .getType() == ServiceType.CUSTOMER_TEMPLATE
-                        ? productTemplate.getTemplate() : productTemplate;
+                        ? productTemplate.getTemplate()
+                        : productTemplate;
         List<Marketplace> mps = getMarketplaceDao()
                 .getMarketplaceByService(publishedService);
         for (Marketplace m : mps) {
@@ -770,8 +773,8 @@ public class SubscriptionServiceBean
 
         triggerQS.sendAllNonSuspendingMessages(
                 TriggerMessage.create(TriggerType.SUBSCRIBE_TO_SERVICE,
-                        tp.getTriggerProcessParameters(), dataManager
-                                .getCurrentUser().getOrganization()));
+                        tp.getTriggerProcessParameters(),
+                        dataManager.getCurrentUser().getOrganization()));
 
         sendSubscriptionCreatedMailToAdministrators(newSub, newSub.getProduct()
                 .getTechnicalProduct().isAllowingOnBehalfActing());
@@ -824,8 +827,8 @@ public class SubscriptionServiceBean
 
         if (ProvisioningType.SYNCHRONOUS.equals(techProd.getProvisioningType())
                 && tp.getTriggerDefinition() != null
-                && (prod.isAutoAssignUserEnabled() != null && prod
-                        .isAutoAssignUserEnabled().booleanValue())
+                && (prod.isAutoAssignUserEnabled() != null
+                        && prod.isAutoAssignUserEnabled().booleanValue())
                 && newSub.getUsageLicenseForUser(owner) == null) {
             // TODO 1. assign users only for SYNCHRONOUS case.
             // 2. extract code to another method (more readability).
@@ -1957,8 +1960,8 @@ public class SubscriptionServiceBean
             String accessInfo = targetLicense == null ? ""
                     : getAccessInfo(subscription, targetLicense.getUser());
 
-            commService.sendMail(usr,
-                    EmailType.SUBSCRIPTION_ACCESS_GRANTED, new Object[] {
+            commService.sendMail(
+                    usr, EmailType.SUBSCRIPTION_ACCESS_GRANTED, new Object[] {
                             subscription.getSubscriptionId(), accessInfo },
                     subscription.getMarketplace());
 
@@ -2360,8 +2363,8 @@ public class SubscriptionServiceBean
 
         triggerQS.sendAllNonSuspendingMessages(
                 TriggerMessage.create(TriggerType.UNSUBSCRIBE_FROM_SERVICE,
-                        tp.getTriggerProcessParameters(), dataManager
-                                .getCurrentUser().getOrganization()));
+                        tp.getTriggerProcessParameters(),
+                        dataManager.getCurrentUser().getOrganization()));
 
         tp.addTriggerProcessParameter(TriggerProcessParameterName.SUBSCRIPTION,
                 buildNotification(oldSubscriptionId));
@@ -2957,8 +2960,8 @@ public class SubscriptionServiceBean
 
         triggerQS.sendAllNonSuspendingMessages(
                 TriggerMessage.create(TriggerType.UPGRADE_SUBSCRIPTION,
-                        tp.getTriggerProcessParameters(), dataManager
-                                .getCurrentUser().getOrganization()));
+                        tp.getTriggerProcessParameters(),
+                        dataManager.getCurrentUser().getOrganization()));
 
         // log upDowngrade subscription
         audit.upDowngradeSubscription(dataManager, subscription, initialProduct,
@@ -3277,7 +3280,13 @@ public class SubscriptionServiceBean
                 SubscriptionStatus.SUSPENDED);
         SubscriptionStatus status = subscription.getStatus();
         if (set.contains(status)) {
+            LOG.logInfoDebug(String.format(
+                    "[Subscription ID=%s] sending asyncModifySubscription",
+                    subscription.getSubscriptionId()));
             appManager.asyncModifySubscription(subscription, targetProduct);
+            LOG.logInfoDebug(String.format(
+                    "[Subscription ID=%s] change status from [%s] to next.",
+                    subscription.getSubscriptionId(), status));
             switch (status) {
             case ACTIVE:
                 subscription.setStatus(SubscriptionStatus.PENDING_UPD);
@@ -3467,6 +3476,9 @@ public class SubscriptionServiceBean
                     | MandatoryUdaMissingException | SubscriptionStateException
                     | MandatoryCustomerUdaMissingException e) {
                 sessionCtx.setRollbackOnly();
+                LOG.logInfoDebug(String.format(
+                        "[Subscription ID=%1] error: %s",
+                        subscription.getSubscriptionId(), e.getMessage()));
                 throw e;
             }
         } else if (triggerDefinition.isSuspendProcess()) {
@@ -3570,6 +3582,10 @@ public class SubscriptionServiceBean
         UserGroup unit = getUnit(subscription.getUnitKey(),
                 subscription.getUnitName(), organization.getKey());
 
+        LOG.logInfoDebug(String.format(
+                "[Subscription ID=%1] checkModifyAllowedForUpdating ",
+                dbSubscription.getSubscriptionId()));
+
         stateValidator.checkModifyAllowedForUpdating(dbSubscription);
 
         // get initial values of subscription
@@ -3659,10 +3675,14 @@ public class SubscriptionServiceBean
         }
 
         if (changedValues && asynch) {
+            LOG.logInfoDebug(String.format(
+                    "[Subscription ID=%s] changedValues.",
+                    dbSubscriptionId));
             // set initial values again
             dbSubscription.setSubscriptionId(dbSubscriptionId);
             dbSubscription.setPurchaseOrderNumber(dbPurchaseNumber);
             String dbOwnerId = dbOwner == null ? null : dbOwner.getUserId();
+           
             manageBean.setSubscriptionOwner(dbSubscription, dbOwnerId, true);
             dbSubscription.setUserGroup(dbUnit);
         }
@@ -3674,8 +3694,8 @@ public class SubscriptionServiceBean
 
         triggerQS.sendAllNonSuspendingMessages(
                 TriggerMessage.create(TriggerType.MODIFY_SUBSCRIPTION,
-                        tp.getTriggerProcessParameters(), dataManager
-                                .getCurrentUser().getOrganization()));
+                        tp.getTriggerProcessParameters(),
+                        dataManager.getCurrentUser().getOrganization()));
 
         triggerQS.sendAllNonSuspendingMessages(
                 TriggerMessage.create(TriggerType.SUBSCRIPTION_MODIFICATION,
@@ -3735,11 +3755,13 @@ public class SubscriptionServiceBean
             dataManager.validateBusinessKeyUniqueness(sub);
 
             List<VOTriggerProcess> triggers = triggerService
-                .getAllActionsForOrganizationRelatedSubscription();
+                    .getAllActionsForOrganizationRelatedSubscription();
             for (VOTriggerProcess voTriggerProcess : triggers) {
-                if (voTriggerProcess.getSubscription().getSubscriptionId().equals(subscriptionId)) {
+                if (voTriggerProcess.getSubscription().getSubscriptionId()
+                        .equals(subscriptionId)) {
                     NonUniqueBusinessKeyException e = new NonUniqueBusinessKeyException(
-                        DomainObjectException.ClassEnum.SUBSCRIPTION, subscriptionId);
+                            DomainObjectException.ClassEnum.SUBSCRIPTION,
+                            subscriptionId);
                     throw e;
                 }
             }
@@ -4280,7 +4302,7 @@ public class SubscriptionServiceBean
         }
 
         removeLocalizedResources(reason, subscription);
-        storeSubscriptionAbortionReason(reason, subscription);       
+        storeSubscriptionAbortionReason(reason, subscription);
 
         List<PlatformUser> receivers = loadReceiversForAbortAsyncSubscription(
                 subscription);
@@ -4295,23 +4317,22 @@ public class SubscriptionServiceBean
                 LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_PROGRESS);
         localizer.storeLocalizedResources(key,
                 LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_PROGRESS,
-                reason);      
+                reason);
     }
-    
+
     void storeSubscriptionAbortionReason(List<VOLocalizedText> reason,
             Subscription subscription) {
         long key = subscription.getKey();
         localizer.removeLocalizedValues(key,
                 LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_ERROR);
         localizer.storeLocalizedResources(key,
-                LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_ERROR,
-                reason);      
+                LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_ERROR, reason);
     }
-    
+
     void removeSubscriptionAbortionReason(Subscription subscription) {
         long key = subscription.getKey();
         localizer.removeLocalizedValues(key,
-                LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_ERROR);     
+                LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_ERROR);
     }
 
     void sendSubscriptionAbortEmail(String subscriptionId,
@@ -4997,13 +5018,15 @@ public class SubscriptionServiceBean
 
         Subscription subscription = modUpgBean.findSubscriptionForAsyncCallBack(
                 subscriptionId, organizationId);
-
+        LOG.logInfoDebug(String.format(
+                "[Subscription ID=%1] complete received. ",
+                subscriptionId));
         stateValidator.checkCompleteModifyAllowed(subscription);
 
         updateInstanceInfoForCompletion(subscription, instance);
 
         manageBean.validateTechnoloyProvider(subscription);
-        
+
         removeSubscriptionAbortionReason(subscription);
 
         modUpgBean.setStatusForModifyComplete(subscription);
@@ -5061,11 +5084,14 @@ public class SubscriptionServiceBean
         ArgumentValidator.notNull("subscriptionId", subscriptionId);
         ArgumentValidator.notNull("organizationId", organizationId);
 
+        LOG.logInfoDebug(String.format(
+                "[Subscription ID=%1] abort received. ",
+                subscriptionId));
         Subscription subscription = modUpgBean.findSubscriptionForAsyncCallBack(
                 subscriptionId, organizationId);
 
         stateValidator.checkAbortAllowedForModifying(subscription);
-        
+
         storeSubscriptionAbortionReason(reason, subscription);
         abortAsyncUpgradeOrModifySubscription(subscription, organizationId,
                 reason);
@@ -5568,16 +5594,17 @@ public class SubscriptionServiceBean
             SubscriptionStateException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException, OperationPendingException,
             OperationNotPermittedException {
-        Subscription mySubscriptionDetails = getMySubscriptionDetails(key
-                .longValue());
-        return unsubscribeFromService(mySubscriptionDetails.getSubscriptionId());
+        Subscription mySubscriptionDetails = getMySubscriptionDetails(
+                key.longValue());
+        return unsubscribeFromService(
+                mySubscriptionDetails.getSubscriptionId());
     }
 
     @Override
     @RolesAllowed({ "TECHNOLOGY_MANAGER" })
     public void notifySubscriptionAboutVmsNumber(String subscriptionId,
-        String organizationId, VOInstanceInfo instanceInfo)
-        throws ObjectNotFoundException, OperationNotPermittedException {
+            String organizationId, VOInstanceInfo instanceInfo)
+            throws ObjectNotFoundException, OperationNotPermittedException {
         ArgumentValidator.notNull("subscriptionId", subscriptionId);
         ArgumentValidator.notNull("organizationId", organizationId);
         ArgumentValidator.notNull("instance", instanceInfo);
@@ -5585,18 +5612,21 @@ public class SubscriptionServiceBean
         PlatformUser user = dataManager.getCurrentUser();
 
         Subscription subscription = manageBean.findSubscription(subscriptionId,
-            organizationId);
-        PermissionCheck.owns(subscription.getProduct().getTechnicalProduct(), user.getOrganization(), LOG, null);
+                organizationId);
+        PermissionCheck.owns(subscription.getProduct().getTechnicalProduct(),
+                user.getOrganization(), LOG, null);
 
-        List<ParameterDefinition> parameterDefinitions = subscription.getProduct().getTechnicalProduct()
-            .getParameterDefinitions();
+        List<ParameterDefinition> parameterDefinitions = subscription
+                .getProduct().getTechnicalProduct().getParameterDefinitions();
 
         for (ParameterDefinition parameterDefinition : parameterDefinitions) {
-            if (!parameterDefinition.getParameterId().equals(VMS_NUMBER_PARAM)) {
+            if (!parameterDefinition.getParameterId()
+                    .equals(VMS_NUMBER_PARAM)) {
                 continue;
             }
-            Parameter parameter = getSubscriptionDao().getParameterForSubscription(parameterDefinition, subscription
-                    .getParameterSet());
+            Parameter parameter = getSubscriptionDao()
+                    .getParameterForSubscription(parameterDefinition,
+                            subscription.getParameterSet());
             if (parameter == null) {
                 parameter = new Parameter();
                 parameter.setParameterDefinition(parameterDefinition);

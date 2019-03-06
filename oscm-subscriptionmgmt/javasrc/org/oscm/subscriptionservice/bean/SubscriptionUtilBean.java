@@ -140,6 +140,11 @@ public class SubscriptionUtilBean {
             if (tenant != null) {
                 tenantId = tenant.getTenantId();
             }
+            LOG.logInfoDebug(String.format(
+                    "[Subscription ID=%s] set owner (owner %s, tenantId %s, validate %s)",
+                    subscriptionToModify.getSubscriptionId(), ownerId, tenantId,
+                    String.valueOf(validateOrganization)));
+ 
             PlatformUser owner = idManager.getPlatformUser(ownerId, tenantId,
                     validateOrganization);
             subscriptionToModify.setOwner(owner);
