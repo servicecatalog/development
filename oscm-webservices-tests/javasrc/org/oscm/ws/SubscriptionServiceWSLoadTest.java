@@ -24,11 +24,11 @@ public class SubscriptionServiceWSLoadTest {
   private static ServiceProvisioningService serviceProvisioningService;
   private static SubscriptionService subscriptionService;
 
-  private static final String SUBSCRIPTION_ID_PREFIX = "XXX_";
+  private static final String SUBSCRIPTION_ID_PREFIX = "TestLoadSub_";
   private static final String MARKETPLACE_ID = "99512989";
   private static final String SERVICE_ID = "AppSampleId";
 
-  private static final long NO_OF_SUBS = 10;
+  private static final long NO_OF_SUBS = 200;
   private static final long USER_KEY = 10000;
 
   @BeforeClass
@@ -51,14 +51,14 @@ public class SubscriptionServiceWSLoadTest {
       createSubscription(SUBSCRIPTION_ID_PREFIX + i);
     }
 
-    System.out.println("Creation of " + NO_OF_SUBS + "subscriptions finished");
+    System.out.println("Creation of " + NO_OF_SUBS + " subscriptions finished");
     System.out.println("Waiting for background asynchronous task to be completed");
     Thread.sleep(120000);
 
     for (int i = 0; i < NO_OF_SUBS; i++) {
       modifySubscription(SUBSCRIPTION_ID_PREFIX + i);
     }
-    System.out.println("Modification of " + NO_OF_SUBS + "subscriptions finished");
+    System.out.println("Modification of " + NO_OF_SUBS + " subscriptions finished");
   }
 
   public VOSubscription modifySubscription(String subscriptionId) throws Exception {
