@@ -3477,7 +3477,7 @@ public class SubscriptionServiceBean
                     | MandatoryCustomerUdaMissingException e) {
                 sessionCtx.setRollbackOnly();
                 LOG.logInfoDebug(String.format(
-                        "[Subscription ID=%1] error: %s",
+                        "[Subscription ID=%s] error: %s",
                         subscription.getSubscriptionId(), e.getMessage()));
                 throw e;
             }
@@ -3583,7 +3583,7 @@ public class SubscriptionServiceBean
                 subscription.getUnitName(), organization.getKey());
 
         LOG.logInfoDebug(String.format(
-                "[Subscription ID=%1] checkModifyAllowedForUpdating ",
+                "[Subscription ID=%s] checkModifyAllowedForUpdating ",
                 dbSubscription.getSubscriptionId()));
 
         stateValidator.checkModifyAllowedForUpdating(dbSubscription);
@@ -5019,7 +5019,7 @@ public class SubscriptionServiceBean
         Subscription subscription = modUpgBean.findSubscriptionForAsyncCallBack(
                 subscriptionId, organizationId);
         LOG.logInfoDebug(String.format(
-                "[Subscription ID=%1] complete received. ",
+                "[Subscription ID=%s] complete received. ",
                 subscriptionId));
         stateValidator.checkCompleteModifyAllowed(subscription);
 
@@ -5085,7 +5085,7 @@ public class SubscriptionServiceBean
         ArgumentValidator.notNull("organizationId", organizationId);
 
         LOG.logInfoDebug(String.format(
-                "[Subscription ID=%1] abort received. ",
+                "[Subscription ID=%s] abort received. ",
                 subscriptionId));
         Subscription subscription = modUpgBean.findSubscriptionForAsyncCallBack(
                 subscriptionId, organizationId);
