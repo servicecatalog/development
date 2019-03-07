@@ -24,11 +24,11 @@ public class SubscriptionServiceWSLoadTest {
   private static ServiceProvisioningService serviceProvisioningService;
   private static SubscriptionService subscriptionService;
 
-  private static final String SUBSCRIPTION_ID_PREFIX = "ZZZ_";
+  private static final String SUBSCRIPTION_ID_PREFIX = "XXX_";
   private static final String MARKETPLACE_ID = "99512989";
   private static final String SERVICE_ID = "AppSampleId";
 
-  private static final long NO_OF_SUBS = 200;
+  private static final long NO_OF_SUBS = 10;
   private static final long USER_KEY = 10000;
 
   @BeforeClass
