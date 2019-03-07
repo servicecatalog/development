@@ -25,7 +25,7 @@ public class SubscriptionServiceWSLoadTest {
   private static SubscriptionService subscriptionService;
 
   private static final String SUBSCRIPTION_ID_PREFIX = "TestLoadSub_";
-  private static final String MARKETPLACE_ID = "99512989";
+  private static final String MARKETPLACE_ID = "ef95bfbc";
   private static final String SERVICE_ID = "AppSampleId";
 
   private static final long NO_OF_SUBS = 200;
