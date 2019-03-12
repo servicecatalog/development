@@ -9,6 +9,7 @@
   <import file="macrodefs-dev.xml"/>
   <property environment="env" />
   <property name="env.HOSTNAME" value="${env.COMPUTERNAME}" />
+  
   <property name="work.dir" location="${basedir}" />
   <property name="dev.dir" location="${work.dir}/../../.." />
   <property name="adm.ue.buildscript.dir" location="${dev.dir}/oscm-build" />
@@ -62,6 +63,8 @@
         <env key="PGPASSWORD" value="@{dbadminpwd}" />
         <arg value="-U" />
         <arg value="@{dbadminuser}" />
+        <arg value="-h" /> 
+        <arg value="${db.host}" /> 
         <arg value="--port" />
         <arg value="${db.port}" />
         <arg value="-f" />
