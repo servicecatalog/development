@@ -9,5 +9,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-server-common"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

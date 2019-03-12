@@ -76,17 +76,17 @@ public class Log4jLogger {
      */
     Log4jLogger(Class<?> category, Locale locale) {
         this.locale = locale;
-        systemLogger = Logger.getLogger(SYSTEM_LOG_CATEGORY_SUFFIX + "."
-                + category.getName());
+        systemLogger = Logger.getLogger(
+                SYSTEM_LOG_CATEGORY_SUFFIX + "." + category.getName());
         systemLogger.setAdditivity(false);
-        accessLogger = Logger.getLogger(ACCESS_LOG_CATEGORY_SUFFIX + "."
-                + category.getName());
+        accessLogger = Logger.getLogger(
+                ACCESS_LOG_CATEGORY_SUFFIX + "." + category.getName());
         accessLogger.setAdditivity(false);
-        auditLogger = Logger.getLogger(AUDIT_LOG_CATEGORY_SUFFIX + "."
-                + category.getName());
+        auditLogger = Logger.getLogger(
+                AUDIT_LOG_CATEGORY_SUFFIX + "." + category.getName());
         auditLogger.setAdditivity(false);
-        proxyLogger = Logger.getLogger(REVERSEPROXY_LOG_CATEGORY_SUFFIX + "."
-                + category.getName());
+        proxyLogger = Logger.getLogger(
+                REVERSEPROXY_LOG_CATEGORY_SUFFIX + "." + category.getName());
         proxyLogger.setAdditivity(false);
     }
 
@@ -116,6 +116,18 @@ public class Log4jLogger {
         if (logToReverseProxyLog(logTargets)) {
             proxyLogger.info(message);
         }
+    }
+
+    /**
+     * Logs information with log type {@link Level#INFO}. The information is
+     * written to the system.log file.
+     * 
+     * @param message
+     *            The message to be logged.
+     */
+    public void logInfoDebug(String message) {
+        String msgWithId = addMsgIdToMsg(LogMessageIdentifier.DEBUG, message);
+        systemLogger.info(msgWithId);
     }
 
     /**
@@ -316,8 +328,8 @@ public class Log4jLogger {
     private ResourceBundle getResourceBundle() {
         ResourceBundle bundleForLog;
         try {
-            bundleForLog = ResourceBundle.getBundle(
-                    LOG_MESSAGE_RESOURCE_BASENAME, locale);
+            bundleForLog = ResourceBundle
+                    .getBundle(LOG_MESSAGE_RESOURCE_BASENAME, locale);
         } catch (MissingResourceException e) {
             bundleForLog = ResourceBundle
                     .getBundle(LOG_MESSAGE_RESOURCE_BASENAME);
