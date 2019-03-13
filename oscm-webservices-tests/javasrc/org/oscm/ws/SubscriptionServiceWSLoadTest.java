@@ -1,8 +1,12 @@
 package org.oscm.ws;
 
+import static org.junit.Assert.fail;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +22,8 @@ import org.oscm.vo.VOSubscriptionDetails;
 import org.oscm.vo.VOUda;
 import org.oscm.ws.base.ServiceFactory;
 import org.oscm.ws.base.WebserviceTestBase;
+
+
 
 public class SubscriptionServiceWSLoadTest {
 
@@ -55,8 +61,25 @@ public class SubscriptionServiceWSLoadTest {
     System.out.println("Waiting for background asynchronous task to be completed");
     Thread.sleep(120000);
 
-    for (int i = 0; i < NO_OF_SUBS; i++) {
-      modifySubscription(SUBSCRIPTION_ID_PREFIX + i);
+    Map<String, Exception> failedMap = new HashMap<String, Exception>();  
+    for (int i = 0; i < NO_OF_SUBS; i++) { 
+        try {
+            modifySubscription(SUBSCRIPTION_ID_PREFIX + i);        
+        } catch (Exception ex) {
+            failedMap.put(SUBSCRIPTION_ID_PREFIX + i, ex);
+        }
+      
+    }
+    if (!failedMap.isEmpty()) {
+       
+        StringBuffer msg = new StringBuffer();
+        failedMap.forEach((key, e) -> {
+            msg.append("\n" + key );
+            msg.append(" : ");
+            msg.append(e.getMessage());
+        });
+        
+        fail(msg.toString());
     }
     System.out.println("Modification of " + NO_OF_SUBS + " subscriptions finished");
   }
@@ -69,14 +92,15 @@ public class SubscriptionServiceWSLoadTest {
     List<VOParameter> updatedParams =
         parameters
             .stream()
-            .filter(param -> param.getParameterDefinition().getParameterId().equals("PARAM_EMAIL"))
+            .filter(param -> param.getParameterDefinition().getParameterId().equals("PARAM_PWD"))
             .map(
                 param -> {
-                  param.setValue("changedmail@fujitsu.com");
+                  param.setValue("changedpasswd");
                   return param;
                 })
             .collect(Collectors.toList());
 
+    
     VOSubscriptionDetails modifiedSubscription =
         subscriptionService.modifySubscription(subscription, updatedParams, new ArrayList<VOUda>());
 
