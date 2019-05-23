@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2017
+ *  Copyright FUJITSU LIMITED 2018
  *       
  *  Sample controller implementation for the 
  *  Asynchronous Provisioning Platform (APP)
@@ -11,6 +11,7 @@
 
 package org.oscm.app.sample.controller;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -31,6 +32,8 @@ import org.oscm.app.v2_0.data.OperationParameter;
 import org.oscm.app.v2_0.data.ProvisioningSettings;
 import org.oscm.app.v2_0.data.ServiceUser;
 import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.AbortException;
+import org.oscm.app.v2_0.exceptions.SuspendException;
 import org.oscm.app.v2_0.intf.APPlatformController;
 import org.oscm.app.v2_0.intf.APPlatformService;
 import org.slf4j.Logger;
@@ -181,10 +184,61 @@ public class SampleController implements APPlatformController {
         // Set status to store for application instance
         paramHandler.setState(Status.MODIFICATION_REQUESTED);
 
+        // handle Messages
+        handleMessage(paramHandler);
+
         InstanceStatus result = new InstanceStatus();
         result.setChangedParameters(newSettings.getParameters());
         result.setChangedAttributes(newSettings.getAttributes());
         return result;
+    }
+
+    private void handleMessage(PropertyHandler ph) throws APPlatformException {
+
+        String msg = ph.getMessage();
+        int minLen = msg.indexOf(":") + 2;
+        
+        if (minLen <= 1 || msg.length() < minLen)
+            return;
+            
+        if (msg.startsWith("SuspendException:")) {
+            String details = msg.substring(msg.indexOf(":") + 1);
+
+            throwSuspendException(details);
+        }
+
+        if (msg.startsWith("AbortException:")) {
+
+            String details = msg.substring(msg.indexOf(":") + 1);
+
+            String pMsg = details;
+            String cMsg = details;
+            if (msg.contains("Reason:")) {
+                pMsg = msg.substring(msg.indexOf("Reason:") + 1);
+                cMsg = details.substring(0, msg.indexOf("Reason:"));
+            }
+
+            throwAbortException(cMsg, pMsg);
+        }
+
+        if (msg.startsWith("APPlatformException:")) {
+            throw new APPlatformException(msg.substring(msg.indexOf(":") + 1));
+        }
+
+    }
+
+    protected void throwSuspendException(String details)
+            throws SuspendException {
+        LocalizedText lt = new LocalizedText("en", details);
+        throw new SuspendException(Arrays.asList(new LocalizedText[] { lt }));
+    }
+
+    protected void throwAbortException(String customerMsg, String providerMsg)
+            throws AbortException {
+        LocalizedText ltc = new LocalizedText("en", customerMsg);
+        LocalizedText ltp = new LocalizedText("en", providerMsg);
+        throw new AbortException(Arrays.asList(new LocalizedText[] { ltc }),
+                Arrays.asList(new LocalizedText[] { ltp }));
     }
 
     /**

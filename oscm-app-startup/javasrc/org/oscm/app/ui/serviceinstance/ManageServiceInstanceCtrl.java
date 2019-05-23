@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2017
+ *  Copyright FUJITSU LIMITED 2019
  *                                                                                                                                 
  *  Creation Date: 2014-2-25                                                      
  *                                                                              
@@ -211,6 +211,8 @@ public class ManageServiceInstanceCtrl extends BaseCtrl {
         switch (operation) {
 
         case RESUME:
+            isOperationAllowed = true;
+            break;
         case ABORT_PENDING:
             if (!runWithTimer && !controllerReady) {
                 isOperationAllowed = true;
