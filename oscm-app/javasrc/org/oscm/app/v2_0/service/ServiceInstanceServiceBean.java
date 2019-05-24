@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2017
+ *  Copyright FUJITSU LIMITED 2019
  *                                                                                                                                 
  *  Creation Date: 2014-02-25                                                      
  *                                                                              
@@ -405,6 +405,7 @@ public class ServiceInstanceServiceBean {
             throws ServiceInstanceException {
         try {
             ServiceInstance dbInstance = dao.find(serviceInstance);
+            dbInstance.setRunWithTimer(true);
             if (dbInstance.isControllerReady()) {
                 switch (dbInstance.getProvisioningStatus()) {
                 case WAITING_FOR_SYSTEM_CREATION:

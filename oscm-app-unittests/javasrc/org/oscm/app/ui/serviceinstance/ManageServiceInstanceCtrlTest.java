@@ -140,7 +140,7 @@ public class ManageServiceInstanceCtrlTest {
                 serviceInstance);
 
         // then
-        assertEquals(Boolean.FALSE, Boolean.valueOf(result));
+        assertEquals(Boolean.TRUE, Boolean.valueOf(result));
     }
 
     @Test
